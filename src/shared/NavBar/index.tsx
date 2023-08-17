@@ -107,34 +107,34 @@ const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
                               fontWeight: '400'
                            }}
                         >
+                           Sala de Estar
+                        </Button>
+                        <Button
+                           variant='text'
+                           sx={{
+                              color: '#000',
+                              fontWeight: '400'
+                           }}
+                        >
+                           Cozinha
+                        </Button>
+                        <Button
+                           variant='text'
+                           sx={{
+                              color: '#000',
+                              fontWeight: '400'
+                           }}
+                        >
+                           Quarto
+                        </Button>
+                        <Button
+                           variant='text'
+                           sx={{
+                              color: '#000',
+                              fontWeight: '400'
+                           }}
+                        >
                            Escritório
-                        </Button>
-                        <Button
-                           variant='text'
-                           sx={{
-                              color: '#000',
-                              fontWeight: '400'
-                           }}
-                        >
-                           Sala de estar
-                        </Button>
-                        <Button
-                           variant='text'
-                           sx={{
-                              color: '#000',
-                              fontWeight: '400'
-                           }}
-                        >
-                           Sala de estar
-                        </Button>
-                        <Button
-                           variant='text'
-                           sx={{
-                              color: '#000',
-                              fontWeight: '400'
-                           }}
-                        >
-                           Sala de estar
                         </Button>
                         <Button
                            variant='text'
