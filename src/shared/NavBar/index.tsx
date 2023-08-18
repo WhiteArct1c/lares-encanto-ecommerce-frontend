@@ -12,7 +12,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
    return (
       <>
          {isAdmin ?
-            <AppBar position='static'
+            <AppBar position='sticky'
                sx={{
                   bgcolor: '#FFF',
                   height: '72px',
