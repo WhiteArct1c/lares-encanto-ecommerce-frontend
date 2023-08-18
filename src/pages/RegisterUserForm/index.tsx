@@ -4,7 +4,7 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import React, { useState } from 'react';
 
 import { Controller, useForm } from 'react-hook-form';
-import { tiposDeLogradouro, tiposDeResidencia } from '../../../../utils/addressTypes';
+import { tiposDeLogradouro, tiposDeResidencia } from '../../utils/addressTypes';
 
 interface FormRegisterUserProps {
    
