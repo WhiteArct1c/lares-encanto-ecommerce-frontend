@@ -3,6 +3,7 @@ import { AppBar, Box, Button, Divider, IconButton, TextField, Toolbar, Typograph
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React from 'react';
 import LogoLaresEncanto from '../../assets/Lares_Encanto-removebg-preview.png'
+import { Link } from 'react-router-dom';
 
 interface NavBarProps {
    isAdmin: boolean
@@ -136,15 +137,17 @@ const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
                         >
                            Escritório
                         </Button>
-                        <Button
-                           variant='text'
-                           sx={{
-                              color: '#000',
-                              fontWeight: '400'
-                           }}
-                        >
-                           Ver todos
-                        </Button>
+                        <Link to='/products'>
+                           <Button
+                              variant='text'
+                              sx={{
+                                 color: '#000',
+                                 fontWeight: '400'
+                              }}
+                           >
+                              Ver todos
+                           </Button>
+                        </Link>
                      </Toolbar>
                   </Grid2>
                   <Grid2

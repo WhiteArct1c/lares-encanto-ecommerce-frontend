@@ -111,7 +111,11 @@ const Footer: React.FC<FooterProps> = () => {
                   }}
                />
             </Grid2>
-            
+         </Grid2>
+         <Grid2 xs={12} sx={{mt:2, bgcolor:'#000', height:40, display:'flex', alignItems:'center', justifyContent:'center'}}>
+            <Typography textAlign={'center'} color={'#fff'} fontWeight={700}>
+               ©LARESENCANTO.COM.BR - TODOS OS DIREITOS RESERVADOS. 
+            </Typography>
          </Grid2>
       </>
    );
