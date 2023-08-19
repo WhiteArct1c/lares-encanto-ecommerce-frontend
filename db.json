@@ -4,48 +4,54 @@
          "id": 1,
          "name": "Cadeira Ergo Flex",
          "price": "R$ 99,00",
+         "category":"Sala de estar",
          "description": "A Cadeira Elegância Vintage é uma peça de mobiliário que combina com maestria o charme do passado com a funcionalidade contemporânea.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?furniture,chair,minimalist",
          "vendor": "Magazine Luiza"
       },
       {
          "id": 2,
          "name": "Sofá Modular Urban",
          "price": "R$ 2.499,00",
+         "category":"Sala de estar",
          "description": "O Sofá Modular Urban oferece estilo e versatilidade para qualquer ambiente moderno.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,sofa",
+         "photoUrl": "https://source.unsplash.com/random/?furniture,sofas,minimalist",
          "vendor": "Decoração Moderna"
       },
       {
          "id": 3,
          "name": "Mesa de Centro UberW",
          "price": "R$ 599,00",
+         "category":"Sala de estar",
          "description": "A Mesa de Centro Minimalista é uma adição elegante a qualquer sala de estar contemporânea.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,table",
+         "photoUrl": "https://source.unsplash.com/random/?furniture,table,minimalist",
          "vendor": "Mobília Design"
       },
       {
          "id": 4,
          "name": "Estante Multiuso Wave",
          "price": "R$ 1.799,00",
+         "category":"Sala de estar",
          "description": "A Estante Multiuso Wave une design inovador com funcionalidade para organizar seus objetos com estilo.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,bookshelf",
+         "photoUrl": "https://source.unsplash.com/random/?furniture,bookshelf,minimalist",
          "vendor": "Inova Móveis"
       },
       {
          "id": 5,
          "name": "Cama Box Moderna",
          "price": "R$ 1.199,00",
+         "category":"Quarto",
          "description": "A Cama Box Moderna oferece conforto e design contemporâneo para o seu quarto.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,bed",
+         "photoUrl": "https://source.unsplash.com/random/?furniture,bed,minimalist",
          "vendor": "Mobília Charmosa"
       },
       {
          "id": 6,
          "name": "Poltrona Geométrica",
          "price": "R$ 799,00",
+         "category":"Sala de estar",
          "description": "A Poltrona Geométrica adiciona um toque artístico e moderno a qualquer espaço.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,chair",
+         "photoUrl": "https://source.unsplash.com/random/?furniture,big_chair,minimalist",
          "vendor": "Estilo Único"
       }
    ]
