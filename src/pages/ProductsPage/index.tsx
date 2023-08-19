@@ -1,15 +1,18 @@
-import { Box, Checkbox, FormControlLabel, FormGroup, MenuItem, TextField, Typography } from '@mui/material';
+import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, TextField, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import ProductCard from '../../shared/ProductCard';
 import { useEffect, useState } from 'react';
 import { Product } from '../../utils/interfaces/Product';
 
 interface ProductsPageProps {
-  
+
 }
 
 const ProductsPage: React.FC<ProductsPageProps> = () => {
    const [products, setProducts] = useState<Product[]>([]);
+   const [filters, setFilters] = useState<string[]>([]);
+
+   const apiURL = 'http://localhost:3000/products'
 
    const ordenation = [
       "Mais relevantes",
@@ -17,28 +20,38 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
       "Menor valor"
    ]
 
-   useEffect(() =>{
-      fetch('http://localhost:3000/products')
-      .then(res => res.json())
-      .then((data) => setProducts([...data]))
-   },[])
+   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = (event.target as HTMLInputElement).value;
+
+      if (event.target.checked) {
+         setFilters((prevFilter) => [...prevFilter, value]); 
+      } else {
+         setFilters((prevFilter) => prevFilter.filter(item => item !== value)); 
+      }
+   };
+
+   useEffect(() => {
+      fetch(apiURL)
+         .then(res => res.json())
+         .then((data) => setProducts([...data]))
+   }, [filters])
 
    return (
       <>
-         <Box sx={{flexGrow: 1, width:'100%', mt:8}}>
-            <Grid2 
-               container 
-               spacing={2} 
+         <Box sx={{ flexGrow: 1, width: '100%', mt: 8 }}>
+            <Grid2
+               container
+               spacing={2}
                sx={{
-                  width:'100%', 
-                  pl:{
-                     xs:"5%", 
-                     md:"7%"
-                  }, 
-                  pr:{xs:"-4px"}
+                  width: '100%',
+                  pl: {
+                     xs: "5%",
+                     md: "7%"
+                  },
+                  pr: { xs: "-4px" }
                }}
-               >
-               <Grid2 
+            >
+               <Grid2
                   xs={12}
                >
                   <Typography
@@ -54,10 +67,10 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                   container
                   xs={12}
                   sx={{
-                     gap:'20px'
+                     gap: '20px'
                   }}
                >
-                  <Grid2 xs={2} sx={{display: 'flex', gap:'20px', alignItems:'center'}}>
+                  <Grid2 xs={2} sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                      <Typography
                         fontFamily={'Public Sans'}
                         fontSize={'1.5rem'}
@@ -67,24 +80,23 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                         Filtros
                      </Typography>
                      {/* TODO: ARRUMAR PARA LIMPRAR OS FILTROS */}
-                     <Typography
-                        fontFamily={'Public Sans'}
-                        fontSize={'1rem'}
-                        fontWeight={100}
-                        color={'#000'}
+                     <Button
+                        variant='text'
                         sx={{
-                           borderBottom:'1px solid #999'
+                           color: '#000',
+                           fontWeight: 100,
+                           fontFamily: 'Public Sans'
                         }}
                      >
                         Limpar filtros
-                     </Typography>
+                     </Button>
                   </Grid2>
-                  <Grid2 xs={9} sx={{display:'flex', alignItems:'end', justifyContent:'end'}}>
+                  <Grid2 xs={9} sx={{ display: 'flex', alignItems: 'end', justifyContent: 'end' }}>
                      <TextField
                         select
                         defaultValue={"Mais relevantes"}
                         sx={{
-                           width:200
+                           width: 200
                         }}
                      >
                         {ordenation.map((tipo, index) => (
@@ -113,26 +125,26 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                         fontWeight={700}
                         color={'#000'}
                         sx={{
-                           mt:'2rem'
+                           mt: '2rem'
                         }}
                      >
                         Categorias
                      </Typography>
                      <FormGroup>
-                        <FormControlLabel control={<Checkbox />} label="Sala de estar" />
-                        <FormControlLabel control={<Checkbox />} label="Cozinha" />
-                        <FormControlLabel control={<Checkbox />} label="Quarto" />
-                        <FormControlLabel control={<Checkbox />} label="Escritório" />
+                        <FormControlLabel control={<Checkbox value='Sala de estar' checked={filters.includes("Sala de estar")} onChange={handleFilterChange} />} label="Sala de estar" />
+                        <FormControlLabel control={<Checkbox value='Cozinha' checked={filters.includes("Cozinha")} onChange={handleFilterChange} />} label="Cozinha" />
+                        <FormControlLabel control={<Checkbox value='Quarto' checked={filters.includes("Quarto")} onChange={handleFilterChange} />} label="Quarto" />
+                        <FormControlLabel control={<Checkbox value='Escritório' checked={filters.includes("Escritório")} onChange={handleFilterChange} />} label="Escritório" />
                      </FormGroup>
                   </Grid2>
-                  <Grid2 
+                  <Grid2
                      container
                      xs={9}
                      rowSpacing={10}
                   >
                      {products.map((product, index) => {
-                        return(
-                           <Grid2 
+                        return (
+                           <Grid2
                               xs={4}
                               key={index}
                            >
