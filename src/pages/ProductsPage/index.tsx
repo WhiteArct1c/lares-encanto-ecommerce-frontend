@@ -2,14 +2,14 @@ import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, TextField
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import ProductCard from '../../shared/ProductCard';
 import { useEffect, useState } from 'react';
-import { Product } from '../../utils/interfaces/Product';
+import { IProduct } from '../../utils/interfaces/Product';
 
 interface ProductsPageProps {
 
 }
 
 const ProductsPage: React.FC<ProductsPageProps> = () => {
-   const [products, setProducts] = useState<Product[]>([]);
+   const [products, setProducts] = useState<IProduct[]>([]);
    const [filters, setFilters] = useState<string[]>([]);
 
    const apiURL = 'http://localhost:3000/products'
@@ -38,7 +38,7 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
 
    return (
       <>
-         <Box sx={{ flexGrow: 1, width: '100%', mt: 8 }}>
+         <Box sx={{ flexGrow: 1, width: '100%', mt: 15 }}>
             <Grid2
                container
                spacing={2}
@@ -48,7 +48,8 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                      xs: "5%",
                      md: "7%"
                   },
-                  pr: { xs: "-4px" }
+                  pr: { xs: "-4px" },
+                  mb:10
                }}
             >
                <Grid2
@@ -85,7 +86,8 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                         sx={{
                            color: '#000',
                            fontWeight: 100,
-                           fontFamily: 'Public Sans'
+                           fontFamily: 'Public Sans',
+                           fontSize:12
                         }}
                      >
                         Limpar filtros

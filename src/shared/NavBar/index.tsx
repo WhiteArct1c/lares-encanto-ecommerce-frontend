@@ -1,15 +1,18 @@
 import { SearchRounded, ShoppingBag } from '@mui/icons-material';
-import { AppBar, Box, Button, Divider, IconButton, TextField, Toolbar, Typography } from '@mui/material';
+import { AppBar, Badge, Box, Button, Divider, IconButton, TextField, Toolbar, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React from 'react';
+import React, { useContext }  from 'react';
 import LogoLaresEncanto from '../../assets/Lares_Encanto-removebg-preview.png'
 import { Link } from 'react-router-dom';
+import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
 
 interface NavBarProps {
    isAdmin: boolean
 }
 
 const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
+   const cart = useContext(ShoppingCartContext);
+
    return (
       <>
          {isAdmin ?
@@ -67,7 +70,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
                </Grid2>
             </AppBar>
          :
-            <AppBar position='static'
+            <AppBar position='fixed'
                sx={{
                   bgcolor: '#FFF',
                   height: '72px',
@@ -176,10 +179,13 @@ const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
                         justifyContent: 'center'
                      }}
                   >
-                     <IconButton>
-                        <ShoppingBag />
-                     </IconButton>
-                     <Typography color={'#000'} fontWeight={'700'} marginRight={2}>1</Typography>
+                     <Link to='/cart'>
+                        <IconButton sx={{mr:2}} >
+                           <Badge badgeContent={cart?.cartProducts.length} color='primary'>
+                              <ShoppingBag />
+                           </Badge>
+                        </IconButton>
+                     </Link>
                      <Divider orientation="vertical" variant='middle' flexItem />
                      <Button
                         variant='text'

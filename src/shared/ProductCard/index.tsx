@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({id, name, price, photoUrl}: Pr
                         {name}
                      </Typography>
                      <Typography variant="body1">
-                        {price}
+                        R$ {price}
                      </Typography>
                   </CardContent>
                </CardActionArea>

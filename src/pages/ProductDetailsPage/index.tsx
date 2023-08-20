@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {useParams} from 'react-router-dom';
-import { Product } from '../../utils/interfaces/Product';
+import { IProduct } from '../../utils/interfaces/Product';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Box, Button, Typography } from '@mui/material';
+import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
 
 interface ProductDetailsPageProps {
-
 }
 
 const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
-   const [product, setProduct] = useState<Product>();
+   const [product, setProduct] = useState<IProduct>();
    const {id} = useParams();
+
+   const cart = useContext(ShoppingCartContext);
 
    useEffect(() =>{
       fetch(`http://localhost:3000/products/${id}`)
@@ -18,14 +20,18 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
       .then((data) => setProduct(data))
    },[id])
 
+   const handleAddProductOnCart = () =>{
+      cart!.addCartProduct(product!)
+   }
+
    return (
       <>
          <Grid2 
             container 
             sx={{
-               mt:10,
+               mt:15,
                width:'100%',
-               mb:20
+               mb:15
             }}
          >
             <Grid2 
@@ -126,7 +132,7 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
                   xs
                   sx={{mb:5}}
                >
-                  <Typography fontWeight={500} fontSize={25} fontFamily={'Public Sans'}>{product?.price}</Typography>
+                  <Typography fontWeight={500} fontSize={25} fontFamily={'Public Sans'}>R$ {product?.price}</Typography>
                </Grid2>
                <Grid2
                   xs
@@ -159,8 +165,9 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
                            color: '#000'
                         }
                      }}
+                     onClick={handleAddProductOnCart}
                   >
-                     Adicionar ao carrinho  - {product?.price}
+                     Adicionar ao carrinho  - R$ {product?.price}
                   </Button>
                </Grid2>
             </Grid2>

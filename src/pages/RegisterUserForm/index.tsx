@@ -41,7 +41,7 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
    }
 
    return (
-      <>
+      <Grid2 container sx={{display:'flex', flexDirection:'column', alignItems:'center', mt:15, mb:15}}>
          <Typography 
             color={"#000"} 
             fontSize={"3rem"}
@@ -407,7 +407,7 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
             </Grid2>
 
          </Box>
-      </>
+      </Grid2>
    );
 };
 
