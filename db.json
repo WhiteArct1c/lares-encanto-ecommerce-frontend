@@ -12,7 +12,7 @@
       {
          "id": 2,
          "name": "Sofá Modular Urban",
-         "price": "2.499,00",
+         "price": "2499,00",
          "category": "Sala de estar",
          "description": "O Sofá Modular Urban oferece estilo e versatilidade para qualquer ambiente moderno.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,sofas,minimalist",
@@ -30,7 +30,7 @@
       {
          "id": 4,
          "name": "Estante Multiuso Wave",
-         "price": "1.799,00",
+         "price": "1799,00",
          "category": "Sala de estar",
          "description": "A Estante Multiuso Wave une design inovador com funcionalidade para organizar seus objetos com estilo.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,bookshelf,minimalist",
@@ -39,7 +39,7 @@
       {
          "id": 5,
          "name": "Cama Box Moderna",
-         "price": "1.199,00",
+         "price": "1199,00",
          "category": "Quarto",
          "description": "A Cama Box Moderna oferece conforto e design contemporâneo para o seu quarto.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,bed,minimalist",
@@ -57,7 +57,7 @@
       {
          "id": 7,
          "name": "Mesa de Jantar Sólida",
-         "price": "1.299,00",
+         "price": "1299,00",
          "category": "Sala de jantar",
          "description": "A Mesa de Jantar Sólida é uma peça robusta e elegante para refeições em família.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,dining_table,minimalist",
@@ -66,7 +66,7 @@
       {
          "id": 8,
          "name": "Guarda-Roupa Espaçoso",
-         "price": "1.799,00",
+         "price": "1799,00",
          "category": "Quarto",
          "description": "O Guarda-Roupa Espaçoso oferece amplo espaço de armazenamento com design moderno.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,wardrobe,minimalist",
@@ -93,7 +93,7 @@
       {
          "id": 11,
          "name": "Sofá-Cama Confortável",
-         "price": "1.699,00",
+         "price": "1699,00",
          "category": "Sala de estar",
          "description": "O Sofá-Cama Confortável é perfeito para receber visitas ou acomodar-se com estilo.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,sofa_bed,minimalist",
@@ -111,7 +111,7 @@
       {
          "id": 13,
          "name": "Poltrona Reclinável Luxuosa",
-         "price": "1.999,00",
+         "price": "1999,00",
          "category": "Sala de estar",
          "description": "A Poltrona Reclinável Luxuosa proporciona conforto supremo com toque de luxo.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,recliner_chair,minimalist",
@@ -120,7 +120,7 @@
       {
          "id": 14,
          "name": "Mesa de Jantar Extensível",
-         "price": "1.399,00",
+         "price": "1399,00",
          "category": "Sala de jantar",
          "description": "A Mesa de Jantar Extensível adapta-se a diferentes ocasiões com estilo versátil.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,extendable_table,minimalist",
@@ -174,7 +174,7 @@
       {
          "id": 20,
          "name": "Sofá de Canto Espaçoso",
-         "price": "2.199,00",
+         "price": "2199,00",
          "category": "Sala de estar",
          "description": "O Sofá de Canto Espaçoso é ideal para otimizar o espaço da sua sala com conforto.",
          "photoUrl": "https://source.unsplash.com/random/?furniture,corner_sofa,minimalist",
