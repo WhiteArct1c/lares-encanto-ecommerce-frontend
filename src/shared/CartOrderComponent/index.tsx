@@ -25,13 +25,18 @@ const CartOrderComponent: React.FC<CartOrderComponentProps> = () => {
             {
                cart?.cartProducts.map(productOrder => {
                   return(
-                     <ProductItemCardComponent
-                        productItem={productOrder}
-                        context='checkout'
-                     />
+                     <>
+                        <ProductItemCardComponent
+                           productItem={productOrder}
+                           context='checkout'
+                        />
+                        <Divider/>
+                     </>
+                     
                   )
                })
             }
+            
          </Box>
          <Divider/>
       </>

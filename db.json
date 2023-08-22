@@ -181,24 +181,30 @@
          "vendor": "Espaço Aconchegante"
       }
    ],
-   "shippings":[
+   "shippings": [
       {
-         "id":"1",
+         "id": "1",
          "name": "Correios - Normal",
-         "delivery_time":"5 à 7 dias úteis",
+         "delivery_time": "5 à 7 dias úteis",
          "price": "50"
       },
       {
-         "id":"2",
+         "id": "2",
          "name": "Correios - Sedex",
-         "delivery_time":"5 à 7 dias úteis",
+         "delivery_time": "5 à 7 dias úteis",
          "price": "55"
       },
       {
-         "id":"3",
+         "id": "3",
          "name": "Alta Azul",
-         "delivery_time":"5 à 7 dias úteis",
+         "delivery_time": "5 à 7 dias úteis",
          "price": "180"
+      }
+   ],
+   "paymentMethods": [
+      {
+         "id": "1",
+         "name": "Cartão de Crédito"
       }
    ]
 }

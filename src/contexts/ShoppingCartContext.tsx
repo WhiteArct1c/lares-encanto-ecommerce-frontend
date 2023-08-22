@@ -7,6 +7,7 @@ interface ShoppingCartContextType {
    addCartProduct: (product: IProduct) => void;
    removeCartItemProduct: (productId: number) => void;
    removeCartProduct: (productId: number) => void;
+   resetCart: () =>  void;
 }
 
 interface ShoppingCartProviderProps {
@@ -35,7 +36,7 @@ export const ShoppingCartProvider = ({ children }: ShoppingCartProviderProps) =>
          setCartProducts([...cartProducts, newCartProduct]);
       }
 
-   }
+   };
 
    const removeCartItemProduct = (productId: number) => {
       const productIndex = cartProducts.findIndex(p => p.product.id === productId);
@@ -54,11 +55,14 @@ export const ShoppingCartProvider = ({ children }: ShoppingCartProviderProps) =>
    const removeCartProduct = (productId: number) => {
       const updatedCartProducts = cartProducts.filter(p => p.product.id !== productId);
       setCartProducts(updatedCartProducts);
-   }
+   };
 
+   const resetCart = () => {
+      setCartProducts([]);
+   };
 
    return (
-      <ShoppingCartContext.Provider value={{ cartProducts, addCartProduct, removeCartItemProduct, removeCartProduct }}>
+      <ShoppingCartContext.Provider value={{ cartProducts, addCartProduct, removeCartItemProduct, removeCartProduct, resetCart }}>
          {children}
       </ShoppingCartContext.Provider>
    );

@@ -1,9 +1,12 @@
 import { Box, Button, Step, StepButton, Stepper, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import OrderResumeComponent from '../../shared/OrderResumeComponent';
 import AddressFormComponent from '../../shared/AddressFormComponent';
 import ShippingOptionsComponent from '../../shared/ShippingOptionsComponent';
+import PaymentMethodsOrderComponent from '../../shared/PaymentMethodsOrderComponent';
+import { Link } from 'react-router-dom';
+import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
 
 interface CheckoutPageProps {
 
@@ -17,6 +20,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
    const [completed, setCompleted] = useState<{
       [k: number]: boolean;
    }>({});
+
+   const cart = useContext(ShoppingCartContext);
 
    const totalSteps = () => {
       return steps.length;
@@ -39,7 +44,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
          isLastStep() && !allStepsCompleted()
             ?
             steps.findIndex((_step, i) => !(i in completed))
-            : 
+            :
             activeStep + 1;
       setActiveStep(newActiveStep);
    };
@@ -63,6 +68,12 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
       handleComplete()
    }
 
+   const handleCompleteOrder = () => {
+      //TODO: MANDAR ORDEM PARA O BACKEND COM POST E RESETAR CARRINHO
+      cart?.resetCart();
+
+   }
+
    return (
       <Grid2
          container
@@ -82,131 +93,176 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                Checkout
             </Typography>
          </Grid2>
-         <Grid2 container xs={12} sx={{p:7, ml:15}}>
-         <Grid2 xs={6}>
-            <Box sx={{ width: '100%' }}>
-               <Stepper nonLinear activeStep={activeStep}>
-                  {steps.map((label, index) => (
-                     <Step key={label} completed={completed[index]}>
-                     <StepButton onClick={handleStep(index)}>
-                        <Typography
-                           fontFamily={'Public Sans'}
-                           fontSize={'1rem'}
-                           fontWeight={500}
-                           color={'#000'}
-                        >
-                           {label}
-                        </Typography>
-                     </StepButton>
-                     </Step>
-                  ))}
-               </Stepper>
-               <>
-                  {
-                     activeStep === 0 ?
-                        <>
-                           <AddressFormComponent/>
-                           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                              <Button
-                                 color="inherit"
-                                 disabled={activeStep === 0}
-                                 onClick={handleBack}
-                                 sx={{
-                                    width:220,
-                                    color:'#fff',
-                                    fontWeight:600,
-                                    bgcolor:'#000',
-                                    '&:hover':{
-                                       bgcolor:'#fff',
-                                       color:'#000'
-                                    },
-                                    '&:disabled':{
-                                       color:'#000',
-                                       bgcolor:'#999',
-                                    }
-                                 }}
+         <Grid2 container xs={12} sx={{ p: 7, ml: 15 }}>
+            <Grid2 xs={6}>
+               <Box sx={{ width: '100%' }}>
+                  <Stepper nonLinear activeStep={activeStep}>
+                     {steps.map((label, index) => (
+                        <Step key={label} completed={completed[index]}>
+                           <StepButton onClick={handleStep(index)}>
+                              <Typography
+                                 fontFamily={'Public Sans'}
+                                 fontSize={'1rem'}
+                                 fontWeight={500}
+                                 color={'#000'}
                               >
-                                 Voltar
-                              </Button>
-                              <Box sx={{ flex: '1 1 auto' }} />
-                              <Button
-                                 color="inherit"
-                                 onClick={handleAddressShipment}
-                                 sx={{
-                                    width:220,
-                                    color:'#fff',
-                                    fontWeight:600,
-                                    bgcolor:'#000',
-                                    '&:hover':{
-                                       bgcolor:'#fff',
-                                       color:'#000'
-                                    },
-                                    '&:disabled':{
-                                       color:'#000',
-                                       bgcolor:'#999',
-                                    }
-                                 }}
-                              >
-                                 Próximo
-                              </Button>
-                           </Box>
-                        </>
-                     : activeStep === 1 ?
-                        <>
-                           <ShippingOptionsComponent/>
-                           <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-                              <Button
-                                 color="inherit"
-                                 onClick={handleBack}
-                                 sx={{
-                                    width:220,
-                                    color:'#fff',
-                                    fontWeight:600,
-                                    bgcolor:'#000',
-                                    '&:hover':{
-                                       bgcolor:'#fff',
-                                       color:'#000'
-                                    },
-                                    '&:disabled':{
-                                       color:'#000',
-                                       bgcolor:'#999',
-                                    }
-                                 }}
-                              >
-                                 Voltar
-                              </Button>
-                              <Box sx={{ flex: '1 1 auto' }} />
-                              <Button
-                                 color="inherit"
-                                 onClick={handleAddressShipment}
-                                 sx={{
-                                    width:220,
-                                    color:'#fff',
-                                    fontWeight:600,
-                                    bgcolor:'#000',
-                                    '&:hover':{
-                                       bgcolor:'#fff',
-                                       color:'#000'
-                                    },
-                                    '&:disabled':{
-                                       color:'#000',
-                                       bgcolor:'#999',
-                                    }
-                                 }}
-                              >
-                                 Próximo
-                              </Button>
-                           </Box>
-                        </>
-                        : activeStep === 2 ?
-                           <></>
-                           : activeStep === 3 ?
-                              <></>
-                              :
-                              <></>
-                  }
-               </>
-            </Box>
+                                 {label}
+                              </Typography>
+                           </StepButton>
+                        </Step>
+                     ))}
+                  </Stepper>
+                  <>
+                     {
+                        activeStep === 0 ?
+                           <>
+                              <AddressFormComponent />
+                              <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                                 <Button
+                                    color="inherit"
+                                    disabled={activeStep === 0}
+                                    onClick={handleBack}
+                                    sx={{
+                                       width: 220,
+                                       color: '#fff',
+                                       fontWeight: 600,
+                                       bgcolor: '#000',
+                                       '&:hover': {
+                                          bgcolor: '#fff',
+                                          color: '#000'
+                                       },
+                                       '&:disabled': {
+                                          color: '#000',
+                                          bgcolor: '#999',
+                                       }
+                                    }}
+                                 >
+                                    Voltar
+                                 </Button>
+                                 <Box sx={{ flex: '1 1 auto' }} />
+                                 <Button
+                                    color="inherit"
+                                    onClick={handleAddressShipment}
+                                    sx={{
+                                       width: 220,
+                                       color: '#fff',
+                                       fontWeight: 600,
+                                       bgcolor: '#000',
+                                       '&:hover': {
+                                          bgcolor: '#fff',
+                                          color: '#000'
+                                       },
+                                       '&:disabled': {
+                                          color: '#000',
+                                          bgcolor: '#999',
+                                       }
+                                    }}
+                                 >
+                                    Próximo
+                                 </Button>
+                              </Box>
+                           </>
+                           : activeStep === 1 ?
+                              <Box component='form'>
+                                 <ShippingOptionsComponent />
+                                 <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                                    <Button
+                                       color="inherit"
+                                       onClick={handleBack}
+                                       sx={{
+                                          width: 220,
+                                          color: '#fff',
+                                          fontWeight: 600,
+                                          bgcolor: '#000',
+                                          '&:hover': {
+                                             bgcolor: '#fff',
+                                             color: '#000'
+                                          },
+                                          '&:disabled': {
+                                             color: '#000',
+                                             bgcolor: '#999',
+                                          }
+                                       }}
+                                    >
+                                       Voltar
+                                    </Button>
+                                    <Box sx={{ flex: '1 1 auto' }} />
+                                    <Button
+                                       color="inherit"
+                                       onClick={handleAddressShipment}
+                                       sx={{
+                                          width: 220,
+                                          color: '#fff',
+                                          fontWeight: 600,
+                                          bgcolor: '#000',
+                                          '&:hover': {
+                                             bgcolor: '#fff',
+                                             color: '#000'
+                                          },
+                                          '&:disabled': {
+                                             color: '#000',
+                                             bgcolor: '#999',
+                                          }
+                                       }}
+                                    >
+                                       Próximo
+                                    </Button>
+                                 </Box>
+                              </Box>
+                              : activeStep === 2 ?
+                                 <>
+                                    <PaymentMethodsOrderComponent />
+                                    <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
+                                       <Button
+                                          color="inherit"
+                                          onClick={handleBack}
+                                          sx={{
+                                             width: 220,
+                                             color: '#fff',
+                                             fontWeight: 600,
+                                             bgcolor: '#000',
+                                             '&:hover': {
+                                                bgcolor: '#fff',
+                                                color: '#000'
+                                             },
+                                             '&:disabled': {
+                                                color: '#000',
+                                                bgcolor: '#999',
+                                             }
+                                          }}
+                                       >
+                                          Voltar
+                                       </Button>
+                                       <Box sx={{ flex: '1 1 auto' }} />
+                                       <Link to={'/order-finished'}>
+                                          <Button
+                                             color="inherit"
+                                             onClick={handleCompleteOrder}
+                                             sx={{
+                                                width: 220,
+                                                color: '#fff',
+                                                fontWeight: 600,
+                                                bgcolor: '#000',
+                                                '&:hover': {
+                                                   bgcolor: '#fff',
+                                                   color: '#000'
+                                                },
+                                                '&:disabled': {
+                                                   color: '#000',
+                                                   bgcolor: '#999',
+                                                }
+                                             }}
+                                          >
+                                             Finalizar compra
+                                          </Button>
+                                       </Link>
+                                    </Box>
+                                 </>
+                                 :
+                                 <></>
+                     }
+                  </>
+               </Box>
             </Grid2>
             <Grid2 >
                <OrderResumeComponent
