@@ -78,7 +78,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
       <Grid2
          container
          xs={12}
-         sx={{ mt: 15, mb: 30, width: '100%' }}
+         sx={{ mt: 15, mb: 17, width: '100%'}}
       >
          <Grid2 xs={12}>
             <Typography
@@ -87,14 +87,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                fontWeight={600}
                color={'#000'}
                sx={{
-                  ml: 20
+                  ml: 10
                }}
             >
                Checkout
             </Typography>
          </Grid2>
          <Grid2 container xs={12} sx={{ p: 7,  }}>
-            <Grid2 xs={6}>
+            <Grid2 xs={7}>
                <Box sx={{ width: '100%' }}>
                   <Stepper nonLinear activeStep={activeStep}>
                      {steps.map((label, index) => (
@@ -264,7 +264,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                   </>
                </Box>
             </Grid2>
-            <Grid2 >
+            <Grid2 xs={5}>
                <OrderResumeComponent
                   redirectUrl={'/shipping'}
                   buttonLabel='Continuar para o frete'

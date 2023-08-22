@@ -21,7 +21,7 @@ const CartOrderComponent: React.FC<CartOrderComponentProps> = () => {
          >
             Seu carrinho
          </Typography>
-         <Box sx={{display:'flex', width:440, flexDirection:'column', gap:1, overflowY:'scroll', height:190, position: 'relative'}}>
+         <Box sx={{display:'flex', width:'100%', flexDirection:'column', gap:1, overflowY:'scroll', height:190, position: 'relative'}}>
             {
                cart?.cartProducts.map(productOrder => {
                   return(

@@ -52,7 +52,8 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
                         '&:hover': {
                            bgcolor: 'white',
                            color: 'black',
-                        }
+                        },
+                        ml:5
                      }}
                      onClick={() => handlePaymentMethodChange(method.name)}
                   >
