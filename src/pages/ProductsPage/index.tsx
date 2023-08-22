@@ -2,7 +2,7 @@ import { Box, Button, Checkbox, FormControlLabel, FormGroup, MenuItem, TextField
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import ProductCard from '../../shared/ProductCard';
 import { useEffect, useState } from 'react';
-import { IProduct } from '../../utils/interfaces/Product';
+import { IProduct } from '../../utils/interfaces/IProduct';
 
 interface ProductsPageProps {
 
@@ -24,9 +24,9 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
       const value = (event.target as HTMLInputElement).value;
 
       if (event.target.checked) {
-         setFilters((prevFilter) => [...prevFilter, value]); 
+         setFilters((prevFilter) => [...prevFilter, value]);
       } else {
-         setFilters((prevFilter) => prevFilter.filter(item => item !== value)); 
+         setFilters((prevFilter) => prevFilter.filter(item => item !== value));
       }
    };
 
@@ -49,7 +49,7 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                      md: "7%"
                   },
                   pr: { xs: "-4px" },
-                  mb:10
+                  mb: 10
                }}
             >
                <Grid2
@@ -87,7 +87,7 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                            color: '#000',
                            fontWeight: 100,
                            fontFamily: 'Public Sans',
-                           fontSize:12
+                           fontSize: 12
                         }}
                      >
                         Limpar filtros

@@ -1,12 +1,12 @@
 import { OrderStatusEnum } from "../enum/OrderStatusEnum";
-import { IProductItem } from "./ProductItem";
+import { IProductItem } from "./IProductItem";
 
-export interface IOrder{
+export interface IOrder {
    id?: string,
    userId?: string;
    products: IProductItem[],
    shippingPrice: string,
    totalPrice: string,
    status?: OrderStatusEnum,
-   createdAt?:  Date | null,
+   createdAt?: Date | null,
 }

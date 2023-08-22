@@ -57,7 +57,7 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
                cart!.cartProducts.length >= 0 ?
                   cart!.cartProducts.map(cartProduct => {
                      return(
-                        <ProductItemCardComponent productItem={cartProduct}/>
+                        <ProductItemCardComponent productItem={cartProduct} context='cart'/>
                      )
                   })
                :
@@ -65,7 +65,7 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
                   <span>Sem compras irmão...</span>
             }
          </Grid2>
-         <OrderResumeComponent 
+         <OrderResumeComponent
             redirectUrl={'/checkout'}
             buttonLabel='Continuar para o checkout'
          />

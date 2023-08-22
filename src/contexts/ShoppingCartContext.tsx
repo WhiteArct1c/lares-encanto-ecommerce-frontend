@@ -1,6 +1,6 @@
 import { createContext, useState, ReactNode } from "react";
-import { IProduct } from "../utils/interfaces/Product";
-import { IProductItem } from "../utils/interfaces/ProductItem";
+import { IProduct } from "../utils/interfaces/IProduct";
+import { IProductItem } from "../utils/interfaces/IProductItem";
 
 interface ShoppingCartContextType {
    cartProducts: IProductItem[];

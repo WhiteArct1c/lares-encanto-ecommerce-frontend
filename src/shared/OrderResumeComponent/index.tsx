@@ -3,38 +3,19 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, To } from 'react-router-dom';
 import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
-import { IOrder } from '../../utils/interfaces/Order';
-import { OrderStatusEnum } from '../../utils/enum/OrderStatusEnum';
+import { OrderContext } from '../../contexts/OrderContext';
+import CartOrderComponent from '../CartOrderComponent';
 
 interface OrderResumeComponentProps {
    redirectUrl: To,
    buttonLabel: string
-   shipmentPrice?: string
 }
 
-const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl, buttonLabel, shipmentPrice}:OrderResumeComponentProps) => {
+const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl, buttonLabel}:OrderResumeComponentProps) => {
    
    const cart = useContext(ShoppingCartContext);
-
+   const order = useContext(OrderContext);
    const [totalPrice, setTotalPrice] = useState(0);
-   //TODO: ordem vai virar um context provavelmente
-   const [order, setOrder] = useState<IOrder>();
-   const [shippingPrice, setShippingPrice] = useState('');
-
-   const actualDate = new Date();
-
-
-   const handleSubmitOrder = () => {
-      const newOrder: IOrder = {
-         products: cart!.cartProducts,
-         shippingPrice: shipmentPrice!,
-         totalPrice: totalPrice.toString(),
-         createdAt: actualDate,
-         status: OrderStatusEnum.EM_PROCESSAMENTO
-      }
-
-      setOrder(newOrder);
-   }
 
    useEffect(() => {
       let price: number = 0
@@ -43,9 +24,9 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
          price += parseFloat(productItem.product.price) * productItem.quantity;
       })
 
-      setTotalPrice(price)
+      setTotalPrice(price);
 
-   }, [cart?.cartProducts])
+   }, [cart?.cartProducts, order]);
 
    return (
       <Grid2 container 
@@ -57,9 +38,12 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
             border:'1px solid #777', 
             padding:2, 
             borderRadius:2, 
-            maxHeight:500,
+            maxHeight: 700,
          }}
       >
+         {redirectUrl !== '/checkout' &&
+            <CartOrderComponent/>
+         }
          <Typography
             fontFamily={'Public Sans'}
             fontSize={'2rem'}
@@ -124,7 +108,7 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                fontWeight={400}
                color={'#000'}
             >
-               {shipmentPrice || 'Calculado no checkout'}
+               {order?.order?.shippingPrice || 'Calculado no checkout'}
             </Typography>
          </Grid2>
          <Divider/>
@@ -143,11 +127,11 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                fontWeight={600}
                color={'#000'}
             >
-               R$ 0,00
+               R$ {order!.order !== undefined ? totalPrice + order!.order.shippingPrice : totalPrice}
             </Typography>
          </Grid2>
          <Grid2>
-            {redirectUrl === '/checkout' &&
+            {redirectUrl === '/checkout' && cart!.cartProducts.length > 0 ?
                <Link to={redirectUrl}>
                   <Button
                      sx={{
@@ -162,12 +146,13 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                            color:'#000'
                         }
                      }}
-                     onClick={handleSubmitOrder}
                      variant='contained'
                   >
                      {buttonLabel}
                   </Button>
                </Link>
+            :
+               <></>
             }
          </Grid2>
       </Grid2>

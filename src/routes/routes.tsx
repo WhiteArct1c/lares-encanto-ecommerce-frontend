@@ -1,7 +1,7 @@
 import { createBrowserRouter} from "react-router-dom";
+import App from "../App";
 import RegisterUserForm from "../pages/RegisterUserForm";
 import ProductsPage from "../pages/ProductsPage";
-import App from "../App";
 import ProductDetailsPage from "../pages/ProductDetailsPage";
 import ShoppingCartPage from "../pages/ShoppingCartPage";
 import CheckoutPage from "../pages/CheckoutPage";
