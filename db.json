@@ -206,5 +206,12 @@
          "id": "1",
          "name": "Cartão de Crédito"
       }
+   ],
+   "users":[
+      {
+         "id":1,
+         "email": "matrodrigues1576@gmail.com",
+         "password":"Mat123@"
+      }
    ]
 }

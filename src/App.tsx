@@ -4,11 +4,19 @@ import Footer from "./shared/Footer"
 import { Outlet } from "react-router-dom"
 import { ShoppingCartProvider }from "./contexts/ShoppingCartContext"
 import { OrderProvider } from "./contexts/OrderContext"
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
   return (
     <>
       <Grid2 container>
+        <ToastContainer
+          position="top-right"
+          hideProgressBar={true}
+          autoClose={3000}
+          theme="dark"
+        />
         <ShoppingCartProvider>
           <OrderProvider>
             <Grid2 xs={12}>

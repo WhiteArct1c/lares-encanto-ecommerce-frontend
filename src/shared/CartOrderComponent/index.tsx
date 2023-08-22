@@ -23,10 +23,11 @@ const CartOrderComponent: React.FC<CartOrderComponentProps> = () => {
          </Typography>
          <Box sx={{display:'flex', width:'100%', flexDirection:'column', gap:1, overflowY:'scroll', height:190, position: 'relative'}}>
             {
-               cart?.cartProducts.map(productOrder => {
+               cart?.cartProducts.map((productOrder, index) => {
                   return(
                      <>
                         <ProductItemCardComponent
+                           key={index}
                            productItem={productOrder}
                            context='checkout'
                         />

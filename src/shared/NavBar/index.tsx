@@ -187,16 +187,18 @@ const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
                         </IconButton>
                      </Link>
                      <Divider orientation="vertical" variant='middle' flexItem />
-                     <Button
-                        variant='text'
-                        sx={{
-                           color: '#000',
-                           fontWeight: '400',
-                           padding: '1rem'
-                        }}
-                     >
-                        Login
-                     </Button>
+                     <Link to='/login'>
+                        <Button
+                           variant='text'
+                           sx={{
+                              color: '#000',
+                              fontWeight: '400',
+                              padding: '1rem'
+                           }}
+                        >
+                           Login
+                        </Button>
+                     </Link>
                   </Grid2>
                </Grid2>
             </AppBar>

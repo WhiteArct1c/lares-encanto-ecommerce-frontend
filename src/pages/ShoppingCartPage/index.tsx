@@ -54,9 +54,9 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
          <Grid2 xs={6}>
             {
                cart!.cartProducts.length >= 0 ?
-                  cart!.cartProducts.map(cartProduct => {
+                  cart!.cartProducts.map((cartProduct, index) => {
                      return(
-                        <ProductItemCardComponent productItem={cartProduct} context='cart'/>
+                        <ProductItemCardComponent key={index} productItem={cartProduct} context='cart'/>
                      )
                   })
                :
