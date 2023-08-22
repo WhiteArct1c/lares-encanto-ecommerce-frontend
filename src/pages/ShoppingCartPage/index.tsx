@@ -22,8 +22,7 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
             width: '100%',
             mt:15,
             pl: 10,
-            pr:10,
-            mb: 30,
+            mb: 20,
             display:'flex',
             // justifyContent:'space-between',
             // '*':{
@@ -52,7 +51,7 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
                Ainda não quer finalizar sua compra? <Link to='/products' className='link-redirect'>Continue comprando!</Link>
             </Typography>
          </Grid2>
-         <Grid2 xs={6} sx={{mr:10}}>
+         <Grid2 xs={6}>
             {
                cart!.cartProducts.length >= 0 ?
                   cart!.cartProducts.map(cartProduct => {

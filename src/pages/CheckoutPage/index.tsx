@@ -93,7 +93,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                Checkout
             </Typography>
          </Grid2>
-         <Grid2 container xs={12} sx={{ p: 7, ml: 15 }}>
+         <Grid2 container xs={12} sx={{ p: 7,  }}>
             <Grid2 xs={6}>
                <Box sx={{ width: '100%' }}>
                   <Stepper nonLinear activeStep={activeStep}>
