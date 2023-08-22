@@ -6,7 +6,7 @@
          "price": "99,00",
          "category": "Sala de estar",
          "description": "A Cadeira Elegância Vintage é uma peça de mobiliário que combina com maestria o charme do passado com a funcionalidade contemporânea.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,chair,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?chair,minimalist",
          "vendor": "Magazine Luiza"
       },
       {
@@ -15,7 +15,7 @@
          "price": "2499,00",
          "category": "Sala de estar",
          "description": "O Sofá Modular Urban oferece estilo e versatilidade para qualquer ambiente moderno.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,sofas,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?sofas,minimalist",
          "vendor": "Decoração Moderna"
       },
       {
@@ -24,7 +24,7 @@
          "price": "599,00",
          "category": "Sala de estar",
          "description": "A Mesa de Centro Minimalista é uma adição elegante a qualquer sala de estar contemporânea.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,table,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?table,minimalist",
          "vendor": "Mobília Design"
       },
       {
@@ -33,7 +33,7 @@
          "price": "1799,00",
          "category": "Sala de estar",
          "description": "A Estante Multiuso Wave une design inovador com funcionalidade para organizar seus objetos com estilo.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,bookshelf,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?bookshelf,minimalist",
          "vendor": "Inova Móveis"
       },
       {
@@ -42,7 +42,7 @@
          "price": "1199,00",
          "category": "Quarto",
          "description": "A Cama Box Moderna oferece conforto e design contemporâneo para o seu quarto.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,bed,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?bed,minimalist",
          "vendor": "Mobília Charmosa"
       },
       {
@@ -51,7 +51,7 @@
          "price": "799,00",
          "category": "Sala de estar",
          "description": "A Poltrona Geométrica adiciona um toque artístico e moderno a qualquer espaço.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,big_chair,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?chair,minimalist",
          "vendor": "Estilo Único"
       },
       {
@@ -60,7 +60,7 @@
          "price": "1299,00",
          "category": "Sala de jantar",
          "description": "A Mesa de Jantar Sólida é uma peça robusta e elegante para refeições em família.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,dining_table,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?dining_table,minimalist",
          "vendor": "Decoração Sofisticada"
       },
       {
@@ -69,7 +69,7 @@
          "price": "1799,00",
          "category": "Quarto",
          "description": "O Guarda-Roupa Espaçoso oferece amplo espaço de armazenamento com design moderno.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,wardrobe,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?wardrobe,minimalist",
          "vendor": "Móveis Funcionais"
       },
       {
@@ -78,7 +78,7 @@
          "price": "399,00",
          "category": "Escritório",
          "description": "A Cadeira de Escritório Ergonômica proporciona conforto durante longas horas de trabalho.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,office_chair,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?office_chair,minimalist",
          "vendor": "Ergo Comfort"
       },
       {
@@ -87,98 +87,8 @@
          "price": "299,00",
          "category": "Sala de estar",
          "description": "A Mesa Lateral Minimalista adiciona elegância discreta a qualquer espaço.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,side_table,minimalist",
+         "photoUrl": "https://source.unsplash.com/random/?side_table,minimalist",
          "vendor": "Mobília Simples"
-      },
-      {
-         "id": 11,
-         "name": "Sofá-Cama Confortável",
-         "price": "1699,00",
-         "category": "Sala de estar",
-         "description": "O Sofá-Cama Confortável é perfeito para receber visitas ou acomodar-se com estilo.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,sofa_bed,minimalist",
-         "vendor": "Design Aconchegante"
-      },
-      {
-         "id": 12,
-         "name": "Mesa de Escritório Moderna",
-         "price": "699,00",
-         "category": "Escritório",
-         "description": "A Mesa de Escritório Moderna oferece espaço de trabalho funcional com design contemporâneo.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,desk,minimalist",
-         "vendor": "Móveis Práticos"
-      },
-      {
-         "id": 13,
-         "name": "Poltrona Reclinável Luxuosa",
-         "price": "1999,00",
-         "category": "Sala de estar",
-         "description": "A Poltrona Reclinável Luxuosa proporciona conforto supremo com toque de luxo.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,recliner_chair,minimalist",
-         "vendor": "Estilo Opulento"
-      },
-      {
-         "id": 14,
-         "name": "Mesa de Jantar Extensível",
-         "price": "1399,00",
-         "category": "Sala de jantar",
-         "description": "A Mesa de Jantar Extensível adapta-se a diferentes ocasiões com estilo versátil.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,extendable_table,minimalist",
-         "vendor": "Decoração Flexível"
-      },
-      {
-         "id": 15,
-         "name": "Estante de Livros Minimalista",
-         "price": "499,00",
-         "category": "Sala de estar",
-         "description": "A Estante de Livros Minimalista exibe sua coleção de leitura de forma elegante.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,bookcase,minimalist",
-         "vendor": "Livros e Estilo"
-      },
-      {
-         "id": 16,
-         "name": "Cadeira Giratória de Couro",
-         "price": "799,00",
-         "category": "Escritório",
-         "description": "A Cadeira Giratória de Couro oferece sofisticação e conforto ao ambiente de trabalho.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,leather_chair,minimalist",
-         "vendor": "Luxo Corporativo"
-      },
-      {
-         "id": 17,
-         "name": "Mesa de Cabeceira Moderna",
-         "price": "299,00",
-         "category": "Quarto",
-         "description": "A Mesa de Cabeceira Moderna é o complemento perfeito para o seu quarto contemporâneo.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,nightstand,minimalist",
-         "vendor": "Móveis Elegantes"
-      },
-      {
-         "id": 18,
-         "name": "Rack para TV Minimalista",
-         "price": "899,00",
-         "category": "Sala de estar",
-         "description": "O Rack para TV Minimalista combina design clean com funcionalidade para entretenimento.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,tv_stand,minimalist",
-         "vendor": "Entretenimento Moderno"
-      },
-      {
-         "id": 19,
-         "name": "Cômoda Elegante",
-         "price": "799,00",
-         "category": "Quarto",
-         "description": "A Cômoda Elegante oferece espaço de armazenamento com estilo contemporâneo.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,dresser,minimalist",
-         "vendor": "Design Funcional"
-      },
-      {
-         "id": 20,
-         "name": "Sofá de Canto Espaçoso",
-         "price": "2199,00",
-         "category": "Sala de estar",
-         "description": "O Sofá de Canto Espaçoso é ideal para otimizar o espaço da sua sala com conforto.",
-         "photoUrl": "https://source.unsplash.com/random/?furniture,corner_sofa,minimalist",
-         "vendor": "Espaço Aconchegante"
       }
    ],
    "shippings": [
