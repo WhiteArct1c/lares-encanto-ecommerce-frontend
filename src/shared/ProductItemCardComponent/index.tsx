@@ -73,12 +73,12 @@ const ProductItemCardComponent: React.FC<ProductItemCardComponentProps> = ({ pro
                         <Box
                            sx={{ border: '1px solid #000', width: 120, height: 40, borderRadius: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                         >
-                           <IconButton aria-label='addItem' onClick={handleAddMoreItem}>
-                              <Add />
-                           </IconButton>
-                           <Typography fontWeight={600} fontSize={20}>{productItem.quantity}</Typography>
                            <IconButton aria-label='addItem' onClick={handleRemoveItem}>
                               <Remove />
+                           </IconButton>
+                           <Typography fontWeight={600} fontSize={20}>{productItem.quantity}</Typography>
+                           <IconButton aria-label='addItem' onClick={handleAddMoreItem}>
+                              <Add />
                            </IconButton>
                         </Box>
                      </Grid2>
