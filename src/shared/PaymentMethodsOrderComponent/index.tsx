@@ -3,6 +3,7 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import React, { useEffect, useState } from 'react';
 import { IPaymentMethods } from '../../utils/interfaces/IPaymentMethods';
 import CreditCardFormComponent from '../CreditCardFormComponent';
+import { useApi } from '../../hooks/useApi';
 
 interface PaymentMethodsOrderComponentProps {
 
@@ -12,21 +13,16 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
 
    const [paymentMethods, setPaymentMethods] = useState<IPaymentMethods[]>([]);
    const [actualMethod, setActualMethod] = useState('Cartão de Crédito');
-
-   const apiURL = 'http://localhost:3000/paymentMethods';
+   const api = useApi();
 
    useEffect(() => {
-
       async function loadPaymentMethods() {
-         fetch(apiURL)
-            .then(res => res.json())
-            .then(data => setPaymentMethods([...data]));
-
+         const data = await api.getPaymentTypes();
+         setPaymentMethods([...data]);
       }
-
       loadPaymentMethods();
-
-   }, [])
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
 
    const handlePaymentMethodChange = (method: string) => {
       setActualMethod(method);

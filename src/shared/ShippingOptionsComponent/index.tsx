@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { IShippingTypes } from '../../utils/interfaces/IShippingTypes';
 import { Box, Checkbox, CircularProgress, Typography } from '@mui/material';
 import { OrderContext } from '../../contexts/OrderContext';
+import { useApi } from '../../hooks/useApi';
 
 interface ShippingOptionsComponentProps {
    
@@ -12,24 +13,22 @@ const ShippingOptionsComponent: React.FC<ShippingOptionsComponentProps> = () => 
 
    const [shippingTypes, setShippingTypes]= useState<IShippingTypes[]>([]);
    const [loading, setLoading] = useState(true);
+   const api = useApi();
 
    const order = useContext(OrderContext);
-
-   const apiURL = 'http://localhost:3000/shippings'
 
    useEffect(()=>{
 
       async function loadShippingTypes(){
-         fetch(apiURL)
-         .then(res => res.json())
-         .then(data => setShippingTypes([...data]));
+         const data = await api.getShippingTypes();
 
+         setShippingTypes(data);
          setLoading(false);
       }
 
       loadShippingTypes();
 
-   },[])
+   },[api])
 
    const handleShipmentPrice = (shipmentPrice: string) => {
       order!.setOrderShipmentPrice(parseFloat(shipmentPrice));

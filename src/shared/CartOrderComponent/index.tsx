@@ -25,13 +25,12 @@ const CartOrderComponent: React.FC<CartOrderComponentProps> = () => {
             {
                cart?.cartProducts.map((productOrder, index) => {
                   return(
-                     <>
+                     <Box key={index}>
                         <ProductItemCardComponent
-                           key={index}
                            productItem={productOrder}
                            context='checkout'
                         />
-                     </>
+                     </Box>
                      
                   )
                })

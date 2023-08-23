@@ -1,11 +1,11 @@
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Box, Button, Checkbox, Divider, FormControlLabel, FormGroup, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Controller, FieldValues, useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
-import { IUser } from '../../utils/interfaces/IUser';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { AuthContext } from '../../contexts/Auth/AuthContext';
 
 interface LoginPageProps {
    
@@ -16,6 +16,9 @@ const LoginPage: React.FC<LoginPageProps> = () => {
    const [showPassword, setShowPassword] = useState(false);
    const [checked, setChecked] = useState(false);
    const patternEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+   const auth = useContext(AuthContext);
+   const navigate = useNavigate();
 
    const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -34,22 +37,15 @@ const LoginPage: React.FC<LoginPageProps> = () => {
       formState: { errors }
    }  = useForm();
 
-   const onSubmit = (user: FieldValues) => {
-      console.log(user);
-      fetch(`${import.meta.env.VITE_API_URL_DEV}/users`)
-      .then(res => res.json())
-      .then(data => {
-         console.log(data)
-         const foundUser = data.filter((userData: IUser) => userData.email === user.email);
-         if(foundUser){
-            console.log('deu bom')
-            toast.success('O login está correto!');
+   const onSubmit = async (user: FieldValues) => {
+      if(user.email && user.password){
+         const isLogged = await auth.signin(user.email, user.password);
+         if(isLogged){
+            navigate('/products');
          }else{
-            console.log('deu ruim')
-            toast.error('E-mail ou senha estão incorretos!');
+            toast.error("E-mail e senha estão incorretos!");
          }
-      })
-      .catch(e => console.log(e))
+      }
    }
 
    return (

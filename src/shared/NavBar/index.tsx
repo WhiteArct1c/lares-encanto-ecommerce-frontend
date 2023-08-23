@@ -3,8 +3,9 @@ import { AppBar, Badge, Box, Button, Divider, IconButton, TextField, Toolbar, Ty
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, { useContext }  from 'react';
 import LogoLaresEncanto from '../../assets/Lares_Encanto-removebg-preview.png'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
+import { AuthContext } from '../../contexts/Auth/AuthContext';
 
 interface NavBarProps {
    isAdmin: boolean
@@ -12,6 +13,16 @@ interface NavBarProps {
 
 const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
    const cart = useContext(ShoppingCartContext);
+   const auth = useContext(AuthContext);
+   const navigate = useNavigate();
+
+   const handleLogout = async () => {
+      await auth.signout();
+      navigate('/login');
+
+      // eslint-disable-next-line no-self-assign
+      window.location.href = window.location.href;
+   }
 
    return (
       <>
@@ -186,19 +197,49 @@ const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
                            </Badge>
                         </IconButton>
                      </Link>
-                     <Divider orientation="vertical" variant='middle' flexItem />
-                     <Link to='/login'>
-                        <Button
-                           variant='text'
-                           sx={{
-                              color: '#000',
-                              fontWeight: '400',
-                              padding: '1rem'
-                           }}
-                        >
-                           Login
-                        </Button>
-                     </Link>
+                     {
+                        auth.user ?
+                           <>
+                              <Link to='/my-profile'>
+                                 <Button
+                                    variant='text'
+                                    sx={{
+                                       color: '#000',
+                                       fontWeight: '400',
+                                       padding: '1rem'
+                                    }}
+                                 >
+                                    {auth.user.name}
+                                 </Button>
+                              </Link>
+                              <Divider orientation="vertical" variant='middle' flexItem />
+                                 <Button
+                                    variant='text'
+                                    sx={{
+                                       color: '#000',
+                                       fontWeight: '400',
+                                       padding: '1rem'
+                                    }}
+                                    onClick={handleLogout}
+                                 >
+                                    Logout
+                                 </Button>
+
+                           </>
+                        :
+                           <Link to='/login'>
+                              <Button
+                                 variant='text'
+                                 sx={{
+                                    color: '#000',
+                                    fontWeight: '400',
+                                    padding: '1rem'
+                                 }}
+                              >
+                                 Login
+                              </Button>
+                           </Link>
+                     }
                   </Grid2>
                </Grid2>
             </AppBar>

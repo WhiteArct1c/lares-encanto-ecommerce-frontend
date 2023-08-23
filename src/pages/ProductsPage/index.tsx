@@ -3,6 +3,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import ProductCard from '../../shared/ProductCard';
 import { useEffect, useState } from 'react';
 import { IProduct } from '../../utils/interfaces/IProduct';
+import { useApi } from '../../hooks/useApi';
 
 interface ProductsPageProps {
 
@@ -12,7 +13,7 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
    const [products, setProducts] = useState<IProduct[]>([]);
    const [filters, setFilters] = useState<string[]>([]);
 
-   const apiURL = 'http://localhost:3000/products'
+   const api = useApi();
 
    const ordenation = [
       "Mais relevantes",
@@ -31,10 +32,12 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
    };
 
    useEffect(() => {
-      fetch(apiURL)
-         .then(res => res.json())
-         .then((data) => setProducts([...data]))
-   }, [filters])
+      async function loadProducts(){
+         const data = await api.getProducts();
+         setProducts(data);
+      }
+      loadProducts();
+   }, [api])
 
    return (
       <>

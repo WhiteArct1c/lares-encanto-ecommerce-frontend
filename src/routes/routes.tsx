@@ -7,6 +7,7 @@ import ShoppingCartPage from "../pages/ShoppingCartPage";
 import CheckoutPage from "../pages/CheckoutPage";
 import OrderFinishiedPage from "../pages/OrderFinishedPage";
 import LoginPage from "../pages/LoginPage";
+import { RequireAuth } from "../contexts/Auth/RequireAuth";
 
 export const router = createBrowserRouter([
    {
@@ -16,6 +17,10 @@ export const router = createBrowserRouter([
          {
             path: "/register-user",
             element: <RegisterUserForm/>
+         },
+         {
+            path:'/login',
+            element:<LoginPage/>,
          },
          {
             path: "/products",
@@ -31,16 +36,12 @@ export const router = createBrowserRouter([
          },
          {
             path: '/checkout',
-            element: <CheckoutPage/>
+            element: <RequireAuth><CheckoutPage/></RequireAuth>
          },
          {
             path:'/order-finished',
-            element:<OrderFinishiedPage/>,
+            element:<RequireAuth><OrderFinishiedPage/></RequireAuth>,
          },
-         {
-            path:'/login',
-            element:<LoginPage/>,
-         }
       ]
    }
 ])
