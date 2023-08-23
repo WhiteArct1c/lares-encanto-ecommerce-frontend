@@ -31,7 +31,6 @@ const CartOrderComponent: React.FC<CartOrderComponentProps> = () => {
                            productItem={productOrder}
                            context='checkout'
                         />
-                        <Divider/>
                      </>
                      
                   )

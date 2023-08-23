@@ -65,7 +65,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
    };
 
    const handleAddressShipment = () => {
-      handleComplete()
+      handleComplete();
    }
 
    const handleCompleteOrder = () => {
@@ -163,7 +163,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                               </Box>
                            </>
                            : activeStep === 1 ?
-                              <Box component='form'>
+                              <>
                                  <ShippingOptionsComponent />
                                  <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                                     <Button
@@ -208,7 +208,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                                        Próximo
                                     </Button>
                                  </Box>
-                              </Box>
+                              </>
                               : activeStep === 2 ?
                                  <>
                                     <PaymentMethodsOrderComponent />
