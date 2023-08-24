@@ -1,10 +1,14 @@
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Box, Button, FormControlLabel, FormHelperText, FormLabel, IconButton, InputAdornment, MenuItem, Radio, RadioGroup,   TextField, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import React, { useState } from 'react';
+import React, { useState, FocusEvent } from 'react';
 
 import { Controller, useForm } from 'react-hook-form';
-import { tiposDeLogradouro, tiposDeResidencia } from '../../utils/addressTypes';
+import { countries, tiposDeResidencia } from '../../utils/addressTypes';
+import { extractAddressType, extractLogradouroWithoutType, formatCEP } from '../../services/address/AddressService';
+import { IAddressViaCEP } from '../../utils/interfaces/IAddressViaCEP';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 interface FormRegisterUserProps {
    
@@ -14,7 +18,20 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
    const [showPassword, setShowPassword] = useState(false);
    const [radioValue, setRadioValue] = useState('masculino');
    
+   const {
+      register,
+      handleSubmit,
+      setValue,
+      setFocus,
+      reset,
+      formState: { errors },
+      watch,
+      control
+   } = useForm();
+   
    const patternEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+   const patternCPF = /^([0-9]{2}[.]?[0-9]{3}[.]?[0-9]{3}[/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[.]?[0-9]{3}[.]?[0-9]{3}[-]?[0-9]{2})/;
+   const cepField = register('cep', {required: true, maxLength: 8, minLength: 8});
 
    const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -25,19 +42,33 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
    const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       setRadioValue((event.target as HTMLInputElement).value);
    };
-  
 
-   const {
-      register,
-      handleSubmit,
-      formState: { errors },
-      watch,
-      control
-   } = useForm();
+   const handleFillAddress = async (event: FocusEvent<HTMLInputElement>) => {
+      if(event.target.value !== ''){
+         const formattedCEP = formatCEP(event.target.value);
+         await axios({
+            method:"get",
+            url:`${import.meta.env.VITE_API_VIA_CEP}${formattedCEP}/json/`
+         })
+         .then((res: IAddressViaCEP) => {
+            setValue('addressType', extractAddressType(res.data.logradouro));
+            setValue('address', extractLogradouroWithoutType(res.data.logradouro));
+            setValue('city', res.data.localidade);
+            setValue('state', res.data.uf);
+            setValue('neighborhoods', res.data.bairro);
+            setFocus('addressNumber');
+         })
+         .catch(e =>{ 
+            toast.error('CEP inválido ou inexistente!');
+            console.log(e);
+         });
+      }
+   }
 
    const onSubmit = (data: unknown) => {
-      console.log(data)
       //TODO: Implementar o envio das informações para o backend
+      console.log(data);
+      reset();
    }
 
    return (
@@ -85,9 +116,8 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                      fullWidth
                      variant='outlined'
                      label='CPF'
-                     inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                      required
-                     {...register("cpf", {required: true, maxLength: 11, minLength: 11, valueAsNumber: true})}
+                     {...register("cpf", {required: true, maxLength: 11, minLength: 11, pattern: patternCPF})}
                      error={
                         errors?.cpf?.type === 'required' ||
                         errors?.cpf?.type === 'maxLength' ||
@@ -95,9 +125,8 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                      }
                      helperText={
                         errors?.cpf?.type === 'required' ? "O CPF é obrigatório." : 
-                        errors?.cpf?.type === 'maxLength' ? "O CPF deve ter 11 dígitos." :
-                        errors?.cpf?.type === 'minLength' ? "O CPF deve ter 11 dígitos." : 
-                        errors?.cpf?.type === 'valueAsNumber' ? "O CPF deve conter apenas números." : ""
+                        errors?.cpf?.type === 'maxLength' ? "O CPF deve ter apenas 11 dígitos." :
+                        errors?.cpf?.type === 'minLength' ? "O CPF deve ter apenas 11 dígitos." : ""
                      }
                   />
                </Grid2>
@@ -253,13 +282,20 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                      helperText={errors?.addressTitle?.type === 'required' ? "O título do endereço é obrigatório" : ""}
                   />
                </Grid2>
-               <Grid2 xs={4}>
+               <Grid2 xs={4}
+                  onBlur={(e) => {
+                     cepField.onBlur(e);
+                     if (e.target instanceof HTMLInputElement) {
+                        handleFillAddress(e as FocusEvent<HTMLInputElement>);
+                     }
+                  }}
+               >
                   <TextField
                      fullWidth
                      variant='outlined'
                      label='CEP'
                      required
-                     {...register("cep", {required: true, maxLength: 8})}
+                     {...cepField}
                      error={
                         errors?.cep?.type === 'required' 
                         || errors?.cep?.type === 'maxLength' 
@@ -287,24 +323,26 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                   {errors?.residenceType?.type === 'required' && <FormHelperText>O tipo de residência é obrigatório</FormHelperText>}
                </Grid2>
                <Grid2 xs={3}>
-                  <TextField
-                     fullWidth
-                     select
-                     label='Tipo logradouro'
-                     defaultValue={"Rua"}
-                     required
-                     {...register("addressType", {required: true})}
-                  >
-                     {tiposDeLogradouro.map((tipo, index) => (
-                        <MenuItem key={index} value={tipo}>{tipo}</MenuItem>
-                     ))}
-                  </TextField>
+               <TextField
+                  fullWidth
+                  label='Tipo logradouro'
+                  required
+                  InputLabelProps={{
+                     shrink: true,
+                  }}
+                  {...register("addressType", {required: true})}
+                  error={errors?.addressType?.type === 'required' ? true : false}
+                  helperText={errors?.addressTyp?.type === 'required' ? "O tipo de endereço é obrigatório" : ""}
+               />
                </Grid2>
                <Grid2 xs={9}>
                   <TextField
                      fullWidth
                      variant='outlined'
                      label='Logradouro'
+                     InputLabelProps={{
+                        shrink: true,
+                     }}
                      required
                      {...register("address", {required: true})}
                      error={errors?.address?.type === 'required' ? true : false}
@@ -319,7 +357,7 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                      required
                      {...register("addressNumber", {required: true})}
                      error={errors?.addressNumber?.type === 'required' ? true : false}
-                     helperText={errors?.addressNumber?.type === 'required' ? "O Número residencial é obrigatório" : ""}
+                     helperText={errors?.addressNumber?.type === 'required' ? "O Número  é obrigatório" : ""}
                   />
                </Grid2>
                <Grid2 xs={4}>
@@ -327,6 +365,9 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                      fullWidth
                      variant='outlined'
                      label='Bairro'
+                     InputLabelProps={{
+                        shrink: true,
+                     }}
                      required
                      {...register("neighborhoods", {required: true})}
                      error={errors?.neighborhoods?.type === 'required' ? true : false}
@@ -338,6 +379,9 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                      fullWidth
                      variant='outlined'
                      label='Cidade'
+                     InputLabelProps={{
+                        shrink: true,
+                     }}
                      required
                      {...register("city", {required: true})}
                      error={errors?.city?.type === 'required' ? true : false}
@@ -349,6 +393,9 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                      fullWidth
                      variant='outlined'
                      label='Estado'
+                     InputLabelProps={{
+                        shrink: true,
+                     }}
                      required
                      {...register("state", {required: true})}
                      error={errors?.state?.type === 'required' ? true : false}
@@ -358,13 +405,22 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
                <Grid2 xs={2}>
                   <TextField
                      fullWidth
+                     select
                      variant='outlined'
                      label='País'
                      required
-                     {...register("country", {required: true})}
+                     defaultValue={"Brasil"}
+                     {...register('country', {required: true})}
+                     InputLabelProps={{
+                        shrink: true,
+                     }}
                      error={errors?.country?.type === 'required' ? true : false}
                      helperText={errors?.country?.type === 'required' ? "O País é obrigatório" : ""}
-                  />
+                  >
+                     {countries.map((country, index) => (
+                        <MenuItem key={index} value={country}>{country}</MenuItem>
+                     ))}
+                  </TextField>
                </Grid2>
                <Grid2 xs={12}>
                   <TextField

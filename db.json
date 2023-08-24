@@ -117,15 +117,31 @@
          "name": "Cartão de Crédito"
       }
    ],
-   "users":[
+   "users": [
       {
-         "user":{
-            "id":1,
+         "user": {
+            "id": 1,
+            "address": "Clemente Cunha Ferreira",
+            "addressNumber": "635",
+            "addressTitle": "Casa principal",
+            "addressType": "Rua",
+            "birthDate": "1999-06-25",
+            "cellphone": "11999999999",
+            "cep": "08552330",
+            "city": "Poá",
+            "confirmPassword": "Mat15766@",
+            "country": "Brasil",
+            "cpf": "99999999999",
+            "description": "",
             "email": "matrodrigues1576@gmail.com",
-            "name": "Matheus R. Bispo",
-            "password":"Mat123@"
+            "fullName": "Matheus Rodrigues Bispo",
+            "gender": "masculino",
+            "neighborhoods": "Vila Perracini",
+            "password": "Mat15766@",
+            "residenceType": "Casa",
+            "state": "SP"
          },
-         "token":"2132178y123h1yu231y237617831e"
+         "token": "2132178y123h1yu231y237617831e"
       }
    ]
 }

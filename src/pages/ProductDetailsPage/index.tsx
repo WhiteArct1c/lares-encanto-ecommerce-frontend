@@ -4,6 +4,7 @@ import { IProduct } from '../../utils/interfaces/IProduct';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Box, Button, Typography } from '@mui/material';
 import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
+import { toast } from 'react-toastify';
 
 interface ProductDetailsPageProps {
 }
@@ -22,6 +23,7 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
 
    const handleAddProductOnCart = () => {
       cart!.addCartProduct(product!)
+      toast.success("Produto adicionado ao carrinho!");
    }
 
    return (

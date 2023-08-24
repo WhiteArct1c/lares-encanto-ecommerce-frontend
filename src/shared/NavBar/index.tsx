@@ -209,7 +209,7 @@ const NavBar: React.FC<NavBarProps> = ({ isAdmin }: NavBarProps) => {
                                        padding: '1rem'
                                     }}
                                  >
-                                    {auth.user.name}
+                                    {auth.user.fullName}
                                  </Button>
                               </Link>
                               <Divider orientation="vertical" variant='middle' flexItem />
