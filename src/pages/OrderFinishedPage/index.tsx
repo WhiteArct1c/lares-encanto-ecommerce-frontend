@@ -5,17 +5,17 @@ import { OrderStatusEnum } from '../../utils/enum/OrderStatusEnum';
 import { Link } from 'react-router-dom';
 
 interface OrderFinishiedPageProps {
-   
+
 }
 
 const OrderFinishiedPage: React.FC<OrderFinishiedPageProps> = () => {
    return (
-      <Grid2 
+      <Grid2
          container
          spacing={3}
-         sx={{mt:18, mb:17, display:'flex', justifyContent:'center'}}
+         sx={{ mt: 18, mb: 17, display: 'flex', justifyContent: 'center' }}
       >
-         <Grid2 xs={12} sx={{display:'flex', justifyContent:'center'}}>
+         <Grid2 xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
             <Typography
                fontFamily={'Public Sans'}
                fontSize={70}
@@ -23,19 +23,19 @@ const OrderFinishiedPage: React.FC<OrderFinishiedPageProps> = () => {
                Pedido finalizado!
             </Typography>
          </Grid2>
-         <Grid2 
-            xs={12} 
+         <Grid2
+            xs={12}
             sx={{
-               bgcolor:'#fff', 
-               filter:'drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.20))', 
-               borderRadius:1, 
-               display:'flex', 
-               alignItems:'center',
-               justifyContent:'center',
-               flexDirection:'column',
-               gap:3,
-               width:'60%',
-               p:4
+               bgcolor: '#fff',
+               filter: 'drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.20))',
+               borderRadius: 1,
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'center',
+               flexDirection: 'column',
+               gap: 3,
+               width: '60%',
+               p: 4
             }}
          >
             <Typography
@@ -60,16 +60,16 @@ const OrderFinishiedPage: React.FC<OrderFinishiedPageProps> = () => {
                Status da compra: {OrderStatusEnum.EM_PROCESSAMENTO}
             </Typography>
          </Grid2>
-         <Grid2 xs={12} sx={{display:'flex', alignItems:'center', gap:2, flexDirection:'column', mt:5}}>
+         <Grid2 xs={12} sx={{ display: 'flex', alignItems: 'center', gap: 2, flexDirection: 'column', mt: 5 }}>
             <Link to={'/my-orders'}>
                <Button
                   variant='contained'
                   sx={{
                      bgcolor: '#000',
                      color: 'white',
-                     fontSize:15,
-                     width:300,
-                     height:50,
+                     fontSize: 15,
+                     width: 300,
+                     height: 50,
                      '&:hover': {
                         bgcolor: '#888',
                         color: '#fff',
@@ -85,9 +85,9 @@ const OrderFinishiedPage: React.FC<OrderFinishiedPageProps> = () => {
                   sx={{
                      bgcolor: 'white',
                      color: 'black',
-                     fontSize:15,
-                     width:300,
-                     height:50,
+                     fontSize: 15,
+                     width: 300,
+                     height: 50,
                      '&:hover': {
                         bgcolor: '#666',
                         color: 'white',
