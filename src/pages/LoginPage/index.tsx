@@ -39,12 +39,13 @@ const LoginPage: React.FC<LoginPageProps> = () => {
 
    const onSubmit = async (user: FieldValues) => {
       if(user.email && user.password){
-         const isLogged = await auth.signin(user.email, user.password);
-         if(isLogged){
+         const data = await auth.signin(user.email, user.password);
+         if(data.code === '200 OK'){
             navigate('/products');
+            toast.success(data.message);
          }else{
-            toast.error("E-mail e senha estão incorretos!");
-         }
+            toast.error(data.message);
+         }  
       }
    }
 
