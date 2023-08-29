@@ -1,32 +1,33 @@
-import { useEffect, useState } from "react"
-import { AuthContext } from "./AuthContext"
-import { User } from "../../utils/types/User";
+import { useEffect, useState } from "react";
+import { AuthContext } from "./AuthContext";
 import { useApi } from "../../hooks/useApi";
+import { ResponseCustomer } from "../../utils/types/ResponseCustomer";
 
-export const AuthProvider = ({children}: {children: JSX.Element}) => {
-   
-   const [user, setUser] = useState<User | null>(null);
+export const AuthProvider = ({ children }: { children: JSX.Element }) => {
+
+   const [user, setUser] = useState<ResponseCustomer | null>(null);
    const api = useApi();
 
    useEffect(() => {
       const validateToken = async () => {
          const storageData = localStorage.getItem('authToken');
-         if(storageData){
+         if (storageData) {
             const data = await api.validateToken(storageData);
-            if(data.user){
-               setUser(data.user);
+            if (data.data[0]) {
+               setUser(data.data[0]);
             }
          }
       }
       validateToken();
-   },[api])
+   }, [api])
 
    const signin = async (email: string, password: string) => {
       const data = await api.signin(email, password);
-      
-      if(data.user && data.token){
-         setUser(data.user);
-         setToken(data.token);
+
+      if (data.code == "200 OK") {
+         const userData = await api.validateToken(data.data[0].token);
+         setUser(userData.data[0]);
+         setToken(data.data[0].token);
          return true;
       }
 
@@ -42,9 +43,9 @@ export const AuthProvider = ({children}: {children: JSX.Element}) => {
    const setToken = (token: string) => {
       localStorage.setItem('authToken', token);
    }
-   
+
    return (
-      <AuthContext.Provider value={{user, signin, signout}}>
+      <AuthContext.Provider value={{ user, signin, signout }}>
          {children}
       </AuthContext.Provider>
    )

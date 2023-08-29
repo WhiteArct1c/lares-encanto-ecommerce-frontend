@@ -11,7 +11,7 @@ import { IAddress } from '../../utils/interfaces/IAddress';
 import { OrderContext } from '../../contexts/OrderContext';
 
 interface AddressFormComponentProps {
-   
+
 }
 
 const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
@@ -26,35 +26,35 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
       getValues
    } = useForm();
 
-   const cepField = register('cep', {required: true, maxLength: 8, minLength: 8});
+   const cepField = register('cep', { required: true, maxLength: 8, minLength: 8 });
 
    useEffect(() => {
       return () => {
          handleSetOrderShipmentAddress()
       }
-   // eslint-disable-next-line react-hooks/exhaustive-deps
-   },[])
-   
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [])
+
    const handleFillAddress = async (event: FocusEvent<HTMLInputElement>) => {
-      if(event.target.value !== ''){
+      if (event.target.value !== '') {
          const formattedCEP = formatCEP(event.target.value);
          await axios({
-            method:"get",
-            url:`${import.meta.env.VITE_API_VIA_CEP}${formattedCEP}/json/`
+            method: "get",
+            url: `${import.meta.env.VITE_API_VIA_CEP}${formattedCEP}/json/`
          })
-         .then((res: IAddressViaCEP) => {
-            setValue('addressType', extractAddressType(res.data.logradouro));
-            setValue('address', extractLogradouroWithoutType(res.data.logradouro));
-            setValue('city', res.data.localidade);
-            setValue('state', res.data.uf);
-            setValue('neighborhoods', res.data.bairro);
-            setFocus('addressNumber');
-            handleSetOrderShipmentAddress
-         })
-         .catch(e =>{ 
-            toast.error('CEP inválido ou inexistente!');
-            console.log(e);
-         });
+            .then((res: IAddressViaCEP) => {
+               setValue('addressType', extractAddressType(res.data.logradouro));
+               setValue('address', extractLogradouroWithoutType(res.data.logradouro));
+               setValue('city', res.data.localidade);
+               setValue('state', res.data.uf);
+               setValue('neighborhoods', res.data.bairro);
+               setFocus('addressNumber');
+               handleSetOrderShipmentAddress
+            })
+            .catch(e => {
+               toast.error('CEP inválido ou inexistente!');
+               console.log(e);
+            });
       }
    }
 
@@ -63,7 +63,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
          addressTitle: getValues().addressTitle as string | undefined || '',
          postalcode: getValues().cep as string | undefined || '',
          addressType: getValues().addressType as string | undefined || '',
-         addressNumber:getValues().addressNumber as string | undefined || '',
+         addressNumber: getValues().addressNumber as string | undefined || '',
          city: getValues().city as string | undefined || '',
          country: getValues().country as string | undefined || '',
          state: getValues().state as string | undefined || '',
@@ -79,7 +79,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
          container
          xs={12}
          spacing={2}
-         sx={{p:5}}
+         sx={{ p: 5 }}
       >
          <Grid2 xs={12}>
             <TextField
@@ -88,13 +88,13 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                label='Titulo do endereço'
                placeholder="Casa principal, Loja A, etc..."
                required
-               {...register("addressTitle", {required: true})}
+               {...register("addressTitle", { required: true })}
                error={errors?.addressTitle?.type === 'required' ? true : false}
                helperText={errors?.addressTitle?.type === 'required' ? "O título do endereço é obrigatório" : ""}
             />
          </Grid2>
-         <Grid2 
-            xs={6} 
+         <Grid2
+            xs={6}
             onBlur={(e) => {
                cepField.onBlur(e);
                if (e.target instanceof HTMLInputElement) {
@@ -108,15 +108,15 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                required
                {...cepField}
                error={
-                  errors?.cep?.type === 'required' 
-                  || errors?.cep?.type === 'maxLength' 
-                  || errors?.cep?.type === 'minLength' 
-                  ? true : false
+                  errors?.cep?.type === 'required'
+                     || errors?.cep?.type === 'maxLength'
+                     || errors?.cep?.type === 'minLength'
+                     ? true : false
                }
                helperText={
-                  errors?.cep?.type === 'required' ? "O CEP é obrigatório" : 
-                  errors?.cep?.type === 'maxLength' ? "O CEP deve conter 8 dígitos" : 
-                  errors?.cep?.type === 'minLength' ? "O CEP deve conter 8 dígitos" : ""
+                  errors?.cep?.type === 'required' ? "O CEP é obrigatório" :
+                     errors?.cep?.type === 'maxLength' ? "O CEP deve conter 8 dígitos" :
+                        errors?.cep?.type === 'minLength' ? "O CEP deve conter 8 dígitos" : ""
                }
             />
          </Grid2>
@@ -127,7 +127,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                label='Tipo de Residência'
                defaultValue={"Casa"}
                required
-               {...register("residenceType", {required: true})}
+               {...register("residenceType", { required: true })}
             >
                {tiposDeResidencia.map((tipo, index) => (
                   <MenuItem key={index} value={tipo}>{tipo}</MenuItem>
@@ -143,7 +143,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                InputLabelProps={{
                   shrink: true,
                }}
-               {...register("addressType", {required: true})}
+               {...register("addressType", { required: true })}
                error={errors?.addressType?.type === 'required' ? true : false}
                helperText={errors?.addressTyp?.type === 'required' ? "O tipo de endereço é obrigatório" : ""}
             />
@@ -157,7 +157,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                InputLabelProps={{
                   shrink: true,
                }}
-               {...register("address", {required: true})}
+               {...register("address", { required: true })}
                error={errors?.address?.type === 'required' ? true : false}
                helperText={errors?.address?.type === 'required' ? "O Logradouro é obrigatório" : ""}
             />
@@ -169,7 +169,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                variant='outlined'
                label='Número'
                required
-               {...register('addressNumber', {required: true})}
+               {...register('addressNumber', { required: true })}
                error={errors?.addressNumber?.type === 'required' ? true : false}
                helperText={errors?.addressNumber?.type === 'required' ? "O Número residencial é obrigatório" : ""}
             />
@@ -183,7 +183,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                InputLabelProps={{
                   shrink: true,
                }}
-               {...register("neighborhoods", {required: true})}
+               {...register("neighborhoods", { required: true })}
                error={errors?.neighborhoods?.type === 'required' ? true : false}
                helperText={errors?.neighborhoods?.type === 'required' ? "O Bairro é obrigatório" : ""}
             />
@@ -197,7 +197,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                InputLabelProps={{
                   shrink: true,
                }}
-               {...register("city", {required: true})}
+               {...register("city", { required: true })}
                error={errors?.city?.type === 'required' ? true : false}
                helperText={errors?.city?.type === 'required' ? "A Cidade é obrigatória" : ""}
             />
@@ -211,12 +211,12 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                InputLabelProps={{
                   shrink: true,
                }}
-               {...register("state", {required: true})}
+               {...register("state", { required: true })}
                error={errors?.state?.type === 'required' ? true : false}
                helperText={errors?.state?.type === 'required' ? "O Estado é obrigatório" : ""}
             />
          </Grid2>
-         <Grid2 
+         <Grid2
             xs={2}
          >
             <TextField
@@ -226,7 +226,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                label='País'
                required
                defaultValue={"Brasil"}
-               {...register('country', {required: true})}
+               {...register('country', { required: true })}
                InputLabelProps={{
                   shrink: true,
                }}
