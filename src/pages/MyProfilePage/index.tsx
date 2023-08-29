@@ -9,6 +9,7 @@ interface MyProfilePageProps {
 
 const MyProfilePage: React.FC<MyProfilePageProps> = () => {
    const [titlePage, setTitlePage] = useState('Minhas informações');
+   
 
    return (
       <Grid2
@@ -17,7 +18,7 @@ const MyProfilePage: React.FC<MyProfilePageProps> = () => {
          spacing={2}
          sx={{ mt: 15, mb: 10 }}
       >
-         <Grid2 xs={12} sx={{ pl: 35 }}>
+         <Grid2 xs={12} sx={{ pl: 43 }}>
             <Typography fontFamily={'Public Sans'} fontSize={40}>
                {titlePage}
             </Typography>
