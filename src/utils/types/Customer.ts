@@ -9,7 +9,7 @@ export type Customer ={
   birthDate: string,
   phone: string,
   gender: string,
-  address:[{
+  address:{
       title: string,
       cep: string,
       residenceType: string,
@@ -21,5 +21,5 @@ export type Customer ={
       city: string,
       country: string,
       observations: string
-  }]
+  }
 }

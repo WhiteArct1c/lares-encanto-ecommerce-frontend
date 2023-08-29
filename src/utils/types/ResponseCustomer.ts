@@ -8,6 +8,7 @@ export type ResponseCustomer = {
       name: string
    }
    addresses: [{
+      id: string,
       title: string,
       cep: string,
       residenceType: string,
