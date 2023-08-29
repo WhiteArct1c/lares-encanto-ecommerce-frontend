@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { Customer } from '../utils/types/Customer';
 
-//TODO: desmockar para consumir API real
 const api = axios.create({
-   baseURL: import.meta.env.VITE_API_URL_DEV
+   baseURL: import.meta.env.VITE_API_URL_DEV,
+   headers:{
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
+   }
 });
 
 export const useApi = () => ({
@@ -27,6 +30,10 @@ export const useApi = () => ({
    logout: async () => {
       // const response = await api.post('/logout');
       // return response.data;
+   },
+   deactivateAccount: async (token: string) =>{
+      const response = await api.post('/auth/deactivate-account', token);
+      return response.data;
    },
    registerCustomer: async (customer: Customer) => {
       let res;
