@@ -2,7 +2,6 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Box, Button, FormControlLabel, FormHelperText, FormLabel, IconButton, InputAdornment, MenuItem, Radio, RadioGroup, TextField, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
 import React, { useState, FocusEvent, useContext } from 'react';
-
 import { Controller, useForm } from 'react-hook-form';
 import { countries, tiposDeResidencia } from '../../utils/addressTypes';
 import { extractAddressType, extractLogradouroWithoutType, formatCEP } from '../../services/address/AddressService';
@@ -88,7 +87,7 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
             residenceType: getValues().residenceType as string | undefined || '',
             addressType: getValues().addressType as string | undefined || '',
             streetName: getValues().streetName as string | undefined || '',
-            addressNumber: getValues().addressTitle as string | undefined || '',
+            addressNumber: getValues().addressNumber as string | undefined || '',
             neighborhoods: getValues().neighborhoods as string | undefined || '',
             city: getValues().city as string | undefined || '',
             state: getValues().state as string | undefined || '',

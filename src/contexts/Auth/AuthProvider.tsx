@@ -3,6 +3,10 @@ import { AuthContext } from "./AuthContext";
 import { useApi } from "../../hooks/useApi";
 import { ResponseCustomer } from "../../utils/types/ResponseCustomer";
 import { Customer } from "../../utils/types/Customer";
+import { Address } from "../../utils/types/Address";
+import { IUpdatePasswordRequest } from "../../utils/interfaces/request/IUpdatePasswordRequest";
+import { IAddCustomerAddressRequest } from "../../utils/interfaces/request/IAddCustomerAddressRequest";
+import { IUpdateCustomer } from "../../utils/interfaces/request/IUpdateCustomer";
 
 export const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
@@ -50,12 +54,42 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
       return response;
    }
 
+   const updatePassword = async (passwordUpdateRequest: IUpdatePasswordRequest) => {
+      const response = await api.updatePassword(passwordUpdateRequest);
+      return response;
+   }
+
+   const updateCustomer = async (customer: IUpdateCustomer) => {
+      const response = await api.updateCustomer(customer);
+      return response;
+   }
+
+   const registerCustomerAddress = async (address: IAddCustomerAddressRequest) => {
+      const response = await api.registerCustomerAddress(address);
+      return response;
+   }
+
+   const deleteCustomerAddress = async (address: Address) => {
+      const response = await api.deleteCustomerAddress(address);
+      return response;
+   }
+
    const setToken = (token: string) => {
       localStorage.setItem('authToken', token);
    }
 
    return (
-      <AuthContext.Provider value={{ user, signin, signout, registerCustomer, deactivateAccount}}>
+      <AuthContext.Provider value={{ 
+         user, 
+         signin, 
+         signout, 
+         registerCustomer, 
+         deactivateAccount, 
+         deleteCustomerAddress, 
+         updatePassword, 
+         registerCustomerAddress, 
+         updateCustomer 
+      }}>
          {children}
       </AuthContext.Provider>
    )
