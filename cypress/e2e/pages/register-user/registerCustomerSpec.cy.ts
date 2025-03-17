@@ -42,7 +42,7 @@ describe('Register Customer', () => {
     cy.get('input[name="email"]').type(`matheusbispo@gmail.com`);
     cy.get('textarea[name="addressTitle"]').type('Casa Teste');
     cy.get('input[name="cep"]').type('08552330').blur();
-    cy.wait(1500);
+    cy.wait(2500);
     cy.get('input[name="addressNumber"]').type('635');
     cy.get('input[name="password"]').type('matmatmat');
     cy.get('input[name="confirmedPassword"]').type('matmatmat');
@@ -66,7 +66,7 @@ describe('Register Customer', () => {
     cy.get('input[name="email"]').type(`matheusbispo@gmail.com`);
     cy.get('textarea[name="addressTitle"]').type('Casa Teste');
     cy.get('input[name="cep"]').type('08552330').blur();
-    cy.wait(1500);
+    cy.wait(2500);
     cy.get('input[name="addressNumber"]').type('635');
     cy.get('input[name="password"]').type('Mat157@');
     cy.get('input[name="confirmedPassword"]').type('Mat157@');
@@ -94,7 +94,7 @@ describe('Register Customer', () => {
     cy.get('input[name="confirmedPassword"]').type('Mat15766@');
     cy.get('textarea[name="addressTitle"]').type('Casa Principal');
     cy.get('input[name="cep"]').type('08552330').blur();
-    cy.wait(1500);
+    cy.wait(2500);
     cy.get('input[name="addressNumber"]').type('635');
     cy.wait(1500);
     cy.contains('button', 'Cadastrar').click();
