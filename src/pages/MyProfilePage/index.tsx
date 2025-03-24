@@ -191,7 +191,7 @@ const MyProfilePage: React.FC<MyProfilePageProps> = () => {
 
       const response = await auth.updateCustomer(updatedCustomer);
 
-      if(response.code === '200 OK'){
+      if(response.code === OK){
          handleClose();
          window.location.reload();
          toast.success(response.message);
@@ -209,7 +209,7 @@ const MyProfilePage: React.FC<MyProfilePageProps> = () => {
 
       const response = await auth.updatePassword(updatedPassword);
 
-      if(response.code === '200 OK'){
+      if(response.code === OK){
          toast.success(response.message);
          handleClose();
          reset();
@@ -221,7 +221,7 @@ const MyProfilePage: React.FC<MyProfilePageProps> = () => {
 
    const handleInativateAccount = async () => {
       const response = await auth.deactivateAccount(localStorage.getItem('authToken')!);
-      if(response.code === '200 OK'){
+      if(response.code === OK){
          handleClose();
          auth.signout();
          // eslint-disable-next-line no-self-assign

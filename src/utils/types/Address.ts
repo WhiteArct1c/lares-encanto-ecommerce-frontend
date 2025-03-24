@@ -4,7 +4,7 @@ export type Address = {
       cep: string,
       residenceType: string,
       addressType: string,
-      addressCategories: string[],
+      categories: string[],
       streetName: string,
       addressNumber: string,
       neighborhoods: string,

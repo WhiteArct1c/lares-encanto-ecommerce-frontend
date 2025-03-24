@@ -1,10 +1,21 @@
-import { FormControlLabel, FormGroup, Switch, SwitchProps, TextField, Tooltip, Typography, styled } from '@mui/material';
+import {
+   FormControlLabel,
+   FormGroup,
+   Switch,
+   SwitchProps,
+   TextField,
+   Tooltip,
+   Typography,
+   styled,
+   MenuItem
+} from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React from 'react';
+import React, {useContext} from 'react';
 import { useForm } from 'react-hook-form';
 import { Info } from '@mui/icons-material';
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
+import {OrderContext} from "../../contexts/OrderContext.tsx";
 
 interface CreditCardFormComponentProps {
    
@@ -20,12 +31,22 @@ const creditCardFormSchema = z.object({
    cardCode: z.coerce.number({
       invalid_type_error: 'Este campo deve conter apenas números!'
    })
-       .min(1, 'O código de segurança do cartão é obrigatório!')
+       .min(1, 'O código de segurança do cartão é obrigatório!'),
+   installments: z.string()
+       .min(1, 'Selecione a quantidade de parcelas')
+       .max(1, 'Selecione a quantidade de parcelas')
+       .refine(value => {
+          return parseInt(value) > 0;
+       }, {
+          message: 'Selecione a quantidade de parcelas'
+       })
 });
 
 type creditCardFormData = z.infer<typeof creditCardFormSchema>;
 
 const CreditCardFormComponent: React.FC<CreditCardFormComponentProps> = () => {
+
+   const orderContext = useContext(OrderContext);
 
    const {
       register,
@@ -125,6 +146,20 @@ const CreditCardFormComponent: React.FC<CreditCardFormComponentProps> = () => {
                />
             </Grid2>
             <Grid2 xs={12}>
+               <TextField
+                   fullWidth
+                   select
+                   variant='outlined'
+                   label='Parcelas'
+                   required
+                   {...register('installments')}
+                   error={!!errors.installments}
+                   helperText={errors?.installments?.message}
+               >
+                  <MenuItem>{orderContext?.order?.totalPrice}</MenuItem>
+               </TextField>
+            </Grid2>
+            <Grid2 xs={12}>
                <FormGroup sx={{display:'flex', flexDirection:'row', alignItems:'center'}}>
                   <FormControlLabel
                      control={<IOSSwitch sx={{ m: 1 }}/>}
@@ -144,7 +179,6 @@ const CreditCardFormComponent: React.FC<CreditCardFormComponentProps> = () => {
                </FormGroup>
             </Grid2>
          </Grid2>
-
       </>
    );
 };

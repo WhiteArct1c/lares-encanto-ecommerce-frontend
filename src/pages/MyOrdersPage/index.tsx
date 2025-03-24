@@ -120,11 +120,16 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                 <DialogContent>
                     {
                         titleDialog === 'Troca de produtos' ?
-                            <ChangeItemsFormComponent/>
+                            <ChangeItemsFormComponent items={selectedRows}/>
                             :
                             <DevolutionFormComponent items={selectedRows}/>
                     }
                     <DialogActions>
+                        {
+                            titleDialog === 'Troca de produtos' ?
+                                <Button sx={{ color: 'black', m: 1 }}>Solicitar troca</Button>
+                                :<Button sx={{ color: 'black', m: 1 }}>Solicitar devolução</Button>
+                        }
                     </DialogActions>
                 </DialogContent>
             </Dialog>

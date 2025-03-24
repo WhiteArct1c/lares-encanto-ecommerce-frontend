@@ -25,12 +25,6 @@ const AdminSidenavComponent: React.FC<AdminSidenavComponentProps> = () => {
                 <Button
                     variant='text'
                     sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start"  }}
-                >
-                    Conta
-                </Button>
-                <Button
-                    variant='text'
-                    sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start"  }}
                     component={Link}
                     to={'/admin/orders'}
                 >

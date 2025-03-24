@@ -15,6 +15,7 @@ import MyCardsPage from "../pages/MyCardsPage";
 import AdminOrdersPage from "../pages/AdminOrdersPage";
 import AdminCustomersManagement from "../pages/AdminCustomersManagement";
 import AdminProductsPage from "../pages/AdminProductsPage";
+import MyCouponsPage from "../pages/MyCouponsPage";
 
 export const router = createBrowserRouter([
    {
@@ -60,6 +61,10 @@ export const router = createBrowserRouter([
          {
             path: '/my-cards',
             element: <RequireAuth><MyCardsPage /></RequireAuth>,
+         },
+         {
+            path: '/my-coupons',
+            element: <RequireAuth><MyCouponsPage /></RequireAuth>,
          },
          {
             path: '/admin',

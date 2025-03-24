@@ -132,14 +132,14 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                fontWeight={600}
                color={'#000'}
             >
-               R$ {order!.order !== undefined ? totalPrice + order!.order.shippingPrice : totalPrice}
+               R$ {order!.order !== undefined ? totalPrice + order!.shipmentPrice : totalPrice}
             </Typography>
          </Grid2>
          <Grid2>
             {redirectUrl === '/checkout' && cart!.cartProducts.length > 0 ?
                <Link to={redirectUrl}>
                   <Button
-                      data-cy="btn-checkout"
+                     data-cy="btn-checkout"
                      sx={{
                         width:'100%',
                         height:50,

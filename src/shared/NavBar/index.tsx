@@ -35,7 +35,7 @@ const NavBar: React.FC<NavBarProps> = () => {
    useEffect(() => {
       auth.verifyRole()
           .then(response => {
-             if(response !== undefined){
+             if(response){
                 setIsAdmin(response.data[0] === "ADMIN");
              }
           })

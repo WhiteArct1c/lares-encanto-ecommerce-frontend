@@ -9,6 +9,8 @@ import {IAddCustomerAddressRequest} from "../../utils/interfaces/request/IAddCus
 import {IUpdateCustomer} from "../../utils/interfaces/request/IUpdateCustomer";
 import {IUpdateAddressRequest} from "../../utils/interfaces/request/IUpdateAddressRequest.ts";
 import {CreditCardRequest} from "../../utils/types/request/CreditCard/CreditCardRequest.ts";
+import {ResponseAPI} from "../../utils/types/response/ResponseAPI.ts";
+import {OK} from "../../utils/types/apiCodes.ts";
 
 export const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
@@ -29,9 +31,9 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
    }, []);
 
    const signin = async (email: string, password: string) => {
-      const data = await api.signin(email, password);
+      const data: ResponseAPI = await api.signin(email, password);
 
-      if (data.code == "200 OK") {
+      if (data.data && data.code === OK) {
          const userData = await api.validateToken(data.data[0].token);
          setUser(userData.data[0]);
          setToken(data.data[0].token);
@@ -54,36 +56,30 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
    }
 
    const registerCustomer = async (user: Customer) => {
-      const response = await api.registerCustomer(user);
-      return response;
+      return await api.registerCustomer(user);
    }
 
    const deactivateAccount = async (token: string) => {
-      const response = await api.deactivateAccount(token);
-      return response;
+      return await api.deactivateAccount(token);
    }
 
    const updatePassword = async (passwordUpdateRequest: IUpdatePasswordRequest) => {
-      const response = await api.updatePassword(passwordUpdateRequest);
-      return response;
+      return await api.updatePassword(passwordUpdateRequest);
    }
 
    const updateCustomer = async (customer: IUpdateCustomer) => {
-      const response = await api.updateCustomer(customer);
-      return response;
+      return await api.updateCustomer(customer);
    }
 
    const registerCustomerAddress = async (address: IAddCustomerAddressRequest) => {
-      const response = await api.registerCustomerAddress(address);
-      return response;
+      return await api.registerCustomerAddress(address);
    }
    const updateCustomerAddress = async(address: IUpdateAddressRequest) => {
       return await api.updateCustomerAddress(address);
    }
 
    const deleteCustomerAddress = async (address: Address) => {
-      const response = await api.deleteCustomerAddress(address);
-      return response;
+      return await api.deleteCustomerAddress(address);
    }
 
    const createCreditCard = async (createCreditCardRequest: CreditCardRequest) => {

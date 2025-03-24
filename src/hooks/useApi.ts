@@ -35,17 +35,8 @@ export const useApi = () => ({
       return response.data;
    },
    signin: async (email: string, password: string) => {
-      let res;
-
-      await api.post('/auth/login', { email, password })
-         .then(response => {
-            res = response.data
-         })
-         .catch(e => {
-            res = e.response.data
-         });
-
-      return res;
+      const response = await api.post('/auth/login', {email, password});
+      return response.data;
    },
    logout: async () => {
       // const response = await api.post('/logout');
