@@ -37,7 +37,7 @@ describe('Edit Customer Info', () => {
         cy.get('.css-j3sevo-MuiGrid2-root > .MuiButtonBase-root').click();
         cy.get('textarea[name="addressTitle"]').type('Endereço Secundário');
         cy.get('input[name="cep"]').type('08552330').blur();
-        cy.wait(1500);
+        cy.wait(2500);
         cy.get('input[name="addressNumber"]').type('7070');
         //turn off the billing address switch
         cy.get(':nth-child(2) > .MuiFormControlLabel-root > .MuiSwitch-root').click();
@@ -55,7 +55,7 @@ describe('Edit Customer Info', () => {
         cy.get(':nth-child(2) > .css-92b3f1-MuiGrid2-root > .MuiBox-root > [aria-label="Editar endereço"]').click();
         cy.get('textarea[name="addressTitle"]').clear().type('Endereço Secundário Editado');
         cy.get('input[name="cep"]').clear().type('08554035').blur();
-        cy.wait(1500);
+        cy.wait(2500);
         cy.get('input[name="addressNumber"]').clear().type('862');
         cy.get(':nth-child(2) > .MuiFormControlLabel-root > .MuiSwitch-root').click();
         cy.get('.MuiDialogActions-root > :nth-child(2)').click();
@@ -75,7 +75,7 @@ describe('Edit Customer Info', () => {
         cy.get(':nth-child(2) > .css-92b3f1-MuiGrid2-root > .MuiBox-root > [aria-label="Editar endereço"]').click();
         cy.get('textarea[name="addressTitle"]').clear().type('End. cobrança');
         cy.get('input[name="cep"]').clear().type('08560010').blur();
-        cy.wait(1500);
+        cy.wait(2500);
         cy.get('input[name="addressNumber"]').clear().type('1001');
         cy.get('.MuiDialogActions-root > :nth-child(2)').click();
 
