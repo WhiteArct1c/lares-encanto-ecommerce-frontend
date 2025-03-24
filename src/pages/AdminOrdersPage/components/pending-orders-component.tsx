@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     Accordion, AccordionActions,
     AccordionDetails,
@@ -11,8 +11,15 @@ import {
 } from "@mui/material";
 import {ExpandMore} from "@mui/icons-material";
 import {OrderStatusEnum} from "../../../utils/enum/OrderStatusEnum.ts";
+import OrderStatusDialog from "./order-status-dialog.tsx";
 
 const PendingOrdersComponent:React.FC = () => {
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const handleStatusChange = () => {
+        setDialogOpen(false);
+    }
+
     return (
         <>
             <Accordion>
@@ -26,6 +33,12 @@ const PendingOrdersComponent:React.FC = () => {
                         Cliente:
                         <Typography fontSize={15}>
                             MATHEUS RODRIGUES BISPO
+                        </Typography>
+                    </Typography>
+                    <Typography fontWeight={"bold"} sx={{display:'flex', alignItems:'center', gap:0.5}}>
+                        Tipo:
+                        <Typography fontSize={15}>
+                             Compra
                         </Typography>
                     </Typography>
                     <Typography fontWeight={"bold"} sx={{display:'flex', alignItems:'center', gap:0.5}}>
@@ -72,28 +85,17 @@ const PendingOrdersComponent:React.FC = () => {
                                     color: '#000'
                                 }
                             }}
+                            onClick={() => setDialogOpen(true)}
                     >
                         Mudar status
                     </Button>
-                    <Button variant="outlined"
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                fontWeight: 800,
-                                color: '#000',
-                                borderColor: '#000',
-                                '&:hover': {
-                                    color: '#000',
-                                    bgcolor:'#e1e1e1',
-                                    borderColor: '#000'
-                                }
-                            }}
-                    >
-                        Cancelar
-                    </Button>
                 </AccordionActions>
             </Accordion>
+            <OrderStatusDialog
+                open={dialogOpen}
+                onClose={() => setDialogOpen(false)}
+                onSave={handleStatusChange}
+            />
         </>
     );
 };
