@@ -1,6 +1,6 @@
 import {Card, CardContent, CardHeader, Chip, IconButton, Menu, MenuItem, Typography} from "@mui/material";
 import React from "react";
-import {CreditCardRequest} from "../../../utils/types/request/customer-credit-card/CreditCardRequest.ts";
+import {CreditCardRequest} from "../../../utils/types/request/CreditCard/CreditCardRequest.ts";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 interface CreditCardComponentProps{

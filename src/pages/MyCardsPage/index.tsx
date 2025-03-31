@@ -11,7 +11,7 @@ import CardForm from "./components/card-form.tsx";
 import NoCardsMessage from "./components/no-cards-message.tsx";
 import { useApi } from "../../hooks/useApi.ts";
 import CreditCardComponent from "./components/credit-card-component.tsx";
-import {CreditCardRequest} from "../../utils/types/request/customer-credit-card/CreditCardRequest.ts";
+import {CreditCardRequest} from "../../utils/types/request/CreditCard/CreditCardRequest.ts";
 import {OK} from "../../utils/types/apiCodes.ts";
 import {toast} from "react-toastify";
 interface MyCardsPageProps{

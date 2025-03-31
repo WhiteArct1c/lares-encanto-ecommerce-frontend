@@ -10,19 +10,26 @@ interface DevolutionFormComponentProps{
 
 const DevolutionFormComponent: React.FC<DevolutionFormComponentProps> = ({items}) => {
     return (
-        <Grid2 xs={12} sx={{display: 'flex', flexDirection:'column', gap:3 }}>
+        <Grid2 xs={12} sx={{display: 'flex', flexDirection:'column', gap:3, width:'100%' }}>
             <Typography fontFamily={'Public sans'}>
                 Items selecionados:
             </Typography>
-            <Box sx={{display:'flex', gap:3}}>
+            <Box sx={{display:'flex', gap:3, maxWidth: 600, flexWrap:'wrap'}}>
                 {
                     items.map((item: RowData, index: number) => {
                         return(
-                            <Card key={index} sx={{width:'100%'}}>
+                            <Card key={index} sx={{
+                                width:'250px',
+                                display: 'flex',
+                                flexDirection:'column',
+                                justifyContent:'center',
+                                alignItems:'center',
+                                gap:1
+                            }}>
                                 <CardHeader
                                     title={item.productName}
-                                    subheader={item.productQtd}
                                 />
+                                Quantidade: {item.productQtd}
                             </Card>
                         )
                     })
@@ -30,7 +37,7 @@ const DevolutionFormComponent: React.FC<DevolutionFormComponentProps> = ({items}
             </Box>
             <Grid2 xs={12} sx={{display:'flex', gap:3, flexDirection:'column'}}>
                 <TextField
-                    label="Motivo da troca"
+                    label="Motivo da devolução"
                     multiline
                     fullWidth
                     rows={5}

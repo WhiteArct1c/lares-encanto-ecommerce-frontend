@@ -5,7 +5,7 @@ import { IUpdatePasswordRequest } from '../utils/interfaces/request/IUpdatePassw
 import { IAddCustomerAddressRequest } from '../utils/interfaces/request/IAddCustomerAddressRequest';
 import { IUpdateCustomer } from '../utils/interfaces/request/IUpdateCustomer';
 import { IUpdateAddressRequest } from "../utils/interfaces/request/IUpdateAddressRequest.ts";
-import { CreditCardRequest } from "../utils/types/request/customer-credit-card/CreditCardRequest.ts";
+import { CreditCardRequest } from "../utils/types/request/CreditCard/CreditCardRequest.ts";
 
 const api = axios.create({
    baseURL: import.meta.env.VITE_API_URL_DEV,
@@ -35,17 +35,8 @@ export const useApi = () => ({
       return response.data;
    },
    signin: async (email: string, password: string) => {
-      let res;
-
-      await api.post('/auth/login', { email, password })
-         .then(response => {
-            res = response.data
-         })
-         .catch(e => {
-            res = e.response.data
-         });
-
-      return res;
+      const response = await api.post('/auth/login', {email, password});
+      return response.data;
    },
    logout: async () => {
       // const response = await api.post('/logout');
@@ -163,10 +154,43 @@ export const useApi = () => ({
          }
       });
       return response.data;
-      },
+   },
    listCreditCards: async() => {
       const response = await api.get(`/credit-cards`, {
          headers:{
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   createProduct: async (createProductRequest: FormData) => {
+      const response = await api.post('/products', createProductRequest, {
+         headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      })
+      return response.data;
+   },
+   listAllProducts: async (page: number = 0, size: number = 10) => {
+      const response = await api.get(`/products?page=${page}&size=${size}`, {
+         headers:{
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   listAllProductCategories: async() => {
+      const response = await api.get(`/product-categories`, {
+         headers:{
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   listAllPricingGroups: async() => {
+      const response = await api.get(`/pricing-groups`, {
+         headers: {
             Authorization: `Bearer ${localStorage.getItem('authToken')}`
          }
       });

@@ -7,6 +7,7 @@ import { useApi } from '../../hooks/useApi';
 import { ResponseCustomer } from '../../utils/types/ResponseCustomer';
 import { MoreVert } from '@mui/icons-material';
 import { OK } from '../../utils/types/apiCodes';
+import TransactionHistoryDialog from "./components/transaction-history-dialog.tsx";
 
 interface AdminCustomersManagementRows{
    id: number;
@@ -25,10 +26,10 @@ const AdminCustomersManagement: React.FC = () => {
       pageSize: 10,
    });
    const [isLoading, setIsLoading] = React.useState(false);
-
    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
    const subMenuUserIsOpen = Boolean(anchorEl);
    const [selectedUser, setSelectedUser] = React.useState<AdminCustomersManagementRows | undefined>();
+   const [dialogOpen, setDialogOpen] = React.useState(false);
 
    const api = useApi();
 
@@ -130,6 +131,10 @@ const AdminCustomersManagement: React.FC = () => {
       handleUserSubMenuClose();
    };
 
+   const handleShowTransactionHistory = () => {
+      setDialogOpen(true);
+   }
+
    useEffect(() => {
       getCustomersInfo();
    }, []);
@@ -176,7 +181,19 @@ const AdminCustomersManagement: React.FC = () => {
                   selectedUser?.isActive === 'Sim' ? 'Inativar' : 'Ativar'
                }
             </MenuItem>
+            <MenuItem
+               data-cy="user-submenu-transaction-history"
+               onClick={handleShowTransactionHistory}
+            >
+               Histórico de transações
+            </MenuItem>
          </Menu>
+
+         <TransactionHistoryDialog
+             open={dialogOpen}
+             onClose={() => setDialogOpen(false)}
+             userName={selectedUser?.fullName}
+         />
       </>
    )
 };

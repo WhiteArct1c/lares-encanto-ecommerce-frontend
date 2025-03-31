@@ -7,20 +7,20 @@ import { IAddCustomerAddressRequest } from '../../utils/interfaces/request/IAddC
 import { IUpdateCustomer } from '../../utils/interfaces/request/IUpdateCustomer';
 import {IUpdateAddressRequest} from "../../utils/interfaces/request/IUpdateAddressRequest.ts";
 import {ResponseAPI} from "../../utils/types/response/ResponseAPI.ts";
-import {CreditCardRequest} from "../../utils/types/request/customer-credit-card/CreditCardRequest.ts";
+import {CreditCardRequest} from "../../utils/types/request/CreditCard/CreditCardRequest.ts";
 
 export type AuthContextType = {
    user: ResponseCustomer | null;
    signin: (email: string, password: string) => Promise<ResponseAPI>;
    signout: () => void;
    verifyRole: () => Promise<ResponseAPI>;
-   registerCustomer: (user: Customer) => Promise<undefined>;
-   deactivateAccount: (token: string) => Promise<undefined>;
-   updatePassword: (passwordUpdateRequest: IUpdatePasswordRequest) => Promise<undefined>;
-   registerCustomerAddress: (address: IAddCustomerAddressRequest) => Promise<undefined>;
-   updateCustomer: (customer: IUpdateCustomer) => Promise<undefined>;
-   deleteCustomerAddress: (address: Address) => Promise<undefined>;
-   updateCustomerAddress: (address: IUpdateAddressRequest) => Promise<undefined>;
+   registerCustomer: (user: Customer) => Promise<ResponseAPI>;
+   deactivateAccount: (token: string) => Promise<ResponseAPI>;
+   updatePassword: (passwordUpdateRequest: IUpdatePasswordRequest) => Promise<ResponseAPI>;
+   registerCustomerAddress: (address: IAddCustomerAddressRequest) => Promise<ResponseAPI>;
+   updateCustomer: (customer: IUpdateCustomer) => Promise<ResponseAPI>;
+   deleteCustomerAddress: (address: Address) => Promise<ResponseAPI>;
+   updateCustomerAddress: (address: IUpdateAddressRequest) => Promise<ResponseAPI>;
    createCreditCard: (request: CreditCardRequest) => Promise<ResponseAPI>;
    listCreditCards:() => Promise<ResponseAPI>;
 }

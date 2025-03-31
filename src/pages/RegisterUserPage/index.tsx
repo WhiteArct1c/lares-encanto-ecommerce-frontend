@@ -12,6 +12,7 @@ import { Customer } from '../../utils/types/Customer';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/Auth/AuthContext';
 import { AddressCategoryEnum } from '../../utils/enum/AddressCategoryEnum';
+import {CREATED} from "../../utils/types/apiCodes.ts";
 
 interface FormRegisterUserProps {
 
@@ -100,7 +101,7 @@ const FormRegisterUser: React.FC<FormRegisterUserProps> = () => {
 
       const response = await auth.registerCustomer(newCustomer);
 
-      if (response.code === "201 CREATED") {
+      if (response.code === CREATED) {
          toast.success("Cadastro concluído com sucesso");
          navigate('/login');
       } else {

@@ -1,4 +1,4 @@
-import {CreditCardRequest} from "./request/customer-credit-card/CreditCardRequest.ts";
+import {CreditCardRequest} from "./request/CreditCard/CreditCardRequest.ts";
 
 export type ResponseCustomer = {
    id: number,

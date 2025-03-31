@@ -9,12 +9,13 @@ interface OrderContextType {
    shipmentType: IShippingTypes | undefined;
    shipmentPrice: number;
    shipmentAddress: IAddress | undefined;
-   createOrder: (cartTotalPrice: number, shipmentAddress: IAddress) => void
+   createOrder: () => void
    saveOrder: () => void
    updateOrderTotalPrice: (price: number) => void
    setOrderShipmentType: (type: IShippingTypes) => void
    setOrderShipmentPrice: (shipmentPrice: number) => void
    setOrderShipmentAddress: (address: IAddress) => void
+   setOrderTotalPrice: (price: number) => void
    saveShippingAddress: (status: boolean) => void
    resetOrder: () => void
 }
@@ -31,15 +32,16 @@ export const OrderProvider = ({ children }: OrderProviderProps) => {
    const [shipmentType, setShipmentType] = useState<IShippingTypes | undefined>(undefined);
    const [shipmentPrice, setShipmentPrice] = useState(0);
    const [shipmentAddress, setShipmentAddress] = useState<IAddress>();
+   const [totalPrice, setTotalPrice] = useState(0);
 
    const cart = useContext(ShoppingCartContext);
 
-   const createOrder = (cartTotalPrice: number) => {
+   const createOrder = () => {
       const newOrder: IOrder = {
          products: cart!.cartProducts,
          address: shipmentAddress,
          shippingPrice: shipmentPrice.toString(),
-         totalPrice: cartTotalPrice.toString()
+         totalPrice: totalPrice.toString()
       }
       setOrder(newOrder);
    }
@@ -66,6 +68,10 @@ export const OrderProvider = ({ children }: OrderProviderProps) => {
       setShipmentAddress(shipmentAddress);
    }
 
+   const setOrderTotalPrice = (price: number) => {
+        setTotalPrice(price);
+   }
+
    //TODO: use this on saveOrder to save the shipment address or not
    const saveShippingAddress = (status: boolean) => {
       setSaveShipmentAddress(!status);
@@ -75,6 +81,7 @@ export const OrderProvider = ({ children }: OrderProviderProps) => {
       setOrder(undefined);
       setShipmentPrice(0);
       setShipmentAddress(undefined);
+      setOrderTotalPrice(0);
    }
 
    return (
@@ -90,6 +97,7 @@ export const OrderProvider = ({ children }: OrderProviderProps) => {
             setOrderShipmentType,
             setOrderShipmentPrice, 
             setOrderShipmentAddress,
+            setOrderTotalPrice,
             saveShippingAddress,
             resetOrder
          }

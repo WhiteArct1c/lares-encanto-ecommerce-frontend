@@ -6,7 +6,7 @@ describe('Inactivate User', () => {
       cy.get('input[name="password"]').type('Admin1576@');
       cy.contains('button', 'Entrar').click();
       cy.wait(1000);
-      cy.visit('/users');
+      cy.visit('/admin/users');
   });
 
    it('Should activate a user', () => {

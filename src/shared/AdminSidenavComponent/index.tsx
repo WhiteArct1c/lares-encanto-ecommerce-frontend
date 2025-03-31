@@ -18,21 +18,15 @@ const AdminSidenavComponent: React.FC<AdminSidenavComponentProps> = () => {
                     variant='text'
                     sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start" }}
                     component={Link}
-                    to={'/dashboard'}
+                    to={'/admin/dashboard'}
                 >
                     Dashboard
                 </Button>
                 <Button
                     variant='text'
                     sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start"  }}
-                >
-                    Informações da conta
-                </Button>
-                <Button
-                    variant='text'
-                    sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start"  }}
                     component={Link}
-                    to={'/orders'}
+                    to={'/admin/orders'}
                 >
                     Vendas
                 </Button>
@@ -40,7 +34,15 @@ const AdminSidenavComponent: React.FC<AdminSidenavComponentProps> = () => {
                     variant='text'
                     sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start"  }}
                     component={Link}
-                    to={'/users'}
+                    to={'/admin/products'}
+                >
+                    Produtos
+                </Button>
+                <Button
+                    variant='text'
+                    sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start"  }}
+                    component={Link}
+                    to={'/admin/users'}
                 >
                     Usuários
                 </Button>

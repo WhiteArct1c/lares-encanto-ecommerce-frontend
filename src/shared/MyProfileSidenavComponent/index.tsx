@@ -33,6 +33,8 @@ const MyProfileSidenavComponent: React.FC<MyProfileSidenavComponentProps> = () =
                 <Button
                     variant='text'
                     sx={{ color: 'black', m: 1, display: "flex", justifyContent:"start"  }}
+                    component={Link}
+                    to={'/my-coupons'}
                 >
                     Meus cupons
                 </Button>
