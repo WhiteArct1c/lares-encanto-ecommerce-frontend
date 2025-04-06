@@ -6,32 +6,24 @@ import {useApi} from "../../hooks/useApi.ts";
 import {DataGrid, GridColDef, GridPaginationModel, GridRowsProp} from "@mui/x-data-grid";
 import {ProductResponse} from "../../utils/types/response/Product/ProductResponse.ts";
 import {Add} from "@mui/icons-material";
-import {ProductCreateRequest} from "../../utils/types/request/Product/ProductCreateRequest.ts";
 import ProductForm from "./components/product-form.tsx";
+import { ImageService } from "../../services/ImageService.ts";
+import {ProductEditRequest} from "../../utils/types/request/Product/ProductEditRequest.ts";
 
 interface AdminProductsPageProps {}
-
-interface AdminProductsRows {
-    id: number;
-    name: string;
-    type: string;
-    salePrice: number;
-    stockQuantity: number;
-    pricingGroup: string;
-    categoryName: string;
-    isActive: boolean;
-}
 
 const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
     const [open, setOpen] = useState(false);
     const [titleDialog, setTitleDialog] = useState('');
-    const [selectedProduct, setSelectedProduct] = useState<ProductCreateRequest | null>(null);
-    const [productsRows, setProductsRows] = useState<AdminProductsRows[]>([]);
+    const [selectedProduct, setSelectedProduct] = useState<ProductEditRequest | null>(null);
+    const [productsRows, setProductsRows] = useState<ProductResponse[]>([]);
     const paginationModelRef = useRef<{ page: number, pageSize: number }>({
         page: 0,
         pageSize: 10
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [selectedRow, setSelectedRow] = useState<ProductResponse | null>(null);
 
     const productsTableColumns: GridColDef[] = [
         {field: 'id', headerName: 'ID'},
@@ -49,8 +41,18 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
             },
         },
         {field: 'stockQuantity', headerName: 'Qtd.'},
-        {field: 'pricingGroup', headerName: 'Grupo de Precificação', width: 210},
-        {field: 'categoryName', headerName: 'Categoria', width: 130},
+        {
+            field: 'pricingGroup',
+            headerName: 'Grupo de Precificação',
+            width: 210,
+            valueGetter: (params) => `${params.value?.profitMargin}% - ${params.value?.name}` || '-',
+        },
+        {
+            field: 'category', //TODO: categoria nao está sendo exibida
+            headerName: 'Categoria',
+            width: 130,
+            valueGetter: (params) => params.value?.id || '-',
+        },
         {
             field: 'isActive',
             headerName: 'Ativo',
@@ -58,7 +60,46 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
         },
     ];
 
-    const handleClickOpenDialog = (title: string | null, product: ProductCreateRequest | null) => {
+    const handleMenuClick = (event: React.MouseEvent<HTMLElement>, row: ProductResponse) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedRow(row);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    // const handleEdit = () => {
+    //     const imageService = new ImageService();
+    //     if (selectedRow) {
+    //         let imageFile = null;
+    //
+    //         imageService.getImageFileFromBase64(selectedRow.image, `${selectedRow.name}-image.png`)
+    //             .then((file) => {
+    //                 imageFile = file;
+    //             })
+    //             .catch((error) => {
+    //                 console.error('Error converting base64 to file:', error);
+    //             });
+    //
+    //         const productToEdit: ProductEditRequest = {
+    //             name: selectedRow.name,
+    //             type: selectedRow.type,
+    //             price: selectedRow.salePrice,
+    //             description: selectedRow.description,
+    //             image: imageFile,
+    //             color: selectedRow.color,
+    //             stockQuantity: selectedRow.stockQuantity,
+    //             pricingGroupId: selectedRow.pricingGroup,
+    //             categoryName: selectedRow.categoryName,
+    //             isActive: selectedRow.isActive,
+    //         };
+    //         handleClickOpenDialog('Editar Produto', productToEdit);
+    //     }
+    //     handleMenuClose();
+    // };
+
+    const handleClickOpenDialog = (title: string | null, product: ProductEditRequest | null) => {
         if(title !== null){
             setTitleDialog(title)
             setOpen(true);
@@ -104,10 +145,13 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
             id: product.id,
             name: product.name,
             type: product.type,
+            description: product.description,
+            image: product.image,
+            color: product.color,
             salePrice: product.salePrice,
             stockQuantity: product.stockQuantity,
             pricingGroup: product.pricingGroup,
-            categoryName: product.categoryName,
+            categoryName: product.category,
             isActive: product.isActive
         }));
 
