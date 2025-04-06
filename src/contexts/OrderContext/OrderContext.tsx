@@ -10,6 +10,7 @@ export type OrderContextType = {
    shippingType: IShippingTypes | undefined;
    shippingPrice: number;
    shippingAddress: IAddress | undefined;
+   orderTotalPrice: number;
    createOrder: (cartProducts: IProductItem[], initialPrice: number) => void
    saveOrder: () => void
    updateOrderTotalPrice: (price: number) => void

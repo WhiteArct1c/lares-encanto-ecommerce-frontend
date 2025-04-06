@@ -74,6 +74,7 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             shippingType,
             shippingPrice,
             shippingAddress,
+            orderTotalPrice,
             createOrder,
             saveOrder,
             updateOrderTotalPrice,

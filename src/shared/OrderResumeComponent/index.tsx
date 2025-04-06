@@ -139,7 +139,7 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                fontWeight={600}
                color={'#000'}
             >
-               {order!.order !== undefined ? productService.formatProductPrice(totalPrice + order!.shippingPrice) : productService.formatProductPrice(totalPrice)}
+               {order!.shippingPrice ? productService.formatProductPrice(order!.orderTotalPrice + order!.shippingPrice) : productService.formatProductPrice(totalPrice)}
             </Typography>
          </Grid2>
          <Grid2>
