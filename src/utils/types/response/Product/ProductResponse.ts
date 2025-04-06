@@ -1,3 +1,6 @@
+import {ProductCategoryResponse} from "../ProductCategory/ProductCategoryResponse.ts";
+import {PricingGroupResponse} from "../PricingGroup/PricingGroupResponse.ts";
+
 export type ProductResponse = {
     id: number,
     name: string,
@@ -7,8 +10,8 @@ export type ProductResponse = {
     color: string,
     image: string,
     isActive: boolean,
-    categoryName: string,
-    pricingGroup: string,
+    category: ProductCategoryResponse,
+    pricingGroup: PricingGroupResponse,
     type: string,
     stockQuantity: number
 }

@@ -1,5 +1,5 @@
-export type ResponseAPI = {
+export type ResponseAPI<T> = {
     code: string,
     message: string,
-    data: []
+    data: T[]
 }

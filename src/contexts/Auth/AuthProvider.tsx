@@ -11,6 +11,7 @@ import {IUpdateAddressRequest} from "../../utils/interfaces/request/IUpdateAddre
 import {CreditCardRequest} from "../../utils/types/request/CreditCard/CreditCardRequest.ts";
 import {ResponseAPI} from "../../utils/types/response/ResponseAPI.ts";
 import {OK} from "../../utils/types/apiCodes.ts";
+import {User} from "../../utils/types/User.ts";
 
 export const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
    }, []);
 
    const signin = async (email: string, password: string) => {
-      const data: ResponseAPI = await api.signin(email, password);
+      const data: ResponseAPI<User> = await api.signin(email, password);
 
       if (data.data && data.code === OK) {
          const userData = await api.validateToken(data.data[0].token);

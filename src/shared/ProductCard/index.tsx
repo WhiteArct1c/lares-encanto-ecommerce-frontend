@@ -2,15 +2,24 @@ import { Card, CardActionArea, CardContent, CardMedia, Typography } from '@mui/m
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './styles.css';
+import {ProductResponse} from "../../utils/types/response/Product/ProductResponse.ts";
+import {ProductService} from "../../services/ProductService.ts";
 
 interface ProductCardProps {
-   id: string,
-   name: string,
-   price: string,
-   photoUrl: string
+   product: ProductResponse
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({id, name, price, photoUrl}: ProductCardProps) => {
+const ProductCard: React.FC<ProductCardProps> = (props: ProductCardProps) => {
+
+   const {
+      id,
+      name,
+      salePrice,
+      image
+   } = props.product;
+
+   const productService = new ProductService();
+
    return (
       <>
          <Link data-cy={`product-card-${id}`} to={`/products/${id}`}>
@@ -19,14 +28,18 @@ const ProductCard: React.FC<ProductCardProps> = ({id, name, price, photoUrl}: Pr
                   <CardMedia
                      component="img"
                      height="300px"
-                     image={photoUrl}
+                     image={image}
+                     sx={{
+                        objectFit: 'contain',
+                        padding: '10px'
+                     }}
                   />
                   <CardContent>
                      <Typography gutterBottom variant="h5" component="div">
                         {name}
                      </Typography>
                      <Typography variant="body1">
-                        R$ {price}
+                        {productService.formatProductPrice(salePrice)}
                      </Typography>
                   </CardContent>
                </CardActionArea>

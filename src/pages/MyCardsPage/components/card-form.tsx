@@ -138,7 +138,7 @@ const CardForm: React.FC<CardFormProps> = ({ handleClose, handleCardAdded, credi
                 cardFlag: flag
             }
 
-            api.updateCreditCard(request).then((response: ResponseAPI) => {
+            api.updateCreditCard(request).then((response: ResponseAPI<never>) => {
                 if(response.code === OK){
                     toast.success(response.message);
                     handleClose();
@@ -167,7 +167,7 @@ const CardForm: React.FC<CardFormProps> = ({ handleClose, handleCardAdded, credi
                 cardFlag: flag
             }
 
-            auth.createCreditCard(request).then((response: ResponseAPI) => {
+            auth.createCreditCard(request).then((response: ResponseAPI<never>) => {
                 if(response.code === CREATED){
                     toast.success(response.message);
                     handleClose();
