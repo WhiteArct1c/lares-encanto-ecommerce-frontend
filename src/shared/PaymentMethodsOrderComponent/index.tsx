@@ -1,10 +1,10 @@
 import { Button, Card, CardContent, Chip, Divider, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IPaymentMethods } from '../../utils/interfaces/IPaymentMethods';
 import CreditCardFormComponent from '../CreditCardFormComponent';
 import { useApi } from '../../hooks/useApi';
-import { AuthContext } from '../../contexts/Auth/AuthContext';
+import {CreditCardRequest} from "../../utils/types/request/CreditCard/CreditCardRequest.ts";
 
 interface PaymentMethodsOrderComponentProps {
 
@@ -14,16 +14,23 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
 
    const [paymentMethods, setPaymentMethods] = useState<IPaymentMethods[]>([]);
    const [actualMethod, setActualMethod] = useState('Cartão de Crédito');
+   const [creditCards, setCreditCards] = useState<CreditCardRequest[]>([]);
    const api = useApi();
 
-   const userContext = useContext(AuthContext);
+   // const userContext = useContext(AuthContext);
+
+    const loadCreditCards = async () => {
+        const data = await api.listCreditCards();
+        setCreditCards(data.data);
+    }
 
    useEffect(() => {
-      async function loadPaymentMethods() {
-         const data = await api.getPaymentTypes();
-         setPaymentMethods([...data]);
-      }
-      loadPaymentMethods();
+        async function loadPaymentMethods() {
+            const data = await api.getPaymentTypes();
+            setPaymentMethods([...data]);
+        }
+        loadPaymentMethods();
+        loadCreditCards();
    }, []);
 
    const handlePaymentMethodChange = (method: string) => {
@@ -37,9 +44,8 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
             <Divider sx={{mb:3}}/>
             <Grid2 container xs={12} spacing={2}>
                {
-                  //TODO: credit cards was not updated in real time
-                  userContext.user?.creditCards.length ?
-                     userContext.user?.creditCards.map((card, index) => {
+                   creditCards.length ?
+                       creditCards.map((card, index) => {
                         return(
                            <Grid2 key={index} xs={4}>
                               <Card 
