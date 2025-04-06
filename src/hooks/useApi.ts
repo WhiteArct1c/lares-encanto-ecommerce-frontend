@@ -6,6 +6,8 @@ import { IAddCustomerAddressRequest } from '../utils/interfaces/request/IAddCust
 import { IUpdateCustomer } from '../utils/interfaces/request/IUpdateCustomer';
 import { IUpdateAddressRequest } from "../utils/interfaces/request/IUpdateAddressRequest.ts";
 import { CreditCardRequest } from "../utils/types/request/CreditCard/CreditCardRequest.ts";
+import {ProductResponse} from "../utils/types/response/Product/ProductResponse.ts";
+import {ResponseAPI} from "../utils/types/response/ResponseAPI.ts";
 
 const api = axios.create({
    baseURL: import.meta.env.VITE_API_URL_DEV,
@@ -67,17 +69,8 @@ export const useApi = () => ({
       return response.data;
    },
    registerCustomer: async (customer: Customer) => {
-      let res;
-
-      await api.post('/auth/register', customer)
-      .then((response)=>{
-         res = response.data
-      })
-      .catch(e => {
-         res = e.response.data
-      });
-
-      return res;
+      const response = await api.post('/auth/register', customer);
+      return response.data;
    },
    updateCustomer: async (customer: IUpdateCustomer) => {
       const response = await api.put('/customers', customer, {
@@ -111,9 +104,13 @@ export const useApi = () => ({
       });
       return response.data;
    },
-   getProducts: async (categories?: string[]) => {
-      const response = await api_json.get(categories?.length ? `/products?q=${categories.join(',')}` : '/products');
+   getAvailableProducts: async (): Promise<ResponseAPI<ProductResponse>> => {
+      const response = await api.get('/products/available');
       return response.data;
+   },
+   getAvailableProductById: async (id: number): Promise<ResponseAPI<ProductResponse>> => {
+        const response = await api.get(`/products/available/${id}`);
+        return response.data;
    },
    getShippingTypes: async () => {
       const response = await api_json.get('/shippings');
