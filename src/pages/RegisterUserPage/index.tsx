@@ -4,7 +4,7 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import React, { useState, FocusEvent, useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { countries, tiposDeResidencia } from '../../utils/addressTypes';
-import { extractAddressType, extractLogradouroWithoutType, formatCEP } from '../../services/address/AddressService';
+import { extractAddressType, extractLogradouroWithoutType, formatCEP } from '../../services/AddressService.ts';
 import { IAddressViaCEP } from '../../utils/interfaces/IAddressViaCEP';
 import axios from 'axios';
 import { toast } from 'react-toastify';

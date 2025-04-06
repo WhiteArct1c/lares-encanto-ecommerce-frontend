@@ -20,7 +20,7 @@ import {AuthContext} from "../../contexts/Auth/AuthContext.tsx";
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate} from "react-router-dom";
 import {Address} from "../../utils/types/Address.ts";
-import {extractAddressType, extractLogradouroWithoutType, formatCEP} from "../../services/address/AddressService.ts";
+import {extractAddressType, extractLogradouroWithoutType, formatCEP} from "../../services/AddressService.ts";
 import axios from "axios";
 import {IAddressViaCEP} from "../../utils/interfaces/IAddressViaCEP.ts";
 import {toast} from "react-toastify";
