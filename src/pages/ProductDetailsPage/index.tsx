@@ -1,25 +1,42 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { IProduct } from '../../utils/interfaces/IProduct';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Box, Button, Typography } from '@mui/material';
 import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
 import { toast } from 'react-toastify';
+import {useApi} from "../../hooks/useApi.ts";
+import {ProductResponse} from "../../utils/types/response/Product/ProductResponse.ts";
+import {ProductService} from "../../services/ProductService.ts";
 
 interface ProductDetailsPageProps {
 }
 
 const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
-   const [product, setProduct] = useState<IProduct>();
+   const [product, setProduct] = useState<ProductResponse>();
    const { id } = useParams();
 
    const cart = useContext(ShoppingCartContext);
+   const api = useApi();
+   const productService = new ProductService();
 
-   useEffect(() => {
-      fetch(`http://localhost:3000/products/${id}`)
-         .then(res => res.json())
-         .then((data) => setProduct(data))
-   }, [id])
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const response = await api.getAvailableProductById(Number(id));
+
+                if (response.data && Array.isArray(response.data)) {
+                    setProduct(response.data?.[0]);
+                } else {
+                    toast.error("Os dados recebidos estão em um formato inválido");
+                    setProduct(undefined);
+                }
+            } catch (error) {
+                toast.error("Ocorreu um erro ao carregar o produto");
+            }
+        }
+
+        fetchProduct();
+    }, [id])
 
    const handleAddProductOnCart = () => {
       cart!.addCartProduct(product!)
@@ -53,71 +70,11 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
                >
                   <Box
                      component='img'
-                     src={product?.photoUrl}
+                     src={product?.image}
                      sx={{
                         width: '100%',
                         height: '100%',
                         objectFit: 'contain'
-                     }}
-                  />
-               </Grid2>
-               <Grid2
-                  xs={12}
-                  sx={{
-                     width: '150px',
-                     maxHeight: '150px',
-                     overflow: 'hidden',
-                     pr: 2,
-                     mb: 3
-                  }}
-               >
-                  <Box
-                     component='img'
-                     src={product?.photoUrl}
-                     sx={{
-                        width: '100%',
-                        height: 'auto',
-                        objectFit: 'cover'
-                     }}
-                  />
-               </Grid2>
-               <Grid2
-                  xs={12}
-                  sx={{
-                     width: '150px',
-                     maxHeight: '150px',
-                     overflow: 'hidden',
-                     pr: 2,
-                     mb: 3
-                  }}
-               >
-                  <Box
-                     component='img'
-                     src={product?.photoUrl}
-                     sx={{
-                        width: '100%',
-                        height: 'auto',
-                        objectFit: 'cover'
-                     }}
-                  />
-               </Grid2>
-               <Grid2
-                  xs={12}
-                  sx={{
-                     width: '150px',
-                     maxHeight: '150px',
-                     overflow: 'hidden',
-                     pr: 2,
-                     mb: 3
-                  }}
-               >
-                  <Box
-                     component='img'
-                     src={product?.photoUrl}
-                     sx={{
-                        width: '100%',
-                        height: 'auto',
-                        objectFit: 'cover'
                      }}
                   />
                </Grid2>
@@ -134,7 +91,7 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
                   xs
                   sx={{ mb: 5 }}
                >
-                  <Typography fontWeight={500} fontSize={25} fontFamily={'Public Sans'}>R$ {product?.price}</Typography>
+                  <Typography fontWeight={500} fontSize={25} fontFamily={'Public Sans'}>{productService.formatProductPrice(product?.salePrice)}</Typography>
                </Grid2>
                <Grid2
                   xs
@@ -146,7 +103,7 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
                   xs={12}
                   sx={{ mb: 10 }}
                >
-                  <Typography fontWeight={200} fontSize={17} fontFamily={'Public Sans'}>Vendido por: {product?.vendor}</Typography>
+                  <Typography fontWeight={200} fontSize={17} fontFamily={'Public Sans'}>Vendido por: Lares Encanto</Typography>
                </Grid2>
                <Grid2
                   xs={12}
@@ -170,7 +127,7 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
                      }}
                      onClick={handleAddProductOnCart}
                   >
-                     Adicionar ao carrinho  - R$ {product?.price}
+                     Adicionar ao carrinho  - {productService.formatProductPrice(product?.salePrice)}
                   </Button>
                </Grid2>
             </Grid2>

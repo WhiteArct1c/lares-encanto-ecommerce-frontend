@@ -4,6 +4,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
+import {ProductService} from "../../services/ProductService.ts";
 
 interface ProductItemCardComponentProps {
    productItem: IProductItem
@@ -13,6 +14,7 @@ interface ProductItemCardComponentProps {
 const ProductItemCardComponent: React.FC<ProductItemCardComponentProps> = ({ productItem, context }: ProductItemCardComponentProps) => {
 
    const cart = useContext(ShoppingCartContext);
+   const productService = new ProductService();
 
    const handleRemoveItem = () => {
       cart!.removeCartItemProduct(productItem.id)
@@ -47,7 +49,7 @@ const ProductItemCardComponent: React.FC<ProductItemCardComponentProps> = ({ pro
                   >
                      <Box
                         component='img'
-                        src={productItem.product.photoUrl}
+                        src={productItem.product.image}
                         sx={{
                            width: 150,
                            height: 150
@@ -83,12 +85,11 @@ const ProductItemCardComponent: React.FC<ProductItemCardComponentProps> = ({ pro
                            </IconButton>
                         </Box>
                      </Grid2>
-                     <Typography textAlign={'end'}>vendido por: {productItem.product.vendor}</Typography>
                      <Grid2 sx={{
                         display: 'flex',
                         justifyContent: 'space-between'
                      }}>
-                        <Typography fontWeight={600} fontSize={20}>R$ {productItem.product.price}</Typography>
+                        <Typography fontWeight={600} fontSize={20}>{productService.formatProductPrice(productItem.product.salePrice)}</Typography>
                         <Button
                             data-cy="btn-remove-product"
                            variant='text'
@@ -114,7 +115,7 @@ const ProductItemCardComponent: React.FC<ProductItemCardComponentProps> = ({ pro
                   >
                      <Box
                         component='img'
-                        src={productItem.product.photoUrl}
+                        src={productItem.product.image}
                         sx={{
                            maxWidth: 120,
                            maxHeight: 100
@@ -139,12 +140,11 @@ const ProductItemCardComponent: React.FC<ProductItemCardComponentProps> = ({ pro
                         <Typography fontFamily={'Public Sans'} fontSize={16} fontWeight={400}>Quantidade:</Typography>
                         <Typography fontWeight={600} fontSize={15}>{productItem.quantity}</Typography>
                      </Grid2>
-                     <Typography textAlign={'start'}>{productItem.product.vendor}</Typography>
                      <Grid2 sx={{
                         display: 'flex',
                         justifyContent: 'space-between'
                      }}>
-                        <Typography fontWeight={600} fontSize={15}>R$ {productItem.product.price}</Typography>
+                        <Typography fontWeight={600} fontSize={15}>{productService.formatProductPrice(productItem.product.salePrice)}</Typography>
                      </Grid2>
                   </Grid2>
                </Box>
