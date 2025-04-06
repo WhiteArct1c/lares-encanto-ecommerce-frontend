@@ -7,7 +7,7 @@ import './styles.css';
 import ProductItemCardComponent from '../../shared/ProductItemCardComponent';
 import OrderResumeComponent from '../../shared/OrderResumeComponent';
 import {ShoppingCart} from "@mui/icons-material";
-import { OrderContext } from '../../contexts/OrderContext';
+import { OrderContext } from '../../contexts/OrderContext/OrderContext.tsx';
 
 interface ShoppingCartPageProps {
    
@@ -62,9 +62,9 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
          <Grid2 xs={6}>
             {
                cart!.cartProducts.length > 0 ?
-                  cart!.cartProducts.map((cartProduct, index) => {
+                  cart!.cartProducts.map((cartProduct) => {
                      return(
-                        <ProductItemCardComponent key={index} productItem={cartProduct} context='cart'/>
+                        <ProductItemCardComponent key={cartProduct.id} productItem={cartProduct} context='cart'/>
                      )
                   })
                :

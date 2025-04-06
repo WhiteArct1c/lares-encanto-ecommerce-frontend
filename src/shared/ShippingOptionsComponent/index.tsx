@@ -2,7 +2,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, { useContext, useEffect, useState } from 'react';
 import { IShippingTypes } from '../../utils/interfaces/IShippingTypes';
 import { Box, CircularProgress, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material';
-import { OrderContext } from '../../contexts/OrderContext';
+import { OrderContext } from '../../contexts/OrderContext/OrderContext.tsx';
 import { useApi } from '../../hooks/useApi';
 
 interface ShippingOptionsComponentProps {
@@ -27,12 +27,11 @@ const ShippingOptionsComponent: React.FC<ShippingOptionsComponentProps> = () => 
       }
 
       loadShippingTypes();
-
    },[])
 
    const handleShipment = (shipment: IShippingTypes) => {
-      order!.setOrderShipmentType(shipment);
-      order!.setOrderShipmentPrice(parseFloat(shipment.price));
+      order!.setOrderShippingType(shipment);
+      order!.setOrderShippingPrice(parseFloat(shipment.price));
    }
 
    return (
@@ -42,7 +41,7 @@ const ShippingOptionsComponent: React.FC<ShippingOptionsComponentProps> = () => 
          <RadioGroup
             data-cy='shipping-options'
             sx={{display:'flex', width:'100%'}}
-            defaultValue={order?.shipmentType?.name || ''}
+            defaultValue={order?.shippingType?.name || ''}
          >
             {
                loading 

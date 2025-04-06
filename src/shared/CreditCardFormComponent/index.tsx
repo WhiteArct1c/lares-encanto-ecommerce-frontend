@@ -13,9 +13,9 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, {useContext} from 'react';
 import { useForm } from 'react-hook-form';
 import { Info } from '@mui/icons-material';
-import {z} from "zod";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {OrderContext} from "../../contexts/OrderContext.tsx";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { OrderContext } from "../../contexts/OrderContext/OrderContext.tsx";
 
 interface CreditCardFormComponentProps {
    

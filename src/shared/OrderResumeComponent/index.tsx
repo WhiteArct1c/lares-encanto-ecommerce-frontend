@@ -3,8 +3,9 @@ import Grid2 from '@mui/material/Unstable_Grid2';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, To } from 'react-router-dom';
 import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
-import { OrderContext } from '../../contexts/OrderContext';
+import { OrderContext } from '../../contexts/OrderContext/OrderContext.tsx';
 import CartOrderComponent from '../CartOrderComponent';
+import {ProductService} from "../../services/ProductService.ts";
 
 interface OrderResumeComponentProps {
    redirectUrl: To,
@@ -12,16 +13,22 @@ interface OrderResumeComponentProps {
 }
 
 const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl, buttonLabel}:OrderResumeComponentProps) => {
-   
+   const [totalPrice, setTotalPrice] = useState(0);
+
    const cart = useContext(ShoppingCartContext);
    const order = useContext(OrderContext);
-   const [totalPrice, setTotalPrice] = useState(0);
+   const productService = new ProductService();
+
+   const handleStartOrder = () => {
+      order!.setOrderProducts(cart!.cartProducts);
+      order!.updateOrderTotalPrice(totalPrice);
+   }
 
    useEffect(() => {
       let price: number = 0
 
       cart?.cartProducts.map(productItem => {
-         price += parseFloat(productItem.product.price) * productItem.quantity;
+         price += productItem.product.salePrice * productItem.quantity;
       })
 
       setTotalPrice(price);
@@ -90,7 +97,7 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                fontWeight={600}
                color={'#000'}
             >
-               R$ {totalPrice}
+               {productService.formatProductPrice(totalPrice)}
             </Typography>
          </Grid2>
          <Grid2 sx={{display:'flex', justifyContent:'space-between'}}>
@@ -109,10 +116,10 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                color={'#000'}
             >
                {
-                  order?.shipmentPrice === undefined || order?.shipmentPrice === 0 ?
+                  order?.shippingPrice === undefined || order?.shippingPrice === 0 ?
                      'Calculado no checkout'
                   :
-                     `R$ ${order?.shipmentPrice}`
+                     `R$ ${order?.shippingPrice}`
                }
             </Typography>
          </Grid2>
@@ -132,7 +139,7 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                fontWeight={600}
                color={'#000'}
             >
-               R$ {order!.order !== undefined ? totalPrice + order!.shipmentPrice : totalPrice}
+               {order!.order !== undefined ? productService.formatProductPrice(totalPrice + order!.shippingPrice) : productService.formatProductPrice(totalPrice)}
             </Typography>
          </Grid2>
          <Grid2>
@@ -153,6 +160,7 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                         }
                      }}
                      variant='contained'
+                     onClick={handleStartOrder}
                   >
                      {buttonLabel}
                   </Button>
