@@ -69,7 +69,7 @@ const ShippingOptionsComponent: React.FC<ShippingOptionsComponentProps> = () => 
                         </Grid2>
                         <Grid2 xs={12}>
                            <Typography fontFamily={'Public Sans'} fontSize={'1rem'} fontWeight={600} textAlign={'end'}>
-                              {shipment?.delivery_time}
+                              {shipment?.deliveryTime}
                            </Typography>
                            <Typography fontFamily={'Public Sans'} fontSize={'1rem'} fontWeight={600} textAlign={'end'}>
                               R$ {shipment?.price}

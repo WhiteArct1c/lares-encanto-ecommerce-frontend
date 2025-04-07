@@ -68,7 +68,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
          streetName: getValues().address as string | undefined || '',
          residenceType: getValues().residenceType as string | undefined || '',
          id: '',
-         categories: [],
+         addressCategories: [],
          observations: ''
       }
       order?.setOrderShippingAddress(address);
@@ -89,13 +89,12 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
       }
    }, [order?.shippingAddress, setValue]);
 
-   useEffect(() => {
-      return () => {
-         handleSetOrderShipmentAddress()
-      }
-   }, [])
+   // useEffect(() => {
+   //    return () => {
+   //       handleSetOrderShipmentAddress()
+   //    }
+   // }, [])
 
-   
    return (
       <Grid2
          container

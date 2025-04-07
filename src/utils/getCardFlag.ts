@@ -1,8 +1,6 @@
 export const getCardFlag = (cardNumber: string): string => {
-    // Remove espaços em branco e caracteres não numéricos do número do cartão
     cardNumber = cardNumber.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
 
-    // Verifica os primeiros dígitos para determinar a bandeira
     if (/^4/.test(cardNumber)) {
         return 'VISA';
     } else if (/^5[1-5]/.test(cardNumber)) {

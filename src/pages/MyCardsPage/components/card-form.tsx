@@ -18,7 +18,7 @@ import {AuthContext} from "../../../contexts/Auth/AuthContext.tsx";
 import {toast} from "react-toastify";
 import {CreditCardRequest} from "../../../utils/types/request/CreditCard/CreditCardRequest.ts";
 import {ResponseAPI} from "../../../utils/types/response/ResponseAPI.ts";
-import {CREATED, OK} from "../../../utils/types/apiCodes.ts";
+import {CREATED, OK} from "../../../utils/constants/apiCodes.ts";
 import {useApi} from "../../../hooks/useApi.ts";
 
 const createCardSchema = z.object({

@@ -64,7 +64,7 @@ const ProductItemCardComponent: React.FC<ProductItemCardComponentProps> = ({ pro
                         gap: 1
                      }}
                   >
-                     <Typography fontFamily={'Public Sans'} fontSize={30} fontWeight={600}>{productItem.product.name}</Typography>
+                     <Typography fontFamily={'Public Sans'} fontSize={19} fontWeight={600}>{productItem.product.name}</Typography>
                      <Grid2
                         sx={{
                            display: 'flex',
@@ -89,7 +89,7 @@ const ProductItemCardComponent: React.FC<ProductItemCardComponentProps> = ({ pro
                         display: 'flex',
                         justifyContent: 'space-between'
                      }}>
-                        <Typography fontWeight={600} fontSize={20}>{productService.formatProductPrice(productItem.product.salePrice)}</Typography>
+                        <Typography fontFamily={'Public Sans'} fontWeight={600} fontSize={20}>{productService.formatProductPrice(productItem.product.salePrice)}</Typography>
                         <Button
                             data-cy="btn-remove-product"
                            variant='text'

@@ -1,14 +1,16 @@
 import { Button, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React from 'react';
-import { OrderStatusEnum } from '../../utils/enum/OrderStatusEnum';
-import { Link } from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 
 interface OrderFinishiedPageProps {
 
 }
 
 const OrderFinishiedPage: React.FC<OrderFinishiedPageProps> = () => {
+    const location = useLocation();
+    const { state } = location;
+
    return (
       <Grid2
          container
@@ -43,7 +45,7 @@ const OrderFinishiedPage: React.FC<OrderFinishiedPageProps> = () => {
                fontSize={35}
                fontWeight={600}
             >
-               Número do pedido: 300
+               Número do pedido: {state.orderId}
             </Typography>
             <Typography
                fontFamily={'Public Sans'}
@@ -57,7 +59,7 @@ const OrderFinishiedPage: React.FC<OrderFinishiedPageProps> = () => {
                fontSize={25}
                fontWeight={200}
             >
-               Status da compra: {OrderStatusEnum.EM_PROCESSAMENTO}
+               Status da compra: {state.orderStatus.name}
             </Typography>
          </Grid2>
          <Grid2 xs={12} sx={{ display: 'flex', alignItems: 'center', gap: 2, flexDirection: 'column', mt: 5 }}>

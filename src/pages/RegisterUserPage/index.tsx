@@ -12,7 +12,7 @@ import { Customer } from '../../utils/types/Customer';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../contexts/Auth/AuthContext';
 import { AddressCategoryEnum } from '../../utils/enum/AddressCategoryEnum';
-import {CREATED} from "../../utils/types/apiCodes.ts";
+import {CREATED} from "../../utils/constants/apiCodes.ts";
 
 interface FormRegisterUserProps {
 

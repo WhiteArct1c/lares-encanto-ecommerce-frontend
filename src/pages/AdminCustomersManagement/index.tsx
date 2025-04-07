@@ -6,7 +6,7 @@ import { DataGrid, GridActionsCellItem, GridColDef, GridPaginationModel, GridRow
 import { useApi } from '../../hooks/useApi';
 import { ResponseCustomer } from '../../utils/types/ResponseCustomer';
 import { MoreVert } from '@mui/icons-material';
-import { OK } from '../../utils/types/apiCodes';
+import { OK } from '../../utils/constants/apiCodes.ts';
 import TransactionHistoryDialog from "./components/transaction-history-dialog.tsx";
 
 interface AdminCustomersManagementRows{

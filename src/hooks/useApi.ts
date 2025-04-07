@@ -8,6 +8,8 @@ import { IUpdateAddressRequest } from "../utils/interfaces/request/IUpdateAddres
 import { CreditCardRequest } from "../utils/types/request/CreditCard/CreditCardRequest.ts";
 import {ProductResponse} from "../utils/types/response/Product/ProductResponse.ts";
 import {ResponseAPI} from "../utils/types/response/ResponseAPI.ts";
+import {OrderCreateRequest} from "../utils/types/request/Order/OrderCreateRequest.ts";
+import {OrderCreateResponse} from "../utils/types/response/Order/OrderCreateResponse.ts";
 
 const api = axios.create({
    baseURL: import.meta.env.VITE_API_URL_DEV,
@@ -67,6 +69,14 @@ export const useApi = () => ({
    updatePassword: async (updatePasswordRequest: IUpdatePasswordRequest) => {
       const response = await api.post('/user/update-password', updatePasswordRequest);
       return response.data;
+   },
+   getCustomerInfo: async (token: string) => {
+        const response = await api.get('/customers/self', {
+             headers:{
+                Authorization: `Bearer ${token}`
+             }
+        });
+        return response.data;
    },
    registerCustomer: async (customer: Customer) => {
       const response = await api.post('/auth/register', customer);
@@ -159,6 +169,14 @@ export const useApi = () => ({
          }
       });
       return response.data;
+   },
+   createOrder: async (order: OrderCreateRequest): Promise<ResponseAPI<OrderCreateResponse>> => {
+        const response = await api.post('/orders', order, {
+             headers:{
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`
+             }
+        });
+        return response.data;
    },
    createProduct: async (createProductRequest: FormData) => {
       const response = await api.post('/products', createProductRequest, {

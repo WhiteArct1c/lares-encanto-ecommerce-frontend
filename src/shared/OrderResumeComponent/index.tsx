@@ -40,12 +40,12 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
          sx={{
             display:'flex', 
             flexDirection:'column',
-            gap:3, 
+            gap:2,
             ml:10,
             border:'1px solid #777', 
             padding:2, 
             borderRadius:2, 
-            maxHeight: 700,
+            maxHeight: 800,
          }}
       >
          {redirectUrl !== '/checkout' &&
@@ -120,6 +120,29 @@ const OrderResumeComponent: React.FC<OrderResumeComponentProps> = ({redirectUrl,
                      'Calculado no checkout'
                   :
                      `R$ ${order?.shippingPrice}`
+               }
+            </Typography>
+         </Grid2>
+         <Grid2 sx={{display:'flex', justifyContent:'space-between'}}>
+            <Typography
+                fontFamily={'Public Sans'}
+                fontSize={'1rem'}
+                fontWeight={400}
+                color={'#000'}
+            >
+               Prazo
+            </Typography>
+            <Typography
+                fontFamily={'Public Sans'}
+                fontSize={'1rem'}
+                fontWeight={400}
+                color={'#000'}
+            >
+               {
+                  order?.shippingPrice === undefined || order?.shippingPrice === 0 ?
+                      'Calculado no checkout'
+                      :
+                      `${order?.shippingType?.deliveryTime}`
                }
             </Typography>
          </Grid2>

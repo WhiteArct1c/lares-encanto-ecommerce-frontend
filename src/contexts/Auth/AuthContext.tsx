@@ -12,7 +12,7 @@ import {User} from "../../utils/types/User.ts";
 
 export type AuthContextType = {
    user: ResponseCustomer | null;
-   signin: (email: string, password: string) => Promise<ResponseAPI<User>>;
+   signin: (email: string, password: string) => Promise<ResponseAPI<User | never>>;
    signout: () => void;
    verifyRole: () => Promise<ResponseAPI<string>>;
    registerCustomer: (user: Customer) => Promise<ResponseAPI<never>>;

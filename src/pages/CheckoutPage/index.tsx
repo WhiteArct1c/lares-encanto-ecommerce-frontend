@@ -1,14 +1,16 @@
 import { Box, Button, Step, StepButton, Stepper, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useState} from 'react';
 import OrderResumeComponent from '../../shared/OrderResumeComponent';
 import AddressFormComponent from '../../shared/AddressFormComponent';
 import ShippingOptionsComponent from '../../shared/ShippingOptionsComponent';
 import PaymentMethodsOrderComponent from '../../shared/PaymentMethodsOrderComponent';
-import { Link } from 'react-router-dom';
-import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
+// import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
 import CheckoutCustomerAddresses from "./components/checkout-customer-addresses.tsx";
 import { OrderContext } from "../../contexts/OrderContext/OrderContext.tsx";
+import { CREATED } from "../../utils/constants/apiCodes.ts";
+import {useNavigate} from "react-router-dom";
+import {toast} from "react-toastify";
 
 interface CheckoutPageProps {
 
@@ -23,8 +25,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
       [k: number]: boolean;
    }>({});
 
-   const cart = useContext(ShoppingCartContext);
    const order = useContext(OrderContext);
+   const navigate = useNavigate();
 
    const totalSteps = () => {
       return steps.length;
@@ -50,17 +52,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
             :
             activeStep + 1;
       setActiveStep(newActiveStep);
-      console.log(order);
    };
 
    const handleBack = () => {
       setActiveStep((prevActiveStep) => prevActiveStep - 1);
-      console.log(order);
    };
 
    const handleStep = (step: number) => () => {
       setActiveStep(step);
-      console.log(order);
    };
 
    const handleComplete = () => {
@@ -78,14 +77,25 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
       handleComplete();
    }
 
-   const handleCompleteOrder = () => {
-      //TODO: MANDAR ORDEM PARA O BACKEND COM POST E RESETAR CARRINHO
-      cart?.resetCart();
+   const handleCompleteOrder = async () => {
+      const response = await order.createOrder();
+
+      if(response && response.code === CREATED){
+         order.resetOrder();
+         navigate('/order-finished', {
+            state: {
+               orderId: response.data[0].id,
+               orderStatus: response.data[0].status,
+            }
+         });
+      }else{
+         toast.error('Erro ao finalizar o pedido');
+      }
    }
 
-   useEffect(() => {
-      console.log(order)
-   }, [order]);
+   // useEffect(() => {
+   //    console.log(order)
+   // }, [order]);
 
    return (
       <Grid2
@@ -250,7 +260,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                                           Voltar
                                        </Button>
                                        <Box sx={{ flex: '1 1 auto' }} />
-                                       <Link to={'/order-finished'}>
+                                       {/*<Link to={'/order-finished'}>*/}
                                           <Button
                                              data-cy="btn-finish-order"
                                              color="inherit"
@@ -272,7 +282,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                                           >
                                              Finalizar compra
                                           </Button>
-                                       </Link>
+                                       {/*</Link>*/}
                                     </Box>
                                  </>
                                  :

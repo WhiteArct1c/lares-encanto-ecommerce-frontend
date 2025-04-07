@@ -15,6 +15,8 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
    const [paymentMethods, setPaymentMethods] = useState<IPaymentMethods[]>([]);
    const [actualMethod, setActualMethod] = useState('Cartão de Crédito');
    const [creditCards, setCreditCards] = useState<CreditCardRequest[]>([]);
+   const [selectedCard, setSelectedCard] = useState<CreditCardRequest | null>(null);
+
    const api = useApi();
 
    // const userContext = useContext(AuthContext);
@@ -24,21 +26,62 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
         setCreditCards(data.data);
     }
 
-   useEffect(() => {
+    const handlePaymentMethodChange = (method: string) => {
+        setActualMethod(method);
+    }
+
+    const handleSelectedCard = (event: React.MouseEvent<HTMLElement>) => {
+        const ccName = event.currentTarget.innerText.match(/\d+/g);
+        if(ccName !== null){
+            const card = creditCards.find((card) =>  String(card.cardNumber) === ccName[0]);
+            if(card !== undefined){
+                setSelectedCard(card);
+            }
+        }
+    }
+
+    useEffect(() => {
         async function loadPaymentMethods() {
             const data = await api.getPaymentTypes();
             setPaymentMethods([...data]);
         }
         loadPaymentMethods();
         loadCreditCards();
-   }, []);
-
-   const handlePaymentMethodChange = (method: string) => {
-      setActualMethod(method);
-   }
+    }, []);
    
    return (
-      <Grid2 container sx={{m:3, display:'flex', justifyContent:'center', gap:2}} spacing={2}>
+    <Grid2 container sx={{width: '100%', mt:2, ml:2,  display:'flex', justifyContent:'center', gap:2}} spacing={3}>
+        <Grid2 xs={12} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <Typography
+                fontFamily={'Public Sans'}
+                fontSize={'1.2rem'}
+                fontWeight={500}
+                color={'#000'}
+            >
+                Formas de Pagamento:
+            </Typography>
+            {paymentMethods.map((method, index)=> {
+                return(
+                    <Button
+                        key={index}
+                        variant='contained'
+                        sx={{
+                            bgcolor: '#000',
+                            color: 'white',
+                            height:50,
+                            '&:hover': {
+                              bgcolor: 'white',
+                              color: 'black',
+                            },
+                            ml:5
+                        }}
+                        onClick={() => handlePaymentMethodChange(method.name)}
+                    >
+                        {method.name}
+                    </Button>
+                )
+            })}
+        </Grid2>
          <Grid2 xs={12} sx={{border:'1px solid black', borderRadius:1}}>
             <Typography fontFamily={'Public Sans'} fontWeight={500} fontSize={20}>Seus cartões</Typography>
             <Divider sx={{mb:3}}/>
@@ -47,24 +90,37 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
                    creditCards.length ?
                        creditCards.map((card, index) => {
                         return(
-                           <Grid2 key={index} xs={4}>
+                           <Grid2
+                                key={index}
+                                xs={3}
+                                onClick={handleSelectedCard}
+                                sx={{
+                                    cursor: 'pointer',
+                                    transition: '0.2s linear',
+                                    '&:hover': {
+                                        scale: 1.05,
+                                        transition: '0.2s linear',
+                                        bgColor: '#f0f0f0',
+                                    },
+                                    display:'flex',
+                                }}
+                           >
                               <Card 
-                                 sx={{
-                                    width:'100%', 
-                                    mb:2, 
-                                    border:'1px solid #2d2d2d', 
-                                    height:'160px'
-                                 }}
+                                    sx={{
+                                        width:'100%',
+                                        border:'1px solid #2d2d2d',
+                                        height:'160px',
+                                    }}
                               >
                                  <CardContent>
                                     <Typography fontFamily={'Public Sans'} fontWeight={600} variant='h6'>
-                                       {card.cardNumber}
+                                        {card.cardName}
                                     </Typography>
                                     <Typography fontFamily={'Public Sans'}>
-                                       {card.cardName}
+                                        {card.cardNumber}
                                     </Typography>
                                     <Typography fontFamily={'Public Sans'}>
-                                       {card.cardFlag}
+                                        {card.cardFlag}
                                     </Typography>
                                     {
                                        card.mainCard ?
@@ -95,32 +151,11 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
             </Grid2>
          </Grid2>
          <Grid2 xs={12}>
-            {paymentMethods.map((method, index)=> {
-               return(
-                  <Button
-                     key={index}
-                     variant='contained'
-                     sx={{
-                        bgcolor: '#000',
-                        color: 'white',
-                        height:50,
-                        '&:hover': {
-                           bgcolor: 'white',
-                           color: 'black',
-                        },
-                        ml:5
-                     }}
-                     onClick={() => handlePaymentMethodChange(method.name)}
-                  >
-                     {method.name}
-                  </Button>
-               )
-            })}
-         </Grid2>
-         <Grid2 xs={12}>
             {
                actualMethod === 'Cartão de Crédito' ?
-                  <CreditCardFormComponent/>
+                  <CreditCardFormComponent
+                        selectedCard={selectedCard || undefined}
+                  />
                :
                   <></>
             }

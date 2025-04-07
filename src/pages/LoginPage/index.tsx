@@ -6,7 +6,7 @@ import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../contexts/Auth/AuthContext';
-import {OK} from "../../utils/types/apiCodes.ts";
+import {OK} from "../../utils/constants/apiCodes.ts";
 
 interface LoginPageProps {
    
@@ -38,21 +38,20 @@ const LoginPage: React.FC<LoginPageProps> = () => {
       formState: { errors }
    }  = useForm();
 
-   const onSubmit = async (user: FieldValues) => {
-      if(user.email && user.password){
-         const data = await auth.signin(user.email, user.password);
-         if(data.code === OK){
-             const role = await auth.verifyRole();
-             if(role.data[0] === "USER"){
-                 navigate('/products');
-             }else{
-                 navigate('/admin/dashboard');
-             }
-             toast.success(data.message);
-         }else{
+    const onSubmit = async (user: FieldValues) => {
+
+        const data = await auth.signin(user.email, user.password);
+        if(data.code === OK){
+            const role = await auth.verifyRole();
+            if(role.data[0] === "USER"){
+                navigate('/products');
+            }else{
+                navigate('/admin/dashboard');
+            }
+            toast.success(data.message);
+        }else {
             toast.error(data.message);
-         }  
-      }
+        }
    }
 
    return (

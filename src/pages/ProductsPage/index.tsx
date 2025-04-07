@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useApi } from '../../hooks/useApi';
 import {ProductResponse} from "../../utils/types/response/Product/ProductResponse.ts";
 import {toast} from "react-toastify";
-import {OK} from "../../utils/types/apiCodes.ts";
+import {OK} from "../../utils/constants/apiCodes.ts";
 
 interface ProductsPageProps {}
 

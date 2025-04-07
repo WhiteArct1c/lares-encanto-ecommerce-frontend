@@ -31,8 +31,7 @@ import {Add, Delete, Edit, Visibility, VisibilityOff} from "@mui/icons-material"
 import {countries, tiposDeResidencia} from "../../utils/addressTypes.ts";
 import MyProfileSidenavComponent from '../../shared/MyProfileSidenavComponent';
 import {IUpdateAddressRequest} from "../../utils/interfaces/request/IUpdateAddressRequest.ts";
-import { addressCategoryTranslate } from '../../utils/addressCategoryTranslate.ts';
-import { OK } from '../../utils/types/apiCodes.ts';
+import { OK } from '../../utils/constants/apiCodes.ts';
 
 interface MyProfilePageProps {
 
@@ -432,12 +431,12 @@ const MyProfilePage: React.FC<MyProfilePageProps> = () => {
                                  &nbsp;
                                  -
                                  {
-                                       address.categories.map((category, index) => (
+                                       address.addressCategories.map((category, index) => (
                                           <Chip
                                              key={index}
                                              data-cy="chip-address-category"
                                              component={'span'}
-                                             label={addressCategoryTranslate(category).toLocaleLowerCase()}
+                                             label={category.toLocaleLowerCase()}
                                              sx={{bgcolor:'#484646', color:'#fff', width: 80, ml: 1}}
                                           />
                                        ))

@@ -13,7 +13,7 @@ const CheckoutCustomerAddresses: React.FC = () => {
 
     const loadDeliveryCustomerAddresses = async () => {
         const deliveryAddresses = userContext.user?.addresses?.filter((address) => 
-            address.categories.includes('DELIVERY')
+            address.addressCategories.includes('Entrega')
         );
         setCustomerDeliveryAddresses(deliveryAddresses || []);
     };

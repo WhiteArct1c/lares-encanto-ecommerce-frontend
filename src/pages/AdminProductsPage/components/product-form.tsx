@@ -10,7 +10,7 @@ import { useApi } from "../../../hooks/useApi.ts";
 import { toast } from "react-toastify";
 import { ProductCategoryResponse } from "../../../utils/types/response/ProductCategory/ProductCategoryResponse.ts";
 import { PricingGroupResponse } from "../../../utils/types/response/PricingGroup/PricingGroupResponse.ts";
-import {CREATED} from "../../../utils/types/apiCodes.ts";
+import {CREATED} from "../../../utils/constants/apiCodes.ts";
 
 // Schema do Zod
 const createProductSchema = z.object({
