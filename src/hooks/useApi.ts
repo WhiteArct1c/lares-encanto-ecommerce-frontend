@@ -178,6 +178,22 @@ export const useApi = () => ({
         });
         return response.data;
    },
+   getAllPendingOrders: async () => {
+        const response = await api.get('/orders/pending', {
+             headers:{
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`
+             }
+        });
+        return response.data;
+   },
+   getCustomerOrders: async () => {
+        const response = await api.get('/orders', {
+             headers:{
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`
+             }
+        });
+        return response.data;
+   },
    createProduct: async (createProductRequest: FormData) => {
       const response = await api.post('/products', createProductRequest, {
          headers: {

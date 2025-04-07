@@ -89,11 +89,11 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
       }
    }, [order?.shippingAddress, setValue]);
 
-   // useEffect(() => {
-   //    return () => {
-   //       handleSetOrderShipmentAddress()
-   //    }
-   // }, [])
+   useEffect(() => {
+      return () => {
+         handleSetOrderShipmentAddress()
+      }
+   }, [])
 
    return (
       <Grid2
