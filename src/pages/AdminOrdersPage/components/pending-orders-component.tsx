@@ -22,6 +22,7 @@ import { useApi } from "../../../hooks/useApi.ts";
 import { OrderCreateResponse } from "../../../utils/types/response/Order/OrderCreateResponse.ts";
 import OrderStatusDialog from "./order-status-dialog.tsx";
 import { ProductService } from '../../../services/ProductService.ts';
+import { toast } from 'react-toastify';
 
 const PendingOrdersComponent: React.FC = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -35,9 +36,30 @@ const PendingOrdersComponent: React.FC = () => {
     const api = useApi();
     const theme = useTheme();
 
-    const handleStatusChange = () => {
-        setDialogOpen(false);
-        // Aqui você pode adicionar lógica para atualizar a lista após mudança de status
+    const handleStatusChange = async (newStatus: string) => {
+        if(!selectedOrder) return;
+
+        try {
+            const response = await api.updateOrderStatus({
+                orderId: selectedOrder.id,
+                statusName: newStatus
+            });
+
+            if(response && response.code === '200 OK'){
+                toast.success(`Status do pedido #${selectedOrder.id} alterado para ${newStatus}`);
+                setDialogOpen(false);
+                
+                // Atualizar a lista de pedidos
+                const updatedResponse = await api.getAllPendingOrders();
+                setPendingOrders(updatedResponse.data || []);
+            } else {
+                toast.error(response?.message || 'Erro ao atualizar status do pedido');
+            }
+        } catch (error: any) {
+            const errorMessage = error?.response?.data?.message || 'Erro ao atualizar status do pedido';
+            toast.error(errorMessage);
+            console.error('Erro ao atualizar status:', error);
+        }
     }
 
     const handleOpenDialog = (order: OrderCreateResponse) => {
@@ -252,7 +274,8 @@ const PendingOrdersComponent: React.FC = () => {
                     open={dialogOpen}
                     onClose={() => setDialogOpen(false)}
                     onSave={handleStatusChange}
-                    // order={selectedOrder}
+                    orderId={selectedOrder.id}
+                    currentStatus={selectedOrder.status.name}
                 />
             )}
         </Box>

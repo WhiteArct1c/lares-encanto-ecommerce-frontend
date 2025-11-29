@@ -6,6 +6,7 @@ import {
     AccordionSummary,
     Box,
     Button,
+    Chip,
     Dialog, DialogActions, DialogContent, DialogTitle, Divider,
     Typography,
     CircularProgress
@@ -144,13 +145,29 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                                     backgroundColor: '#f5f5f5'
                                 }}
                             >
-                                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                    <Typography variant="subtitle1">
-                                        <strong>Pedido #{order.id}</strong> - {order.status.name}
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        Data: {formatDate(order.createdAt)} • Total: R$ {productService.formatProductPrice(order.totalPrice)}
-                                    </Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                        <Typography variant="subtitle1">
+                                            <strong>Pedido #{order.id}</strong>
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            Data: {formatDate(order.createdAt)} • Total: R$ {productService.formatProductPrice(order.totalPrice)}
+                                        </Typography>
+                                    </Box>
+                                    <Chip
+                                        label={order.status.name}
+                                        color={
+                                            order.status.name === 'APROVADO' ? 'success' :
+                                            order.status.name === 'EM PROCESSAMENTO' ? 'warning' :
+                                            order.status.name === 'REPROVADO' || order.status.name === 'CANCELADO' ? 'error' :
+                                            order.status.name === 'EM TRANSPORTE' ? 'info' :
+                                            order.status.name === 'ENTREGUE' ? 'success' :
+                                            order.status.name.includes('TROCA') || order.status.name.includes('DEVOLUÇÃO') ? 'warning' :
+                                            'default'
+                                        }
+                                        size="small"
+                                        sx={{ fontWeight: 600 }}
+                                    />
                                 </Box>
                             </AccordionSummary>
                             <AccordionDetails>

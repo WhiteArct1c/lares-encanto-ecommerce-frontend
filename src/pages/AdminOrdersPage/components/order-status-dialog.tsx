@@ -16,10 +16,12 @@ interface OrderStatusDialogProps {
     open: boolean;
     onClose: () => void;
     onSave: (selectedStatus: string) => void;
+    orderId: number;
+    currentStatus: string;
 }
 
-const OrderStatusDialog: React.FC<OrderStatusDialogProps> = ({ open, onClose, onSave }) => {
-    const [selectedStatus, setSelectedStatus] = useState('EM PROCESSAMENTO');
+const OrderStatusDialog: React.FC<OrderStatusDialogProps> = ({ open, onClose, onSave, orderId, currentStatus }) => {
+    const [selectedStatus, setSelectedStatus] = useState(currentStatus);
 
     const statusOptions = [
         'EM PROCESSAMENTO',
