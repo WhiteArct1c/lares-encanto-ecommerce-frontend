@@ -42,6 +42,7 @@ const CheckoutCustomerAddresses: React.FC = () => {
                     :
                     customerDeliveryAddresses?.map((address, index) => (
                         <CheckoutAddressCard
+                            key={address.id}
                             index={index}
                             address={address}
                         />

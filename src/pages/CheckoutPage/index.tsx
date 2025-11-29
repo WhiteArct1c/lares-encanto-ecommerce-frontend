@@ -1,11 +1,11 @@
-import { Box, Button, Step, StepButton, Stepper, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Step, StepButton, Stepper, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import OrderResumeComponent from '../../shared/OrderResumeComponent';
 import AddressFormComponent from '../../shared/AddressFormComponent';
 import ShippingOptionsComponent from '../../shared/ShippingOptionsComponent';
 import PaymentMethodsOrderComponent from '../../shared/PaymentMethodsOrderComponent';
-// import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
+import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
 import CheckoutCustomerAddresses from "./components/checkout-customer-addresses.tsx";
 import { OrderContext } from "../../contexts/OrderContext/OrderContext.tsx";
 import { CREATED } from "../../utils/constants/apiCodes.ts";
@@ -24,9 +24,25 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
    const [completed, setCompleted] = useState<{
       [k: number]: boolean;
    }>({});
+   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
    const order = useContext(OrderContext);
+   const cart = useContext(ShoppingCartContext);
    const navigate = useNavigate();
+
+   // Sincronizar produtos do carrinho com o contexto de pedido quando a página carregar
+   useEffect(() => {
+      if(cart?.cartProducts && cart.cartProducts.length > 0) {
+         order?.setOrderProducts(cart.cartProducts);
+         
+         // Calcular total do pedido
+         const totalPrice = cart.cartProducts.reduce((sum, item) => {
+            return sum + (item.product.salePrice * item.quantity);
+         }, 0);
+         order?.updateOrderTotalPrice(totalPrice);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [cart?.cartProducts]);
 
    const totalSteps = () => {
       return steps.length;
@@ -78,18 +94,40 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
    }
 
    const handleCompleteOrder = async () => {
-      const response = await order.createOrder();
+      setIsCreatingOrder(true);
+      try {
+         const response = await order.createOrder();
 
-      if(response && response.code === CREATED){
-         order.resetOrder();
-         navigate('/order-finished', {
-            state: {
-               orderId: response.data[0].id,
-               orderStatus: response.data[0].status,
+         if(response && response.code === CREATED){
+            toast.success('Pedido criado com sucesso!');
+            order.resetOrder();
+            navigate('/order-finished', {
+               state: {
+                  orderId: response.data[0].id,
+                  orderStatus: response.data[0].status,
+               }
+            });
+         }else{
+            toast.error(response?.message || 'Erro ao finalizar o pedido');
+         }
+      } catch (error: unknown) {
+         // Tratamento de erros 400 do backend
+         const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+         if(axiosError?.response?.status === 400){
+            const errorMessage = axiosError?.response?.data?.message || 'Erro ao finalizar o pedido';
+            toast.error(errorMessage);
+
+            // Se for erro de estoque, pode tentar atualizar o carrinho
+            if(errorMessage.includes('Quantidade solicitada') || errorMessage.includes('estoque')){
+               toast.warning('O estoque foi atualizado. Por favor, verifique os produtos no carrinho.');
+               // TODO: Atualizar carrinho automaticamente
             }
-         });
-      }else{
-         toast.error('Erro ao finalizar o pedido');
+         } else {
+            toast.error('Erro ao finalizar o pedido. Tente novamente.');
+            console.error('Erro ao criar pedido:', error);
+         }
+      } finally {
+         setIsCreatingOrder(false);
       }
    }
 
@@ -265,6 +303,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                                              data-cy="btn-finish-order"
                                              color="inherit"
                                              onClick={handleCompleteOrder}
+                                             disabled={isCreatingOrder}
                                              sx={{
                                                 width: 220,
                                                 color: '#fff',
@@ -280,7 +319,14 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                                                 }
                                              }}
                                           >
-                                             Finalizar compra
+                                             {isCreatingOrder ? (
+                                                <>
+                                                   <CircularProgress size={20} sx={{ mr: 1, color: '#fff' }} />
+                                                   Finalizando...
+                                                </>
+                                             ) : (
+                                                'Finalizar compra'
+                                             )}
                                           </Button>
                                        {/*</Link>*/}
                                     </Box>

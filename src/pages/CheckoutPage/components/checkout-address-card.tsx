@@ -9,7 +9,7 @@ interface CheckoutCustomerAddressesProps {
    address: IAddress;
 }
 
-const CheckoutAddressCard: React.FC<CheckoutCustomerAddressesProps> = ({ index, address }) => {
+const CheckoutAddressCard: React.FC<CheckoutCustomerAddressesProps> = ({ address }) => {
 
    const orderContext = useContext(OrderContext);
 
@@ -18,9 +18,8 @@ const CheckoutAddressCard: React.FC<CheckoutCustomerAddressesProps> = ({ index, 
    }
 
    return (
-      <Grid2 xs={4} key={index}>
+      <Grid2 xs={4}>
          <Card
-            key={index + 1}
             sx={{
                cursor: 'pointer',
                '&:hover': {
