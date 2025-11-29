@@ -22,8 +22,9 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
     const api = useApi();
 
     const createOrder = async () => {
-        if(!products){
-            toast.error("Adicione produtos ao pedido");
+        // Validação: Pelo menos 1 produto
+        if(!products || products.length === 0){
+            toast.error("É necessário informar pelo menos um produto no pedido");
             return;
         }
 
@@ -37,17 +38,56 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             return;
         }
 
+        // Validação: Pelo menos 1 forma de pagamento
         if(orderPayments.length === 0){
-            toast.error("Selecione o método de pagamento");
+            toast.error("É necessário informar pelo menos uma forma de pagamento");
+            return;
+        }
+
+        // Validação: Limite de 2 cartões
+        if(orderPayments.length > 2){
+            toast.error("É permitido usar no máximo 2 cartões de crédito");
             return;
         }
 
         const totalPrice = orderTotalPrice + shippingPrice;
+
+        // Validação: Valor mínimo R$ 10,00 por cartão
+        const MIN_CARD_VALUE = 10.00;
+        for(const payment of orderPayments){
+            if(payment.paymentMethod === 'CREDIT_CARD'){
+                const totalPaymentValue = payment.installmentValue * payment.installments;
+                if(totalPaymentValue < MIN_CARD_VALUE){
+                    toast.error(`O valor mínimo por cartão de crédito é R$ ${MIN_CARD_VALUE.toFixed(2)}. Valor informado: R$ ${totalPaymentValue.toFixed(2)}`);
+                    return;
+                }
+            }
+        }
+
+        // Validação: Soma dos pagamentos = totalPrice
+        const totalPayments = orderPayments.reduce((sum, payment) => {
+            return sum + (payment.installmentValue * payment.installments);
+        }, 0);
+
+        const difference = Math.abs(totalPayments - totalPrice);
+        if(difference > 0.01){ // Tolerância para diferenças de arredondamento
+            toast.error(`A soma dos pagamentos (R$ ${totalPayments.toFixed(2)}) não confere com o valor total do pedido (R$ ${totalPrice.toFixed(2)})`);
+            return;
+        }
+
+        // Criar objeto de shipping apenas com o ID (backend calculará o preço)
+        const shippingRequest = {
+            id: shippingType!.id,
+            name: null,
+            deliveryTime: null,
+            price: null
+        };
+
         const orderData: OrderCreateRequest = {
             address: shippingAddress!,
             orderProducts: products,
             orderPayments: orderPayments,
-            shipping: shippingType!,
+            shipping: shippingRequest,
             type: orderType,
             totalPrice: totalPrice
         };
@@ -62,6 +102,20 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             setOrderPayments([payment]);
         }else{
             setOrderPayments((prevPayments) => {
+                // Validação: Limite de 2 cartões
+                if(prevPayments.length >= 2){
+                    toast.error("É permitido usar no máximo 2 cartões de crédito");
+                    return prevPayments;
+                }
+
+                // Validação: Valor mínimo R$ 10,00 por cartão
+                const MIN_CARD_VALUE = 10.00;
+                const totalPaymentValue = payment.installmentValue * payment.installments;
+                if(payment.paymentMethod === 'CREDIT_CARD' && totalPaymentValue < MIN_CARD_VALUE){
+                    toast.error(`O valor mínimo por cartão de crédito é R$ ${MIN_CARD_VALUE.toFixed(2)}. Valor informado: R$ ${totalPaymentValue.toFixed(2)}`);
+                    return prevPayments;
+                }
+
                 const paymentExists = prevPayments.some((p) => p.creditCard.cardNumber === payment.creditCard.cardNumber);
                 if (paymentExists) {
                     return prevPayments.map((p) =>
@@ -105,6 +159,8 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
         setShippingPrice(0);
         setShippingAddress(undefined);
         setOrderTotalPrice(0);
+        setOrderPayments([]);
+        setProducts([]);
     };
 
     return (
