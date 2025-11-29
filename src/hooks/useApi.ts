@@ -10,6 +10,9 @@ import {ProductResponse} from "../utils/types/response/Product/ProductResponse.t
 import {ResponseAPI} from "../utils/types/response/ResponseAPI.ts";
 import {OrderCreateRequest} from "../utils/types/request/Order/OrderCreateRequest.ts";
 import {OrderCreateResponse} from "../utils/types/response/Order/OrderCreateResponse.ts";
+import {OrderStatusUpdateRequest} from "../utils/types/request/Order/OrderStatusUpdateRequest.ts";
+import {ShippingCalculationRequest} from "../utils/types/request/Shipping/ShippingCalculationRequest.ts";
+import {ShippingOption} from "../utils/types/response/Shipping/ShippingOption.ts";
 
 const api = axios.create({
    baseURL: import.meta.env.VITE_API_URL_DEV,
@@ -122,8 +125,26 @@ export const useApi = () => ({
         const response = await api.get(`/products/available/${id}`);
         return response.data;
    },
+   // DEPRECATED: Usar calculateShipping ou getShippingOptions do backend
+   // Mantido para compatibilidade, mas não deve ser usado em novos códigos
    getShippingTypes: async () => {
       const response = await api_json.get('/shippings');
+      return response.data;
+   },
+   calculateShipping: async (request: ShippingCalculationRequest): Promise<ResponseAPI<ShippingOption>> => {
+      const response = await api.post('/shipping/calculate', request, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   getShippingOptions: async (): Promise<ResponseAPI<ShippingOption>> => {
+      const response = await api.get('/shipping/options', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
       return response.data;
    },
    getPaymentTypes: async () => {
@@ -188,6 +209,14 @@ export const useApi = () => ({
    },
    getCustomerOrders: async () => {
         const response = await api.get('/orders', {
+             headers:{
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`
+             }
+        });
+        return response.data;
+   },
+   updateOrderStatus: async (statusUpdate: OrderStatusUpdateRequest): Promise<ResponseAPI<OrderCreateResponse>> => {
+        const response = await api.put('/orders/status', statusUpdate, {
              headers:{
                 Authorization: `Bearer ${localStorage.getItem('authToken')}`
              }
