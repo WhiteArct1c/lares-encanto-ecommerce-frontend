@@ -77,9 +77,43 @@ const ShippingOptionsComponent: React.FC<ShippingOptionsComponentProps> = () => 
          setError(null);
 
          try {
+            // Garantir que os produtos tenham o peso (weightKg) incluído explicitamente
+            // O backend precisa do peso de cada produto para calcular o frete corretamente
+            const productsWithWeight = order.products.map(item => {
+               // Extrair weightKg do produto (pode não existir se o produto foi carregado antes da atualização)
+               const productAny = item.product as any;
+               const weightKg = productAny && 'weightKg' in productAny && productAny.weightKg !== undefined && productAny.weightKg !== null
+                  ? productAny.weightKg
+                  : null;
+
+               // Criar objeto produto garantindo que weightKg esteja presente explicitamente no JSON
+               // Isso garante que o campo será sempre incluído no payload, mesmo que seja null
+               const productWithWeight = {
+                  id: item.product.id,
+                  name: item.product.name,
+                  description: item.product.description,
+                  price: item.product.price,
+                  salePrice: item.product.salePrice,
+                  color: item.product.color,
+                  image: item.product.image,
+                  isActive: item.product.isActive,
+                  category: item.product.category,
+                  pricingGroup: item.product.pricingGroup,
+                  type: item.product.type,
+                  stockQuantity: item.product.stockQuantity,
+                  weightKg: weightKg // SEMPRE incluir explicitamente no objeto (será null se não existir)
+               };
+
+               return {
+                  id: item.id,
+                  quantity: item.quantity,
+                  product: productWithWeight
+               };
+            });
+
             const request: ShippingCalculationRequest = {
                address: order.shippingAddress!,
-               products: order.products
+               products: productsWithWeight
             };
 
             const response = await api.calculateShipping(request);
