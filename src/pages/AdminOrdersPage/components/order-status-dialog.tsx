@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -18,26 +18,61 @@ interface OrderStatusDialogProps {
     onSave: (selectedStatus: string) => void;
     orderId: number;
     currentStatus: string;
+    orderType?: string;
 }
 
-const OrderStatusDialog: React.FC<OrderStatusDialogProps> = ({ open, onClose, onSave, orderId, currentStatus }) => {
+const OrderStatusDialog: React.FC<OrderStatusDialogProps> = ({ open, onClose, onSave, currentStatus, orderType }) => {
+    const getAllStatusOptions = () => {
+        return [
+            'EM PROCESSAMENTO',
+            'REPROVADO',
+            'APROVADO',
+            'CANCELADO',
+            'EM TRANSPORTE',
+            'ENTREGUE',
+            'TROCA SOLICITADA',
+            'TROCA ACEITA',
+            'TROCA CONCLUÍDA',
+            'TROCA RECUSADA',
+            'DEVOLUÇÃO SOLICITADA',
+            'DEVOLUÇÃO ACEITA',
+            'DEVOLUÇÃO RECUSADA',
+            'DEVOLUÇÃO CONCLUÍDA'
+        ];
+    };
+
+    const statusOptions = useMemo(() => {
+        const allOptions = getAllStatusOptions();
+        const normalizedType = orderType?.toUpperCase();
+
+        if (normalizedType === 'COMPRA') {
+            return allOptions.filter(status => 
+                ['REPROVADO', 'APROVADO', 'CANCELADO', 'EM TRANSPORTE', 'ENTREGUE'].includes(status)
+            );
+        } else if (normalizedType === 'TROCA') {
+            return allOptions.filter(status => 
+                status.includes('TROCA')
+            );
+        } else if (normalizedType === 'DEVOLUCAO' || normalizedType === 'DEVOLUÇÃO') {
+            return allOptions.filter(status => 
+                status.includes('DEVOLUÇÃO')
+            );
+        }
+
+        return allOptions;
+    }, [orderType]);
+
     const [selectedStatus, setSelectedStatus] = useState(currentStatus);
 
-    const statusOptions = [
-        'EM PROCESSAMENTO',
-        'REPROVADO',
-        'APROVADO',
-        'CANCELADO',
-        'EM TRANSPORTE',
-        'ENTREGUE',
-        'TROCA SOLICITADA',
-        'TROCA ACEITA',
-        'TROCA CONCLUÍDA',
-        'TROCA RECUSADA',
-        'DEVOLUÇÃO SOLICITADA',
-        'DEVOLUÇÃO RECUSADA',
-        'DEVOLUÇÃO CONCLUÍDA'
-    ];
+    useEffect(() => {
+        if (open) {
+            if (statusOptions.includes(currentStatus)) {
+                setSelectedStatus(currentStatus);
+            } else if (statusOptions.length > 0) {
+                setSelectedStatus(statusOptions[0]);
+            }
+        }
+    }, [open, currentStatus, statusOptions]);
 
     const handleChange = (event: SelectChangeEvent) => {
         setSelectedStatus(event.target.value);

@@ -155,6 +155,7 @@ const PaymentMethodsOrderComponent: React.FC<PaymentMethodsOrderComponentProps> 
                actualMethod === 'Cartão de Crédito' ?
                   <CreditCardFormComponent
                         selectedCard={selectedCard || undefined}
+                        availableCreditCards={creditCards}
                   />
                :
                   <></>

@@ -16,7 +16,7 @@ export type OrderContextType = {
    orderPayments: OrderPayment[];
    orderType: string;
    orderTotalPrice: number;
-   createOrder: () => Promise<ResponseAPI<OrderCreateResponse> | undefined>;
+   createOrder: (productsOverride?: IProductItem[]) => Promise<ResponseAPI<OrderCreateResponse> | undefined>;
    addOrderPayment: (payment: OrderPayment, isMultiples: boolean) => void
    updateOrderTotalPrice: (price: number) => void
    setOrderProducts: (products: IProductItem[]) => void

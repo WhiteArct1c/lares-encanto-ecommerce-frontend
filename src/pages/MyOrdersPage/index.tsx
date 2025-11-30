@@ -95,6 +95,20 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
         fetchCustomerOrders();
     }, []);
 
+    // Função para formatar o tipo do pedido
+    const formatOrderType = (type: string) => {
+        switch (type?.toUpperCase()) {
+            case 'COMPRA':
+                return 'Compra';
+            case 'TROCA':
+                return 'Troca';
+            case 'DEVOLUCAO':
+                return 'Devolução';
+            default:
+                return type || 'N/A';
+        }
+    };
+
     // Função para formatar a data
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = {
@@ -151,7 +165,7 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                                             <strong>Pedido #{order.id}</strong>
                                         </Typography>
                                         <Typography variant="body2">
-                                            Data: {formatDate(order.createdAt)} • Total: R$ {productService.formatProductPrice(order.totalPrice)}
+                                            Tipo: {formatOrderType(order.type)} • Data: {formatDate(order.createdAt)} • Total: R$ {productService.formatProductPrice(order.totalPrice)}
                                         </Typography>
                                     </Box>
                                     <Chip
@@ -171,6 +185,15 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                                 </Box>
                             </AccordionSummary>
                             <AccordionDetails>
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="subtitle2" color="text.secondary">
+                                        Tipo de Venda
+                                    </Typography>
+                                    <Typography>
+                                        {formatOrderType(order.type)}
+                                    </Typography>
+                                </Box>
+
                                 <Box sx={{ mb: 3 }}>
                                     <Typography variant="subtitle2" gutterBottom>
                                         <strong>Produtos:</strong>
@@ -209,37 +232,134 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                                     </Typography>
                                 </Box>
 
-                                <Box>
+                                <Box sx={{ mb: 2 }}>
                                     <Typography variant="subtitle2" gutterBottom>
                                         <strong>Forma de pagamento:</strong>
                                     </Typography>
-                                    <Typography>
-                                        {order.orderPayments[0].paymentMethod.replace('_', ' ')} •
-                                        {order.orderPayments[0].installments > 1 ?
-                                            ` ${order.orderPayments[0].installments}x de R$ ${order.orderPayments[0].installmentValue.toFixed(2).replace('.', ',')}` :
-                                            ' À vista'}
-                                    </Typography>
+                                    {order.orderPayments && order.orderPayments.length > 0 ? (
+                                        <Box>
+                                            {order.orderPayments.length > 1 && (
+                                                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                                    Pagamento dividido em {order.orderPayments.length} cartões
+                                                </Typography>
+                                            )}
+                                            {order.orderPayments.map((payment, index) => {
+                                                const totalPaymentValue = payment.installmentValue * payment.installments;
+                                                const cardNumber = typeof payment.creditCard.cardNumber === 'string' 
+                                                    ? payment.creditCard.cardNumber 
+                                                    : payment.creditCard.cardNumber.toString();
+                                                const lastFourDigits = cardNumber.slice(-4);
+                                                
+                                                return (
+                                                    <Box 
+                                                        key={payment.id || index}
+                                                        sx={{ 
+                                                            mb: 2, 
+                                                            p: 2, 
+                                                            border: '1px solid #e0e0e0', 
+                                                            borderRadius: 1,
+                                                            bgcolor: '#f9f9f9'
+                                                        }}
+                                                    >
+                                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                                            <Typography variant="body2" fontWeight={600}>
+                                                                Cartão {index + 1} de {order.orderPayments.length}
+                                                            </Typography>
+                                                            {payment.creditCard.mainCard && (
+                                                                <Chip 
+                                                                    label="Principal" 
+                                                                    size="small" 
+                                                                    sx={{ bgcolor: '#484646', color: '#fff', fontSize: '0.7rem' }}
+                                                                />
+                                                            )}
+                                                        </Box>
+                                                        <Typography variant="body2">
+                                                            <strong>Bandeira:</strong> {payment.creditCard.cardFlag}
+                                                        </Typography>
+                                                        <Typography variant="body2">
+                                                            <strong>Cartão:</strong> •••• {lastFourDigits}
+                                                        </Typography>
+                                                        <Typography variant="body2">
+                                                            <strong>Nome:</strong> {payment.creditCard.cardName}
+                                                        </Typography>
+                                                        <Divider sx={{ my: 1 }} />
+                                                        <Typography variant="body2">
+                                                            <strong>Pagamento:</strong> {payment.paymentMethod.replace('_', ' ')}
+                                                        </Typography>
+                                                        <Typography variant="body2">
+                                                            <strong>Parcelas:</strong> {
+                                                                payment.installments > 1
+                                                                    ? `${payment.installments}x de ${productService.formatProductPrice(payment.installmentValue)}`
+                                                                    : 'À vista'
+                                                            }
+                                                        </Typography>
+                                                        <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                                            <strong>Total deste cartão:</strong> {productService.formatProductPrice(totalPaymentValue)}
+                                                        </Typography>
+                                                    </Box>
+                                                );
+                                            })}
+                                            <Box sx={{ mt: 2, p: 1.5, bgcolor: '#f0f0f0', borderRadius: 1 }}>
+                                                <Typography variant="body2" fontWeight={600}>
+                                                    <strong>Total do pagamento:</strong> {productService.formatProductPrice(order.totalPrice)}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
+                                    ) : (
+                                        <Typography variant="body2" color="text.secondary">
+                                            Informação de pagamento não disponível
+                                        </Typography>
+                                    )}
                                 </Box>
+
+                                {(order.shipment || order.shipping) && (
+                                    <Box sx={{ mb: 2 }}>
+                                        <Typography variant="subtitle2" gutterBottom>
+                                            <strong>Frete:</strong>
+                                        </Typography>
+                                        {(() => {
+                                            const shipment = order.shipment || order.shipping;
+                                            if (!shipment) return null;
+                                            return (
+                                                <>
+                                                    <Typography variant="body2">
+                                                        <strong>Opção:</strong> {shipment.name}
+                                                    </Typography>
+                                                    {shipment.deliveryTime && (
+                                                        <Typography variant="body2">
+                                                            <strong>Prazo de entrega:</strong> {shipment.deliveryTime}
+                                                        </Typography>
+                                                    )}
+                                                    <Typography variant="body2">
+                                                        <strong>Valor:</strong> {productService.formatProductPrice(typeof shipment.price === 'string' ? parseFloat(shipment.price) : shipment.price)}
+                                                    </Typography>
+                                                </>
+                                            );
+                                        })()}
+                                    </Box>
+                                )}
                             </AccordionDetails>
-                            <AccordionActions>
-                                <Button
-                                    variant="outlined"
-                                    sx={{ m: 1 }}
-                                    onClick={() => handleClickOpenDialog('Troca de produtos')}
-                                    disabled={selectedRows.length === 0}
-                                >
-                                    Trocar itens selecionados
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    color="error"
-                                    sx={{ m: 1 }}
-                                    onClick={() => handleClickOpenDialog('Devolução de produtos')}
-                                    disabled={selectedRows.length === 0}
-                                >
-                                    Devolver itens selecionados
-                                </Button>
-                            </AccordionActions>
+                            {order.status.name === 'ENTREGUE' && (
+                                <AccordionActions>
+                                    <Button
+                                        variant="outlined"
+                                        sx={{ m: 1 }}
+                                        onClick={() => handleClickOpenDialog('Troca de produtos')}
+                                        disabled={selectedRows.length === 0}
+                                    >
+                                        Trocar itens selecionados
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        color="error"
+                                        sx={{ m: 1 }}
+                                        onClick={() => handleClickOpenDialog('Devolução de produtos')}
+                                        disabled={selectedRows.length === 0}
+                                    >
+                                        Devolver itens selecionados
+                                    </Button>
+                                </AccordionActions>
+                            )}
                         </Accordion>
                     ))
                 ) : (

@@ -42,13 +42,8 @@ export const useApi = () => ({
       return response.data;
    },
    signin: async (email: string, password: string) => {
-      try {
-         const response = await api.post('/auth/login', {email, password});
-         return response.data;
-      } catch (error: unknown) {
-         // Re-lançar o erro para ser tratado no componente
-         throw error;
-      }
+      const response = await api.post('/auth/login', {email, password});
+      return response.data;
    },
    logout: async () => {
       // const response = await api.post('/logout');
@@ -206,6 +201,30 @@ export const useApi = () => ({
    },
    getAllPendingOrders: async () => {
         const response = await api.get('/orders/pending', {
+             headers:{
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`
+             }
+        });
+        return response.data;
+   },
+   getAllCanceledOrders: async () => {
+        const response = await api.get('/orders/canceled', {
+             headers:{
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`
+             }
+        });
+        return response.data;
+   },
+   getAllFinishedOrders: async () => {
+        const response = await api.get('/orders/finished', {
+             headers:{
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`
+             }
+        });
+        return response.data;
+   },
+   getAllOrders: async () => {
+        const response = await api.get('/orders/all', {
              headers:{
                 Authorization: `Bearer ${localStorage.getItem('authToken')}`
              }

@@ -46,7 +46,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                setValue('state', res.data.uf);
                setValue('neighborhoods', res.data.bairro);
                setFocus('addressNumber');
-               handleSetOrderShipmentAddress
+               handleSetOrderShipmentAddress();
             })
             .catch(e => {
                toast.error('CEP inválido ou inexistente!');
@@ -67,9 +67,9 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
          neighborhoods: getValues().neighborhoods as string | undefined || '',
          streetName: getValues().address as string | undefined || '',
          residenceType: getValues().residenceType as string | undefined || '',
-         id: '',
-         addressCategories: [],
-         observations: ''
+         id: order?.shippingAddress?.id || '',
+         addressCategories: order?.shippingAddress?.addressCategories || [],
+         observations: order?.shippingAddress?.observations || ''
       }
       order?.setOrderShippingAddress(address);
    }

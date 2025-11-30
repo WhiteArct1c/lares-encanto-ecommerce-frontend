@@ -12,8 +12,10 @@ export type OrderCreateResponse = {
     orderPayments: OrderPayment[];
     status: OrderStatus;
     orderProducts: OrderProduct[];
-    shipping: IShippingTypes;
+    shipping?: IShippingTypes;
+    shipment?: IShippingTypes; // Backend retorna como 'shipment'
     address: IAddress;
+    type: string;
     createdAt: string;
     updatedAt: string;
 }

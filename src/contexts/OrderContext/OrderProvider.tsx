@@ -21,9 +21,10 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
 
     const api = useApi();
 
-    const createOrder = async () => {
-        // Validação: Pelo menos 1 produto
-        if(!products || products.length === 0){
+    const createOrder = async (productsOverride?: IProductItem[]) => {
+        const productsToUse = productsOverride || products;
+        
+        if(!productsToUse || productsToUse.length === 0){
             toast.error("É necessário informar pelo menos um produto no pedido");
             return;
         }
@@ -38,13 +39,11 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             return;
         }
 
-        // Validação: Pelo menos 1 forma de pagamento
         if(orderPayments.length === 0){
             toast.error("É necessário informar pelo menos uma forma de pagamento");
             return;
         }
 
-        // Validação: Limite de 2 cartões
         if(orderPayments.length > 2){
             toast.error("É permitido usar no máximo 2 cartões de crédito");
             return;
@@ -52,7 +51,6 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
 
         const totalPrice = orderTotalPrice + shippingPrice;
 
-        // Validação: Valor mínimo R$ 10,00 por cartão
         const MIN_CARD_VALUE = 10.00;
         for(const payment of orderPayments){
             if(payment.paymentMethod === 'CREDIT_CARD'){
@@ -64,18 +62,16 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             }
         }
 
-        // Validação: Soma dos pagamentos = totalPrice
         const totalPayments = orderPayments.reduce((sum, payment) => {
             return sum + (payment.installmentValue * payment.installments);
         }, 0);
 
         const difference = Math.abs(totalPayments - totalPrice);
-        if(difference > 0.01){ // Tolerância para diferenças de arredondamento
+        if(difference > 0.01){
             toast.error(`A soma dos pagamentos (R$ ${totalPayments.toFixed(2)}) não confere com o valor total do pedido (R$ ${totalPrice.toFixed(2)})`);
             return;
         }
 
-        // Criar objeto de shipping apenas com o ID (backend calculará o preço)
         const shippingRequest = {
             id: shippingType!.id,
             name: null,
@@ -83,9 +79,11 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             price: null
         };
 
+        const finalProducts = Array.isArray(productsToUse) ? productsToUse : [];
+        
         const orderData: OrderCreateRequest = {
             address: shippingAddress!,
-            orderProducts: products,
+            orderProducts: finalProducts,
             orderPayments: orderPayments,
             shipping: shippingRequest,
             type: orderType,
@@ -102,13 +100,11 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             setOrderPayments([payment]);
         }else{
             setOrderPayments((prevPayments) => {
-                // Validação: Limite de 2 cartões
                 if(prevPayments.length >= 2){
                     toast.error("É permitido usar no máximo 2 cartões de crédito");
                     return prevPayments;
                 }
 
-                // Validação: Valor mínimo R$ 10,00 por cartão
                 const MIN_CARD_VALUE = 10.00;
                 const totalPaymentValue = payment.installmentValue * payment.installments;
                 if(payment.paymentMethod === 'CREDIT_CARD' && totalPaymentValue < MIN_CARD_VALUE){
@@ -133,7 +129,7 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
     };
 
     const setOrderProducts = (products: IProductItem[]) => {
-        setProducts(products);
+        setProducts(Array.isArray(products) ? [...products] : []);
     };
 
     const setOrderShippingType = (type: IShippingTypes) => {
@@ -149,8 +145,6 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
     };
 
     const saveShippingAddress = (status: boolean) => {
-        // Implement save shipping address logic here
-        console.log("salvando endereço de entrega", status);
     };
 
     const resetOrder = () => {
