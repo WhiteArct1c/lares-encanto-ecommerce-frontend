@@ -32,15 +32,20 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
    }, []);
 
    const signin = async (email: string, password: string) => {
-      const data: ResponseAPI<User> = await api.signin(email, password);
+      try {
+         const data: ResponseAPI<User> = await api.signin(email, password);
 
-      if (data.data && data.code === OK) {
-         const userData = await api.getCustomerInfo(data.data[0].token);
-         setUser(userData.data[0]);
-         setToken(data.data[0].token);
+         if (data.data && data.code === OK) {
+            const userData = await api.getCustomerInfo(data.data[0].token);
+            setUser(userData.data[0]);
+            setToken(data.data[0].token);
+         }
+
+         return data;
+      } catch (error: unknown) {
+         // Re-lançar o erro para ser tratado no componente
+         throw error;
       }
-
-      return data;
    }
 
    const verifyRole = async () => {

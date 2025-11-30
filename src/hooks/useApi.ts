@@ -42,8 +42,13 @@ export const useApi = () => ({
       return response.data;
    },
    signin: async (email: string, password: string) => {
-      const response = await api.post('/auth/login', {email, password});
-      return response.data;
+      try {
+         const response = await api.post('/auth/login', {email, password});
+         return response.data;
+      } catch (error: unknown) {
+         // Re-lançar o erro para ser tratado no componente
+         throw error;
+      }
    },
    logout: async () => {
       // const response = await api.post('/logout');
