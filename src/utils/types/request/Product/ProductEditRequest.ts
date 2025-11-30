@@ -10,4 +10,5 @@ export type ProductEditRequest = {
     pricingGroupId: number;
     stockQuantity: number;
     type: string;
+    weightKg?: number;
 }

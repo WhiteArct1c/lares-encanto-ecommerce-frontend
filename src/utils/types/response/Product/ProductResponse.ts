@@ -13,5 +13,6 @@ export type ProductResponse = {
     category: ProductCategoryResponse,
     pricingGroup: PricingGroupResponse,
     type: string,
-    stockQuantity: number
+    stockQuantity: number,
+    weightKg: number | null
 }

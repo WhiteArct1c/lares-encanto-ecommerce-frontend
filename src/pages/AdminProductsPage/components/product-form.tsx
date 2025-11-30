@@ -36,6 +36,13 @@ const createProductSchema = z.object({
         invalid_type_error: "Este campo deve conter apenas números",
         required_error: "A quantidade inicial do estoque é obrigatória",
     }).positive("A quantidade inicial do estoque não pode ser abaixo de 0"),
+    weightKg: z.union([
+        z.string().length(0).transform(() => undefined),
+        z.coerce.number({
+            invalid_type_error: "Este campo deve conter apenas números",
+        }).min(0.1, "O peso deve ser no mínimo 0.1 kg")
+          .max(1000, "O peso deve ser no máximo 1000 kg")
+    ]).optional(),
     image: z.instanceof(File) // Espera uma instância de File
         .refine((file) => file instanceof File && file.size > 0, {
             message: "O upload de uma imagem é obrigatório", // Mensagem de erro
@@ -72,6 +79,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
             category: "Cozinha",
             pricingGroup: "Standard",
             initialStockQuantity: 1,
+            weightKg: undefined,
             image: undefined,
         },
     });
@@ -117,6 +125,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
         formData.append("pricingGroupId", pricingGroups.filter(group => group.name === data.pricingGroup)[0].id.toString());
         formData.append("type", data.type);
         formData.append("initialStockQuantity", data.initialStockQuantity.toString());
+
+        // Adiciona o peso ao FormData (se fornecido)
+        if (data.weightKg !== undefined && data.weightKg !== null) {
+            formData.append("weightKg", data.weightKg.toString());
+        }
 
         // Adiciona a imagem ao FormData (se existir)
         if (data.image) {
@@ -254,6 +267,27 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                     {...register("initialStockQuantity")}
                     error={!!errors.initialStockQuantity}
                     helperText={errors?.initialStockQuantity?.message}
+                />
+
+                {/* Campo Peso (kg) */}
+                <TextField
+                    fullWidth
+                    variant="outlined"
+                    type="number"
+                    label="Peso (kg)"
+                    placeholder="Ex: 15.5"
+                    inputProps={{
+                        step: "0.1",
+                        min: "0.1",
+                        max: "1000"
+                    }}
+                    data-cy="txt-product-weight"
+                    {...register("weightKg")}
+                    error={!!errors.weightKg}
+                    helperText={
+                        errors?.weightKg?.message ||
+                        "Peso do produto em quilogramas. Usado para cálculo preciso do frete. Se não informado, será usado 15kg como padrão."
+                    }
                 />
 
                 {/* Campo Upload de Imagem */}
