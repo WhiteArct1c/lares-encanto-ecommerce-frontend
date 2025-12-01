@@ -385,6 +385,27 @@ const PendingOrdersComponent: React.FC = () => {
                             ))}
                         </List>
 
+                        {order.orderCoupons && order.orderCoupons.length > 0 && (
+                            <>
+                                <Divider sx={{ my: 2 }} />
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                        Cupons Utilizados
+                                    </Typography>
+                                    {order.orderCoupons.map((coupon) => (
+                                        <Box key={coupon.id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2">
+                                                {coupon.couponCode} ({coupon.couponType === 'PROMOTIONAL' ? 'Promocional' : 'Troca'})
+                                            </Typography>
+                                            <Typography variant="body2" color="success.main">
+                                                - {productService.formatProductPrice(coupon.amountUsed)}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </>
+                        )}
+
                         <Divider sx={{ my: 2 }} />
 
                         <Box sx={{

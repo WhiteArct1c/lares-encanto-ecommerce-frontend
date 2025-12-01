@@ -21,6 +21,9 @@ import { useApi } from "../../hooks/useApi.ts";
 import { OrderCreateResponse } from "../../utils/types/response/Order/OrderCreateResponse.ts";
 import NoOrdersFound from "./components/no-orders-found.tsx";
 import {ProductService} from "../../services/ProductService.ts";
+import { ExchangeItemRequest } from "../../utils/types/request/Exchange/ExchangeItemRequest.ts";
+import { toast } from "react-toastify";
+import { CREATED } from "../../utils/constants/apiCodes.ts";
 
 interface MyOrdersPageProps {}
 
@@ -63,20 +66,80 @@ const productColumns: GridColDef[] = [
 const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
     const [open, setOpen] = useState(false);
     const [titleDialog, setTitleDialog] = useState('');
-    const [selectedRows, setSelectedRows] = useState<any[]>([]);
+    const [selectedRows, setSelectedRows] = useState<Map<number, any[]>>(new Map());
+    const [currentOrderId, setCurrentOrderId] = useState<number | null>(null);
+    const [exchangeItems, setExchangeItems] = useState<ExchangeItemRequest[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [customerOrders, setCustomerOrders] = useState<OrderCreateResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const api = useApi();
 
-    const handleClickOpenDialog = (value: string) => {
+    const handleClickOpenDialog = (value: string, orderId: number) => {
+        const orderSelectedRows = selectedRows.get(orderId) || [];
+        if (orderSelectedRows.length === 0) {
+            return;
+        }
         setTitleDialog(value);
+        setCurrentOrderId(orderId);
         setOpen(true);
     };
 
     const handleClose = () => {
         setOpen(false);
+        setExchangeItems([]);
+        setCurrentOrderId(null);
+    };
+
+    const handleItemsChange = (items: ExchangeItemRequest[]) => {
+        setExchangeItems(items);
+    };
+
+    const handleConfirm = async () => {
+        if (!currentOrderId) return;
+        
+        if (exchangeItems.length === 0) {
+            toast.error('Selecione pelo menos um produto e preencha o motivo para cada um');
+            return;
+        }
+
+        const hasInvalidItems = exchangeItems.some(item => 
+            item.quantity <= 0 || !item.reason || item.reason.trim() === ''
+        );
+
+        if (hasInvalidItems) {
+            toast.error('Todos os produtos devem ter quantidade maior que zero e motivo preenchido');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const response = await api.createExchange({
+                orderId: currentOrderId,
+                items: exchangeItems
+            });
+
+            if (response && response.code === CREATED) {
+                toast.success(`Troca/devolução de ${exchangeItems.length} item(ns) solicitada com sucesso!`);
+                handleClose();
+                
+                const updatedResponse = await api.getCustomerOrders();
+                setCustomerOrders(updatedResponse.data || []);
+            } else {
+                toast.error(response?.message || 'Erro ao solicitar troca/devolução');
+            }
+        } catch (error: unknown) {
+            const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+            if (axiosError?.response?.status === 400) {
+                const errorMessage = axiosError?.response?.data?.message || 'Erro ao solicitar troca/devolução';
+                toast.error(errorMessage);
+            } else {
+                toast.error('Erro ao solicitar troca/devolução. Tente novamente.');
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     useEffect(() => {
@@ -209,10 +272,15 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                                             },
                                         }}
                                         checkboxSelection
+                                        rowSelectionModel={(selectedRows.get(order.id) || []).map(item => item.id)}
                                         onRowSelectionModelChange={(ids) => {
                                             const selectedProducts = order.orderProducts
                                                 .filter((product: any) => ids.includes(product.id));
-                                            setSelectedRows(selectedProducts);
+                                            setSelectedRows(prev => {
+                                                const newMap = new Map(prev);
+                                                newMap.set(order.id, selectedProducts);
+                                                return newMap;
+                                            });
                                         }}
                                         sx={{
                                             '& .MuiDataGrid-cell': {
@@ -307,10 +375,28 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                                         </Box>
                                     ) : (
                                         <Typography variant="body2" color="text.secondary">
-                                            Informação de pagamento não disponível
+                                            Compra totalmente coberta por cupons - sem método de pagamento necessário
                                         </Typography>
                                     )}
                                 </Box>
+
+                                {order.orderCoupons && order.orderCoupons.length > 0 && (
+                                    <Box sx={{ mb: 2 }}>
+                                        <Typography variant="subtitle2" gutterBottom>
+                                            <strong>Cupons Utilizados:</strong>
+                                        </Typography>
+                                        {order.orderCoupons.map((coupon) => (
+                                            <Box key={coupon.id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                                                <Typography variant="body2">
+                                                    {coupon.couponCode} ({coupon.couponType === 'PROMOTIONAL' ? 'Promocional' : 'Troca'})
+                                                </Typography>
+                                                <Typography variant="body2" color="success.main">
+                                                    - {productService.formatProductPrice(coupon.amountUsed)}
+                                                </Typography>
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                )}
 
                                 {(order.shipment || order.shipping) && (
                                     <Box sx={{ mb: 2 }}>
@@ -344,8 +430,8 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                                     <Button
                                         variant="outlined"
                                         sx={{ m: 1 }}
-                                        onClick={() => handleClickOpenDialog('Troca de produtos')}
-                                        disabled={selectedRows.length === 0}
+                                        onClick={() => handleClickOpenDialog('Troca de produtos', order.id)}
+                                        disabled={(selectedRows.get(order.id) || []).length === 0}
                                     >
                                         Trocar itens selecionados
                                     </Button>
@@ -353,8 +439,8 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                                         variant="outlined"
                                         color="error"
                                         sx={{ m: 1 }}
-                                        onClick={() => handleClickOpenDialog('Devolução de produtos')}
-                                        disabled={selectedRows.length === 0}
+                                        onClick={() => handleClickOpenDialog('Devolução de produtos', order.id)}
+                                        disabled={(selectedRows.get(order.id) || []).length === 0}
                                     >
                                         Devolver itens selecionados
                                     </Button>
@@ -373,22 +459,43 @@ const MyOrdersPage: React.FC<MyOrdersPageProps> = () => {
                 </DialogTitle>
                 <DialogContent>
                     {titleDialog === 'Troca de produtos' ? (
-                        <ChangeItemsFormComponent items={selectedRows} />
+                        <ChangeItemsFormComponent 
+                            items={currentOrderId ? (selectedRows.get(currentOrderId) || []) : []} 
+                            onItemsChange={handleItemsChange}
+                        />
                     ) : (
-                        <DevolutionFormComponent items={selectedRows} />
+                        <DevolutionFormComponent 
+                            items={currentOrderId ? (selectedRows.get(currentOrderId) || []) : []} 
+                            onItemsChange={handleItemsChange}
+                        />
                     )}
                 </DialogContent>
                 <DialogActions sx={{ p: 3 }}>
-                    <Button variant="outlined" onClick={handleClose} sx={{ mr: 2 }}>
+                    <Button 
+                        variant="outlined" 
+                        onClick={handleClose} 
+                        sx={{ mr: 2 }}
+                        disabled={isSubmitting}
+                    >
                         Cancelar
                     </Button>
                     {titleDialog === 'Troca de produtos' ? (
-                        <Button variant="contained" color="primary">
-                            Confirmar troca
+                        <Button 
+                            variant="contained" 
+                            color="primary"
+                            onClick={handleConfirm}
+                            disabled={isSubmitting || exchangeItems.length === 0}
+                        >
+                            {isSubmitting ? 'Enviando...' : 'Confirmar troca'}
                         </Button>
                     ) : (
-                        <Button variant="contained" color="error">
-                            Confirmar devolução
+                        <Button 
+                            variant="contained" 
+                            color="error"
+                            onClick={handleConfirm}
+                            disabled={isSubmitting || exchangeItems.length === 0}
+                        >
+                            {isSubmitting ? 'Enviando...' : 'Confirmar devolução'}
                         </Button>
                     )}
                 </DialogActions>
