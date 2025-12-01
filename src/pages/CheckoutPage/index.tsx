@@ -1,13 +1,17 @@
-import { Box, Button, Step, StepButton, Stepper, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Step, StepButton, Stepper, Typography, Alert } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React, { useContext, useState } from 'react';
+import React, {useContext, useState, useEffect, useMemo} from 'react';
 import OrderResumeComponent from '../../shared/OrderResumeComponent';
 import AddressFormComponent from '../../shared/AddressFormComponent';
 import ShippingOptionsComponent from '../../shared/ShippingOptionsComponent';
 import PaymentMethodsOrderComponent from '../../shared/PaymentMethodsOrderComponent';
-import { Link } from 'react-router-dom';
+import CouponSelectionComponent from '../../shared/CouponSelectionComponent';
 import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
 import CheckoutCustomerAddresses from "./components/checkout-customer-addresses.tsx";
+import { OrderContext } from "../../contexts/OrderContext/OrderContext.tsx";
+import { CREATED } from "../../utils/constants/apiCodes.ts";
+import {useNavigate} from "react-router-dom";
+import {toast} from "react-toastify";
 
 interface CheckoutPageProps {
 
@@ -21,8 +25,33 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
    const [completed, setCompleted] = useState<{
       [k: number]: boolean;
    }>({});
+   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
 
+   const order = useContext(OrderContext);
    const cart = useContext(ShoppingCartContext);
+   const navigate = useNavigate();
+
+   const calculateTotalWithDiscount = useMemo(() => {
+      const totalCouponsDiscount = (order?.orderCoupons || []).reduce((sum, coupon) => sum + coupon.amountToUse, 0);
+      const totalPrice = (order?.orderTotalPrice || 0) + (order?.shippingPrice || 0) - totalCouponsDiscount;
+      return Math.max(0, totalPrice);
+   }, [order?.orderCoupons, order?.orderTotalPrice, order?.shippingPrice]);
+
+   const isTotalZero = useMemo(() => {
+      return calculateTotalWithDiscount <= 0.01;
+   }, [calculateTotalWithDiscount]);
+
+   useEffect(() => {
+      if(cart?.cartProducts && cart.cartProducts.length > 0) {
+         order?.setOrderProducts(cart.cartProducts);
+         
+         const totalPrice = cart.cartProducts.reduce((sum, item) => {
+            return sum + (item.product.salePrice * item.quantity);
+         }, 0);
+         order?.updateOrderTotalPrice(totalPrice);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [cart?.cartProducts]);
 
    const totalSteps = () => {
       return steps.length;
@@ -73,10 +102,48 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
       handleComplete();
    }
 
-   const handleCompleteOrder = () => {
-      //TODO: MANDAR ORDEM PARA O BACKEND COM POST E RESETAR CARRINHO
-      cart?.resetCart();
+   const handleCompleteOrder = async () => {
+      setIsCreatingOrder(true);
+      try {
+         if(!cart?.cartProducts || cart.cartProducts.length === 0) {
+            toast.error('Carrinho vazio. Adicione produtos antes de finalizar o pedido.');
+            setIsCreatingOrder(false);
+            return;
+         }
+
+         const productsFromCart = [...cart.cartProducts];
+         const response = await order.createOrder(productsFromCart);
+
+         if(response && response.code === CREATED){
+            toast.success('Pedido criado com sucesso!');
+            order.resetOrder();
+            cart?.resetCart();
+            navigate('/order-finished', {
+               state: {
+                  orderId: response.data[0].id,
+                  orderStatus: response.data[0].status,
+               }
+            });
+         }else{
+            toast.error(response?.message || 'Erro ao finalizar o pedido');
+         }
+      } catch (error: unknown) {
+         const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+         if(axiosError?.response?.status === 400){
+            const errorMessage = axiosError?.response?.data?.message || 'Erro ao finalizar o pedido';
+            toast.error(errorMessage);
+
+            if(errorMessage.includes('Quantidade solicitada') || errorMessage.includes('estoque')){
+               toast.warning('O estoque foi atualizado. Por favor, verifique os produtos no carrinho.');
+            }
+         } else {
+            toast.error('Erro ao finalizar o pedido. Tente novamente.');
+         }
+      } finally {
+         setIsCreatingOrder(false);
+      }
    }
+
 
    return (
       <Grid2
@@ -97,8 +164,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                Checkout
             </Typography>
          </Grid2>
-         <Grid2 container xs={12} sx={{ p: 7,  }}>
-            <Grid2 xs={7}>
+         <Grid2 container xs={12} sx={{ p: 7, position: 'relative' }}>
+            <Grid2 xs={7} sx={{ pr: 3, position: 'relative', zIndex: 2 }}>
                <Box sx={{ width: '100%' }}>
                   <Stepper nonLinear activeStep={activeStep}>
                      {steps.map((label, index) => (
@@ -218,7 +285,23 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                               </>
                               : activeStep === 2 ?
                                  <>
-                                    <PaymentMethodsOrderComponent />
+                                    <CouponSelectionComponent 
+                                       orderTotal={
+                                          (order?.orderTotalPrice || 0) + (order?.shippingPrice || 0)
+                                       } 
+                                    />
+                                    {isTotalZero ? (
+                                       <Alert severity="success" sx={{ mb: 2 }}>
+                                          <Typography variant="body1" fontWeight={600}>
+                                             Compra totalmente coberta por cupons!
+                                          </Typography>
+                                          <Typography variant="body2">
+                                             Você pode finalizar a compra sem informar método de pagamento.
+                                          </Typography>
+                                       </Alert>
+                                    ) : (
+                                       <PaymentMethodsOrderComponent />
+                                    )}
                                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                                        <Button
                                           color="inherit"
@@ -241,29 +324,35 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                                           Voltar
                                        </Button>
                                        <Box sx={{ flex: '1 1 auto' }} />
-                                       <Link to={'/order-finished'}>
-                                          <Button
-                                             data-cy="btn-finish-order"
-                                             color="inherit"
-                                             onClick={handleCompleteOrder}
-                                             sx={{
-                                                width: 220,
-                                                color: '#fff',
-                                                fontWeight: 600,
-                                                bgcolor: '#000',
-                                                '&:hover': {
-                                                   bgcolor: '#fff',
-                                                   color: '#000'
-                                                },
-                                                '&:disabled': {
-                                                   color: '#000',
-                                                   bgcolor: '#999',
-                                                }
-                                             }}
-                                          >
-                                             Finalizar compra
-                                          </Button>
-                                       </Link>
+                                       <Button
+                                          data-cy="btn-finish-order"
+                                          color="inherit"
+                                          onClick={handleCompleteOrder}
+                                          disabled={isCreatingOrder}
+                                          sx={{
+                                             width: 220,
+                                             color: '#fff',
+                                             fontWeight: 600,
+                                             bgcolor: '#000',
+                                             '&:hover': {
+                                                bgcolor: '#fff',
+                                                color: '#000'
+                                             },
+                                             '&:disabled': {
+                                                color: '#000',
+                                                bgcolor: '#999',
+                                             }
+                                          }}
+                                       >
+                                          {isCreatingOrder ? (
+                                             <>
+                                                <CircularProgress size={20} sx={{ mr: 1, color: '#fff' }} />
+                                                Finalizando...
+                                             </>
+                                          ) : (
+                                             'Finalizar compra'
+                                          )}
+                                       </Button>
                                     </Box>
                                  </>
                                  :
@@ -272,7 +361,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                   </>
                </Box>
             </Grid2>
-            <Grid2 xs={5}>
+            <Grid2 xs={5} sx={{ pl: 3, position: 'relative', zIndex: 1 }}>
                <OrderResumeComponent
                   redirectUrl={'/shipping'}
                   buttonLabel='Continuar para o frete'

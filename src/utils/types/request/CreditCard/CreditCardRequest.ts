@@ -1,7 +1,7 @@
 export type CreditCardRequest = {
     token: string | null,
     id: number | null,
-    cardNumber: number,
+    cardNumber: number | string,
     cardName: string,
     cardCode: number,
     mainCard: boolean,

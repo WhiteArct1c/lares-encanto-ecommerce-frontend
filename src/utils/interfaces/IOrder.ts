@@ -7,8 +7,7 @@ export interface IOrder {
    userId?: string;
    products: IProductItem[],
    address?: IAddress,
-   shippingPrice: string,
-   totalPrice: string,
-   status?: OrderStatusEnum,
-   createdAt?: Date | null,
+   shippingPrice: number,
+   totalPrice: number,
+   status?: OrderStatusEnum
 }

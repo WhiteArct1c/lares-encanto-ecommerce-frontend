@@ -8,21 +8,22 @@ import { IUpdateCustomer } from '../../utils/interfaces/request/IUpdateCustomer'
 import {IUpdateAddressRequest} from "../../utils/interfaces/request/IUpdateAddressRequest.ts";
 import {ResponseAPI} from "../../utils/types/response/ResponseAPI.ts";
 import {CreditCardRequest} from "../../utils/types/request/CreditCard/CreditCardRequest.ts";
+import {User} from "../../utils/types/User.ts";
 
 export type AuthContextType = {
    user: ResponseCustomer | null;
-   signin: (email: string, password: string) => Promise<ResponseAPI>;
+   signin: (email: string, password: string) => Promise<ResponseAPI<User | never>>;
    signout: () => void;
-   verifyRole: () => Promise<ResponseAPI>;
-   registerCustomer: (user: Customer) => Promise<ResponseAPI>;
-   deactivateAccount: (token: string) => Promise<ResponseAPI>;
-   updatePassword: (passwordUpdateRequest: IUpdatePasswordRequest) => Promise<ResponseAPI>;
-   registerCustomerAddress: (address: IAddCustomerAddressRequest) => Promise<ResponseAPI>;
-   updateCustomer: (customer: IUpdateCustomer) => Promise<ResponseAPI>;
-   deleteCustomerAddress: (address: Address) => Promise<ResponseAPI>;
-   updateCustomerAddress: (address: IUpdateAddressRequest) => Promise<ResponseAPI>;
-   createCreditCard: (request: CreditCardRequest) => Promise<ResponseAPI>;
-   listCreditCards:() => Promise<ResponseAPI>;
+   verifyRole: () => Promise<ResponseAPI<string>>;
+   registerCustomer: (user: Customer) => Promise<ResponseAPI<never>>;
+   deactivateAccount: (token: string) => Promise<ResponseAPI<never>>;
+   updatePassword: (passwordUpdateRequest: IUpdatePasswordRequest) => Promise<ResponseAPI<never>>;
+   registerCustomerAddress: (address: IAddCustomerAddressRequest) => Promise<ResponseAPI<never>>;
+   updateCustomer: (customer: IUpdateCustomer) => Promise<ResponseAPI<IUpdateCustomer>>;
+   deleteCustomerAddress: (address: Address) => Promise<ResponseAPI<never>>;
+   updateCustomerAddress: (address: IUpdateAddressRequest) => Promise<ResponseAPI<never>>;
+   createCreditCard: (request: CreditCardRequest) => Promise<ResponseAPI<never>>;
+   listCreditCards:() => Promise<ResponseAPI<CreditCardRequest>>;
 }
 
 

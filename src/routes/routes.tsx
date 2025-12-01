@@ -16,6 +16,9 @@ import AdminOrdersPage from "../pages/AdminOrdersPage";
 import AdminCustomersManagement from "../pages/AdminCustomersManagement";
 import AdminProductsPage from "../pages/AdminProductsPage";
 import MyCouponsPage from "../pages/MyCouponsPage";
+import MyExchangesPage from "../pages/MyExchangesPage";
+import AdminExchangesPage from "../pages/AdminExchangesPage";
+import AdminCouponsPage from "../pages/AdminCouponsPage";
 
 export const router = createBrowserRouter([
    {
@@ -67,6 +70,10 @@ export const router = createBrowserRouter([
             element: <RequireAuth><MyCouponsPage /></RequireAuth>,
          },
          {
+            path: '/my-exchanges',
+            element: <RequireAuth><MyExchangesPage /></RequireAuth>,
+         },
+         {
             path: '/admin',
             element: <RequireAuth><Outlet /></RequireAuth>, // Usando Outlet para renderizar as sub-rotas
             children: [
@@ -85,6 +92,14 @@ export const router = createBrowserRouter([
                {
                   path: 'products',
                   element: <AdminProductsPage />
+               },
+               {
+                  path: 'exchanges',
+                  element: <AdminExchangesPage />
+               },
+               {
+                  path: 'coupons',
+                  element: <AdminCouponsPage />
                }
             ],
          },

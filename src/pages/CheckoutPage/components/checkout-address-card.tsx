@@ -1,6 +1,6 @@
 import { Card, CardContent, Typography } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
-import { OrderContext } from "../../../contexts/OrderContext";
+import { OrderContext } from "../../../contexts/OrderContext/OrderContext.tsx";
 import { useContext } from "react";
 import { IAddress } from "../../../utils/interfaces/IAddress";
 
@@ -9,18 +9,17 @@ interface CheckoutCustomerAddressesProps {
    address: IAddress;
 }
 
-const CheckoutAddressCard: React.FC<CheckoutCustomerAddressesProps> = ({ index, address }) => {
+const CheckoutAddressCard: React.FC<CheckoutCustomerAddressesProps> = ({ address }) => {
 
    const orderContext = useContext(OrderContext);
 
    const handleAddressSelection = (address: IAddress) => {
-      orderContext?.setOrderShipmentAddress(address);
+      orderContext?.setOrderShippingAddress(address);
    }
 
    return (
-      <Grid2 xs={4} key={index}>
+      <Grid2 xs={4}>
          <Card
-            key={index + 1}
             sx={{
                cursor: 'pointer',
                '&:hover': {

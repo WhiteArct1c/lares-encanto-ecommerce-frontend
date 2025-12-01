@@ -8,4 +8,5 @@ export type ProductCreateRequest = {
     pricingGroupId: number;
     type: string;
     initialStockQuantity: number;
+    weightKg?: number;
 }

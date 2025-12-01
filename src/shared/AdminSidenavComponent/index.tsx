@@ -46,6 +46,22 @@ const AdminSidenavComponent: React.FC<AdminSidenavComponentProps> = () => {
                 >
                     Usuários
                 </Button>
+                <Button
+                    variant='text'
+                    sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start"  }}
+                    component={Link}
+                    to={'/admin/exchanges'}
+                >
+                    Trocas/Devoluções
+                </Button>
+                <Button
+                    variant='text'
+                    sx={{ color: 'black', m: 1, width:"100%", display: "flex", justifyContent:"start"  }}
+                    component={Link}
+                    to={'/admin/coupons'}
+                >
+                    Cupons Promocionais
+                </Button>
             </Grid2>
         </Grid2>
     );

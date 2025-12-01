@@ -18,7 +18,7 @@ import {AuthContext} from "../../../contexts/Auth/AuthContext.tsx";
 import {toast} from "react-toastify";
 import {CreditCardRequest} from "../../../utils/types/request/CreditCard/CreditCardRequest.ts";
 import {ResponseAPI} from "../../../utils/types/response/ResponseAPI.ts";
-import {CREATED, OK} from "../../../utils/types/apiCodes.ts";
+import {CREATED, OK} from "../../../utils/constants/apiCodes.ts";
 import {useApi} from "../../../hooks/useApi.ts";
 
 const createCardSchema = z.object({
@@ -138,7 +138,7 @@ const CardForm: React.FC<CardFormProps> = ({ handleClose, handleCardAdded, credi
                 cardFlag: flag
             }
 
-            api.updateCreditCard(request).then((response: ResponseAPI) => {
+            api.updateCreditCard(request).then((response: ResponseAPI<never>) => {
                 if(response.code === OK){
                     toast.success(response.message);
                     handleClose();
@@ -167,7 +167,7 @@ const CardForm: React.FC<CardFormProps> = ({ handleClose, handleCardAdded, credi
                 cardFlag: flag
             }
 
-            auth.createCreditCard(request).then((response: ResponseAPI) => {
+            auth.createCreditCard(request).then((response: ResponseAPI<never>) => {
                 if(response.code === CREATED){
                     toast.success(response.message);
                     handleClose();

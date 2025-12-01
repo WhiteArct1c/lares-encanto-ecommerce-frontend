@@ -1,7 +1,7 @@
-import { IProduct } from "./IProduct";
+import {ProductResponse} from "../types/response/Product/ProductResponse.ts";
 
 export interface IProductItem {
    id: number;
-   product: IProduct,
+   product: ProductResponse,
    quantity: number
 }

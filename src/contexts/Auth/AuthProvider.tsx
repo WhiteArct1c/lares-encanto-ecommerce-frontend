@@ -10,7 +10,8 @@ import {IUpdateCustomer} from "../../utils/interfaces/request/IUpdateCustomer";
 import {IUpdateAddressRequest} from "../../utils/interfaces/request/IUpdateAddressRequest.ts";
 import {CreditCardRequest} from "../../utils/types/request/CreditCard/CreditCardRequest.ts";
 import {ResponseAPI} from "../../utils/types/response/ResponseAPI.ts";
-import {OK} from "../../utils/types/apiCodes.ts";
+import {OK} from "../../utils/constants/apiCodes.ts";
+import {User} from "../../utils/types/User.ts";
 
 export const AuthProvider = ({ children }: { children: JSX.Element }) => {
 
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
       const validateToken = async () => {
          const storageData = localStorage.getItem('authToken');
          if (storageData) {
-            const data = await api.validateToken(storageData);
+            const data = await api.getCustomerInfo(storageData);
             if (data.data[0]) {
                setUser(data.data[0]);
             }
@@ -31,15 +32,20 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
    }, []);
 
    const signin = async (email: string, password: string) => {
-      const data: ResponseAPI = await api.signin(email, password);
+      try {
+         const data: ResponseAPI<User> = await api.signin(email, password);
 
-      if (data.data && data.code === OK) {
-         const userData = await api.validateToken(data.data[0].token);
-         setUser(userData.data[0]);
-         setToken(data.data[0].token);
+         if (data.data && data.code === OK) {
+            const userData = await api.getCustomerInfo(data.data[0].token);
+            setUser(userData.data[0]);
+            setToken(data.data[0].token);
+         }
+
+         return data;
+      } catch (error: unknown) {
+         // Re-lançar o erro para ser tratado no componente
+         throw error;
       }
-
-      return data;
    }
 
    const verifyRole = async () => {

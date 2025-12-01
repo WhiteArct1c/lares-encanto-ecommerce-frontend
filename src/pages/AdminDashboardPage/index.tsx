@@ -115,9 +115,9 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
-    const [startDate, setStartDate] = useState<dayjs.Dayjs>(dayjs(new Date(2023, 0, 15)));
-    const [endDate, setEndDate] = useState<dayjs.Dayjs>(dayjs(new Date(2024, 11, 15)));
-    const [chartData, setChartData] = useState<ChartData[]>(generateMockData());
+    const [startDate, setStartDate] = useState<dayjs.Dayjs | null>(dayjs(new Date(2023, 0, 15)));
+    const [endDate, setEndDate] = useState<dayjs.Dayjs | null>(dayjs(new Date(2024, 11, 15)));
+    const [chartData] = useState<ChartData[]>(generateMockData());
 
     dayjs.locale('pt-br');
 
@@ -250,14 +250,18 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
                             <DatePicker
                                 label="Data Inicial"
                                 value={startDate}
-                                onChange={setStartDate}
+                                onChange={(date) => {
+                                    setStartDate(date)
+                                }}
                                 format="DD/MM/YYYY"
                                 sx={{ width: 180 }}
                             />
                             <DatePicker
                                 label="Data Final"
                                 value={endDate}
-                                onChange={setEndDate}
+                                onChange={(date) => {
+                                    setEndDate(date)
+                                }}
                                 format="DD/MM/YYYY"
                                 sx={{ width: 180 }}
                             />

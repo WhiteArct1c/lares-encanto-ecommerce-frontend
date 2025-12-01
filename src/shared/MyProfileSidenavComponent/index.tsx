@@ -46,6 +46,14 @@ const MyProfileSidenavComponent: React.FC<MyProfileSidenavComponentProps> = () =
                 >
                     Meus cartões
                 </Button>
+                <Button
+                    variant='text'
+                    sx={{ color: 'black', m: 1, display: "flex", justifyContent:"start"  }}
+                    component={Link}
+                    to={'/my-exchanges'}
+                >
+                    Minhas Trocas/Devoluções
+                </Button>
             </Grid2>
         </Grid2>
     );

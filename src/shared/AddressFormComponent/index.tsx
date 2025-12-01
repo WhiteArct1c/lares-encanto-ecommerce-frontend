@@ -3,12 +3,12 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React, { FocusEvent, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { countries, tiposDeResidencia } from '../../utils/addressTypes';
-import { extractAddressType, extractLogradouroWithoutType, formatCEP } from '../../services/address/AddressService';
+import { extractAddressType, extractLogradouroWithoutType, formatCEP } from '../../services/AddressService.ts';
 import axios from 'axios';
 import { IAddressViaCEP } from '../../utils/interfaces/IAddressViaCEP';
 import { toast } from 'react-toastify';
 import { IAddress } from '../../utils/interfaces/IAddress';
-import { OrderContext } from '../../contexts/OrderContext';
+import { OrderContext } from '../../contexts/OrderContext/OrderContext.tsx';
 
 interface AddressFormComponentProps {
 
@@ -16,7 +16,6 @@ interface AddressFormComponentProps {
 
 const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
 
-   const [saveShipmentAddress, setSaveShipmentAddress] = React.useState(false);
    const order = useContext(OrderContext);
 
    const {
@@ -29,8 +28,8 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
 
    const cepField = register('cep', { required: true, maxLength: 8, minLength: 8 });
 
-   const handleSaveShipmentAddress = () => {
-      setSaveShipmentAddress(!saveShipmentAddress);
+   const handleSaveShipmentAddress = (event:  React.ChangeEvent<HTMLInputElement>) => {
+      order.saveShippingAddress(event.target.checked);
    }
 
    const handleFillAddress = async (event: FocusEvent<HTMLInputElement>) => {
@@ -47,11 +46,11 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
                setValue('state', res.data.uf);
                setValue('neighborhoods', res.data.bairro);
                setFocus('addressNumber');
-               handleSetOrderShipmentAddress
+               handleSetOrderShipmentAddress();
             })
             .catch(e => {
                toast.error('CEP inválido ou inexistente!');
-               console.log(e);
+               console.error(e);
             });
       }
    }
@@ -68,28 +67,27 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
          neighborhoods: getValues().neighborhoods as string | undefined || '',
          streetName: getValues().address as string | undefined || '',
          residenceType: getValues().residenceType as string | undefined || '',
-         id: '',
-         categories: [],
-         observations: ''
+         id: order?.shippingAddress?.id || '',
+         addressCategories: order?.shippingAddress?.addressCategories || [],
+         observations: order?.shippingAddress?.observations || ''
       }
-      order?.setOrderShipmentAddress(address);
-      order?.saveShippingAddress(saveShipmentAddress);
+      order?.setOrderShippingAddress(address);
    }
 
    useEffect(() => {
-      if (order?.shipmentAddress) {
-         setValue('addressTitle', order.shipmentAddress.title);
-         setValue('cep', order.shipmentAddress.cep);
-         setValue('addressType', order.shipmentAddress.addressType);
-         setValue('addressNumber', order.shipmentAddress.addressNumber);
-         setValue('city', order.shipmentAddress.city);
-         setValue('country', order.shipmentAddress.country);
-         setValue('state', order.shipmentAddress.state);
-         setValue('neighborhoods', order.shipmentAddress.neighborhoods);
-         setValue('address', order.shipmentAddress.streetName);
-         setValue('residenceType', order.shipmentAddress.residenceType);
+      if (order?.shippingAddress) {
+         setValue('addressTitle', order.shippingAddress.title);
+         setValue('cep', order.shippingAddress.cep);
+         setValue('addressType', order.shippingAddress.addressType);
+         setValue('addressNumber', order.shippingAddress.addressNumber);
+         setValue('city', order.shippingAddress.city);
+         setValue('country', order.shippingAddress.country);
+         setValue('state', order.shippingAddress.state);
+         setValue('neighborhoods', order.shippingAddress.neighborhoods);
+         setValue('address', order.shippingAddress.streetName);
+         setValue('residenceType', order.shippingAddress.residenceType);
       }
-   }, [order?.shipmentAddress, setValue]);
+   }, [order?.shippingAddress, setValue]);
 
    useEffect(() => {
       return () => {
@@ -97,7 +95,6 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
       }
    }, [])
 
-   
    return (
       <Grid2
          container
@@ -109,7 +106,7 @@ const AddressFormComponent: React.FC<AddressFormComponentProps> = () => {
             <TextField
                data-cy='input-address-title'
                fullWidth
-               defaultValue={order?.shipmentAddress?.title}
+               defaultValue={order?.shippingAddress?.title}
                variant='outlined'
                label='Titulo do endereço'
                placeholder="Casa principal, Loja A, etc..."

@@ -6,7 +6,7 @@ import { Controller, FieldValues, useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AuthContext } from '../../contexts/Auth/AuthContext';
-import {OK} from "../../utils/types/apiCodes.ts";
+import {OK} from "../../utils/constants/apiCodes.ts";
 
 interface LoginPageProps {
    
@@ -38,21 +38,43 @@ const LoginPage: React.FC<LoginPageProps> = () => {
       formState: { errors }
    }  = useForm();
 
-   const onSubmit = async (user: FieldValues) => {
-      if(user.email && user.password){
-         const data = await auth.signin(user.email, user.password);
-         if(data.code === OK){
-             const role = await auth.verifyRole();
-             if(role.data[0] === "USER"){
-                 navigate('/products');
-             }else{
-                 navigate('/admin/dashboard');
-             }
-             toast.success(data.message);
-         }else{
-            toast.error(data.message);
-         }  
-      }
+    const onSubmit = async (user: FieldValues) => {
+        try {
+            const data = await auth.signin(user.email, user.password);
+            
+            if(data && data.code === OK){
+                const role = await auth.verifyRole();
+                if(role && role.data && role.data[0] === "USER"){
+                    navigate('/products');
+                }else{
+                    navigate('/admin/dashboard');
+                }
+                toast.success(data.message || 'Login realizado com sucesso!');
+            }else {
+                // Se retornou um objeto de erro do backend
+                toast.error(data?.message || 'Credenciais inválidas. Verifique seu email e senha.');
+            }
+        } catch (error: unknown) {
+            // Tratamento de erros HTTP (403, 401, 400, etc.)
+            const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+            
+            if (axiosError?.response?.status === 403) {
+                toast.error('Acesso negado. Verifique suas credenciais ou entre em contato com o suporte.');
+            } else if (axiosError?.response?.status === 401) {
+                toast.error('Credenciais inválidas. Verifique seu email e senha.');
+            } else if (axiosError?.response?.status === 400) {
+                const errorMessage = axiosError?.response?.data?.message || 'Dados inválidos. Verifique os campos informados.';
+                toast.error(errorMessage);
+            } else if (axiosError?.response) {
+                // Outros erros HTTP
+                const errorMessage = axiosError?.response?.data?.message || 'Erro ao realizar login. Tente novamente.';
+                toast.error(errorMessage);
+            } else {
+                // Erro de rede ou outros erros
+                toast.error('Erro ao conectar com o servidor. Verifique sua conexão e tente novamente.');
+                console.error('Erro ao realizar login:', error);
+            }
+        }
    }
 
    return (

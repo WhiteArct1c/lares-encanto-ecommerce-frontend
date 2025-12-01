@@ -3,9 +3,9 @@ import NavBar from "./shared/NavBar"
 import Footer from "./shared/Footer"
 import { Outlet } from "react-router-dom"
 import { ShoppingCartProvider }from "./contexts/ShoppingCartContext"
-import { OrderProvider } from "./contexts/OrderContext"
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css'
+import { OrderProvider } from "./contexts/OrderContext/OrderProvider.tsx";
 
 function App() {
   return (

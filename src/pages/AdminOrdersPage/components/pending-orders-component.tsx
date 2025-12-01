@@ -1,102 +1,457 @@
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Accordion, AccordionActions,
+    Accordion,
+    AccordionActions,
     AccordionDetails,
-    AccordionSummary, Button,
+    AccordionSummary,
+    Button,
     Divider,
+    Typography,
+    Box,
+    Chip,
+    CircularProgress,
+    useTheme,
     List,
     ListItem,
     ListItemText,
-    Typography
+    ListItemAvatar,
+    Avatar
 } from "@mui/material";
-import {ExpandMore} from "@mui/icons-material";
-import {OrderStatusEnum} from "../../../utils/enum/OrderStatusEnum.ts";
+import { ExpandMore, SentimentDissatisfied } from "@mui/icons-material";
+import { useApi } from "../../../hooks/useApi.ts";
+import { OrderCreateResponse } from "../../../utils/types/response/Order/OrderCreateResponse.ts";
 import OrderStatusDialog from "./order-status-dialog.tsx";
+import { ProductService } from '../../../services/ProductService.ts';
+import { toast } from 'react-toastify';
 
-const PendingOrdersComponent:React.FC = () => {
+const PENDING_STATUSES = [
+    'EM PROCESSAMENTO',
+    'APROVADO',
+    'EM TRANSPORTE',
+    'TROCA SOLICITADA',
+    'TROCA ACEITA',
+    'DEVOLUÇÃO SOLICITADA'
+];
+
+const PendingOrdersComponent: React.FC = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<OrderCreateResponse | null>(null);
+    const [pendingOrders, setPendingOrders] = useState<OrderCreateResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleStatusChange = () => {
-        setDialogOpen(false);
+    const productService = new ProductService();
+
+    const api = useApi();
+    const theme = useTheme();
+
+    const formatOrderType = (type: string) => {
+        switch (type?.toUpperCase()) {
+            case 'COMPRA':
+                return 'Compra';
+            case 'TROCA':
+                return 'Troca';
+            case 'DEVOLUCAO':
+                return 'Devolução';
+            default:
+                return type || 'N/A';
+        }
+    };
+
+    const handleStatusChange = async (newStatus: string) => {
+        if(!selectedOrder) return;
+
+        try {
+            const response = await api.updateOrderStatus({
+                orderId: selectedOrder.id,
+                statusName: newStatus
+            });
+
+            if(response && response.code === '200 OK'){
+                toast.success(`Status do pedido #${selectedOrder.id} alterado para ${newStatus}`);
+                setDialogOpen(false);
+                
+                await fetchOrders();
+            } else {
+                toast.error(response?.message || 'Erro ao atualizar status do pedido');
+            }
+        } catch (error: unknown) {
+            const axiosError = error as { response?: { data?: { message?: string } } };
+            const errorMessage = axiosError?.response?.data?.message || 'Erro ao atualizar status do pedido';
+            toast.error(errorMessage);
+            console.error('Erro ao atualizar status:', error);
+        }
+    }
+
+    const handleOpenDialog = (order: OrderCreateResponse) => {
+        setSelectedOrder(order);
+        setDialogOpen(true);
+    }
+
+    const formatDate = (dateString: string) => {
+        const options: Intl.DateTimeFormatOptions = {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return new Date(dateString).toLocaleDateString('pt-BR', options);
+    };
+
+    const fetchOrders = async () => {
+        try {
+            setLoading(true);
+            
+            let response;
+            try {
+                response = await api.getAllPendingOrders();
+                const orders = response.data || [];
+                
+                const filtered = orders.filter((order: OrderCreateResponse) =>
+                    PENDING_STATUSES.includes(order.status.name.toUpperCase())
+                );
+                setPendingOrders(filtered);
+            } catch (err: unknown) {
+                const axiosError = err as { response?: { status?: number } };
+                if (axiosError?.response?.status === 404 || axiosError?.response?.status === 400) {
+                    const allOrdersResponse = await api.getAllOrders();
+                    const allOrders = allOrdersResponse.data || [];
+                    const filtered = allOrders.filter((order: OrderCreateResponse) =>
+                        PENDING_STATUSES.includes(order.status.name.toUpperCase())
+                    );
+                    setPendingOrders(filtered);
+                } else {
+                    throw err;
+                }
+            }
+        } catch (err) {
+            setError("Erro ao carregar pedidos pendentes");
+            console.error("Error fetching pending orders:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                p: 4,
+                textAlign: 'center'
+            }}>
+                <SentimentDissatisfied sx={{ fontSize: 48, color: 'error.main', mb: 2 }} />
+                <Typography variant="h6" color="error" gutterBottom>
+                    {error}
+                </Typography>
+                <Button
+                    variant="outlined"
+                    onClick={() => window.location.reload()}
+                >
+                    Tentar novamente
+                </Button>
+            </Box>
+        );
+    }
+
+    if (!pendingOrders.length) {
+        return (
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                p: 4,
+                textAlign: 'center'
+            }}>
+                <SentimentDissatisfied sx={{ fontSize: 48, color: 'text.disabled', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary">
+                    Nenhum pedido pendente encontrado
+                </Typography>
+            </Box>
+        );
     }
 
     return (
-        <>
-            <Accordion>
-                <AccordionSummary
-                    expandIcon={<ExpandMore/>}
-                >
-                    Pedido #123123313
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography fontWeight={"bold"} sx={{display:'flex', alignItems:'center', gap:0.5}}>
-                        Cliente:
-                        <Typography fontSize={15}>
-                            MATHEUS RODRIGUES BISPO
+        <Box sx={{ width: '100%' }}>
+            {pendingOrders.map((order) => (
+                <Accordion key={order.id} sx={{ mb: 2, boxShadow: theme.shadows[2] }}>
+                    <AccordionSummary expandIcon={<ExpandMore />}>
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            width: '100%',
+                            alignItems: 'center'
+                        }}>
+                            <Box>
+                                <Typography fontWeight={600}>
+                                    Pedido #{order.id}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Tipo: {formatOrderType(order.type)}
+                                </Typography>
+                            </Box>
+                            <Chip
+                                label={order.status.name}
+                                color={
+                                    order.status.name === 'EM PROCESSAMENTO' ? 'primary' :
+                                    order.status.name === 'APROVADO' ? 'success' :
+                                    order.status.name === 'EM TRANSPORTE' ? 'info' :
+                                    order.status.name.includes('TROCA') || order.status.name.includes('DEVOLUÇÃO') ? 'warning' :
+                                    'default'
+                                }
+                                size="small"
+                            />
+                        </Box>
+                    </AccordionSummary>
+
+                    <AccordionDetails>
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Tipo de Venda
+                            </Typography>
+                            <Typography>
+                                {formatOrderType(order.type)}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Cliente
+                            </Typography>
+                            <Typography>
+                                {order.customer.fullName}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Data do Pedido
+                            </Typography>
+                            <Typography>
+                                {formatDate(order.createdAt)}
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                Método de Pagamento
+                            </Typography>
+                            {order.orderPayments && order.orderPayments.length > 0 ? (
+                                <Box>
+                                    {order.orderPayments.length > 1 && (
+                                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                            Pagamento dividido em {order.orderPayments.length} cartões
+                                        </Typography>
+                                    )}
+                                    {order.orderPayments.map((payment, index) => {
+                                        const totalPaymentValue = payment.installmentValue * payment.installments;
+                                        const cardNumber = typeof payment.creditCard.cardNumber === 'string' 
+                                            ? payment.creditCard.cardNumber 
+                                            : payment.creditCard.cardNumber.toString();
+                                        const lastFourDigits = cardNumber.slice(-4);
+                                        
+                                        return (
+                                            <Box 
+                                                key={payment.id || index}
+                                                sx={{ 
+                                                    mb: 1.5, 
+                                                    p: 1.5, 
+                                                    border: '1px solid #e0e0e0', 
+                                                    borderRadius: 1,
+                                                    bgcolor: '#f9f9f9'
+                                                }}
+                                            >
+                                                {order.orderPayments.length > 1 && (
+                                                    <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                                                        Cartão {index + 1} de {order.orderPayments.length}
+                                                    </Typography>
+                                                )}
+                                                <Typography variant="body2">
+                                                    <strong>Bandeira:</strong> {payment.creditCard.cardFlag}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    <strong>Cartão:</strong> •••• {lastFourDigits}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    <strong>Nome:</strong> {payment.creditCard.cardName}
+                                                </Typography>
+                                                <Divider sx={{ my: 0.5 }} />
+                                                <Typography variant="body2">
+                                                    <strong>Pagamento:</strong> {payment.paymentMethod.replace('_', ' ')}
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    <strong>Parcelas:</strong> {
+                                                        payment.installments > 1
+                                                            ? `${payment.installments}x de ${productService.formatProductPrice(payment.installmentValue)}`
+                                                            : 'À vista'
+                                                    }
+                                                </Typography>
+                                                <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                                    <strong>Total deste cartão:</strong> {productService.formatProductPrice(totalPaymentValue)}
+                                                </Typography>
+                                            </Box>
+                                        );
+                                    })}
+                                    <Box sx={{ mt: 1.5, p: 1, bgcolor: '#f0f0f0', borderRadius: 1 }}>
+                                        <Typography variant="body2" fontWeight={600}>
+                                            <strong>Total do pagamento:</strong> {productService.formatProductPrice(order.totalPrice)}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                            ) : (
+                                <Typography variant="body2" color="text.secondary">
+                                    Informação de pagamento não disponível
+                                </Typography>
+                            )}
+                        </Box>
+
+                        {(order.shipment || order.shipping) && (
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                    Frete
+                                </Typography>
+                                {(() => {
+                                    const shipment = order.shipment || order.shipping;
+                                    if (!shipment) return null;
+                                    return (
+                                        <>
+                                            <Typography variant="body2">
+                                                <strong>Opção:</strong> {shipment.name}
+                                            </Typography>
+                                            {shipment.deliveryTime && (
+                                                <Typography variant="body2">
+                                                    <strong>Prazo de entrega:</strong> {shipment.deliveryTime}
+                                                </Typography>
+                                            )}
+                                            <Typography variant="body2">
+                                                <strong>Valor:</strong> {productService.formatProductPrice(typeof shipment.price === 'string' ? parseFloat(shipment.price) : shipment.price)}
+                                            </Typography>
+                                        </>
+                                    );
+                                })()}
+                            </Box>
+                        )}
+
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Endereço de Entrega
+                            </Typography>
+                            <Typography>
+                                {order.address.streetName}, {order.address.addressNumber} - {order.address.neighborhoods}
+                            </Typography>
+                            <Typography>
+                                {order.address.city}/{order.address.state}
+                            </Typography>
+                        </Box>
+
+                        <Divider sx={{ my: 2 }} />
+
+                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                            Produtos
                         </Typography>
-                    </Typography>
-                    <Typography fontWeight={"bold"} sx={{display:'flex', alignItems:'center', gap:0.5}}>
-                        Tipo:
-                        <Typography fontSize={15}>
-                             Compra
-                        </Typography>
-                    </Typography>
-                    <Typography fontWeight={"bold"} sx={{display:'flex', alignItems:'center', gap:0.5}}>
-                        Status do pedido:
-                        <Typography fontSize={15}>
-                            {OrderStatusEnum.EM_PROCESSAMENTO}
-                        </Typography>
-                    </Typography>
-                    <Typography fontWeight={"bold"} sx={{display:'flex', alignItems:'center', gap:0.5}}>
-                        Método de pagamento:
-                        <Typography fontSize={15}>
-                            Cartão de crédito
-                        </Typography>
-                    </Typography>
-                    <Typography fontSize={19} fontWeight={"bold"} sx={{display:'flex', alignItems:'center', gap:0.5, mt:2}}>
-                        Valor total:
-                        <Typography fontSize={19} fontWeight={"bold"}>
-                            R$4.500,00
-                        </Typography>
-                    </Typography>
-                    <Divider/>
-                    <List sx={{display:'flex'}}>
-                        <ListItem>
-                            <ListItemText primary="Nome do produto" secondary="Quantidade x "/>
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Nome do produto" secondary="Quantidade x "/>
-                        </ListItem>
-                        <ListItem>
-                            <ListItemText primary="Nome do produto" secondary="Quantidade x "/>
-                        </ListItem>
-                    </List>
-                </AccordionDetails>
-                <AccordionActions>
-                    <Button variant="contained"
+                        <List dense>
+                            {order.orderProducts.map((product, index) => (
+                                <ListItem key={index} sx={{ px: 0 }}>
+                                    <ListItemAvatar>
+                                        <Avatar
+                                            src={product.product.image}
+                                            alt={product.product.name}
+                                            variant="square"
+                                        />
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        primary={product.product.name}
+                                        secondary={`${product.quantity} x ${productService.formatProductPrice(product.product.salePrice)}`}
+                                    />
+                                    <Typography variant="body2">
+                                        {productService.formatProductPrice(product.quantity * product.product.salePrice)}
+                                    </Typography>
+                                </ListItem>
+                            ))}
+                        </List>
+
+                        {order.orderCoupons && order.orderCoupons.length > 0 && (
+                            <>
+                                <Divider sx={{ my: 2 }} />
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                                        Cupons Utilizados
+                                    </Typography>
+                                    {order.orderCoupons.map((coupon) => (
+                                        <Box key={coupon.id} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2">
+                                                {coupon.couponCode} ({coupon.couponType === 'PROMOTIONAL' ? 'Promocional' : 'Troca'})
+                                            </Typography>
+                                            <Typography variant="body2" color="success.main">
+                                                - {productService.formatProductPrice(coupon.amountUsed)}
+                                            </Typography>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </>
+                        )}
+
+                        <Divider sx={{ my: 2 }} />
+
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                                Total do Pedido
+                            </Typography>
+                            <Typography variant="h6" fontWeight={600}>
+                                {productService.formatProductPrice(order.totalPrice)}
+                            </Typography>
+                        </Box>
+                    </AccordionDetails>
+
+                    <AccordionActions>
+                        <Button
+                            variant="contained"
+                            fullWidth
                             sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                bgcolor: '#000',
-                                fontWeight: 800,
+                                fontWeight: 600,
+                                bgcolor: 'black',
                                 '&:hover': {
-                                    bgcolor: '#fff',
-                                    color: '#000'
+                                    bgcolor: 'grey.800',
                                 }
                             }}
-                            onClick={() => setDialogOpen(true)}
-                    >
-                        Mudar status
-                    </Button>
-                </AccordionActions>
-            </Accordion>
-            <OrderStatusDialog
-                open={dialogOpen}
-                onClose={() => setDialogOpen(false)}
-                onSave={handleStatusChange}
-            />
-        </>
+                            onClick={() => handleOpenDialog(order)}
+                        >
+                            Alterar Status
+                        </Button>
+                    </AccordionActions>
+                </Accordion>
+            ))}
+
+            {selectedOrder && (
+                <OrderStatusDialog
+                    open={dialogOpen}
+                    onClose={() => setDialogOpen(false)}
+                    onSave={handleStatusChange}
+                    orderId={selectedOrder.id}
+                    currentStatus={selectedOrder.status.name}
+                    orderType={selectedOrder.type}
+                />
+            )}
+        </Box>
     );
 };
 

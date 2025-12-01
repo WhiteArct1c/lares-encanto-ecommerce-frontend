@@ -7,7 +7,7 @@ import './styles.css';
 import ProductItemCardComponent from '../../shared/ProductItemCardComponent';
 import OrderResumeComponent from '../../shared/OrderResumeComponent';
 import {ShoppingCart} from "@mui/icons-material";
-import { OrderContext } from '../../contexts/OrderContext';
+import { OrderContext } from '../../contexts/OrderContext/OrderContext.tsx';
 
 interface ShoppingCartPageProps {
    
@@ -31,11 +31,11 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
             width: '100%',
             mt:17,
             pl: 10,
+            pr: 10,
             mb: 20,
-            display:'flex'
          }}
       >
-         <Grid2 xs={12} sx={{height:100}}>
+         <Grid2 xs={12} sx={{height:100, mb: 3}}>
             <Typography
                fontFamily={'Public Sans'}
                fontSize={'2.5rem'}
@@ -59,12 +59,12 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
                 </Link>
             </Typography>
          </Grid2>
-         <Grid2 xs={6}>
+         <Grid2 xs={7} sx={{ pr: 2 }}>
             {
                cart!.cartProducts.length > 0 ?
-                  cart!.cartProducts.map((cartProduct, index) => {
+                  cart!.cartProducts.map((cartProduct) => {
                      return(
-                        <ProductItemCardComponent key={index} productItem={cartProduct} context='cart'/>
+                        <ProductItemCardComponent key={cartProduct.id} productItem={cartProduct} context='cart'/>
                      )
                   })
                :
@@ -77,10 +77,12 @@ const ShoppingCartPage: React.FC<ShoppingCartPageProps> = () => {
                    </Box>
             }
          </Grid2>
-          <OrderResumeComponent
-              redirectUrl={'/checkout'}
-              buttonLabel='Continuar para o checkout'
-          />
+         <Grid2 xs={5}>
+            <OrderResumeComponent
+                redirectUrl={'/checkout'}
+                buttonLabel='Continuar para o checkout'
+            />
+         </Grid2>
       </Grid2>
    );
 };

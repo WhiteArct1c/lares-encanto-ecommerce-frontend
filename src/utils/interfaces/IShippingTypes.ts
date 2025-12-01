@@ -1,6 +1,6 @@
 export interface IShippingTypes{
-   id: string,
+   id: number,
    name: string,
-   delivery_time: string,
-   price: string
+   deliveryTime: string,
+   price: number | string
 }

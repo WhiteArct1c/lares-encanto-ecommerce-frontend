@@ -20,7 +20,7 @@ import {AuthContext} from "../../contexts/Auth/AuthContext.tsx";
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate} from "react-router-dom";
 import {Address} from "../../utils/types/Address.ts";
-import {extractAddressType, extractLogradouroWithoutType, formatCEP} from "../../services/address/AddressService.ts";
+import {extractAddressType, extractLogradouroWithoutType, formatCEP} from "../../services/AddressService.ts";
 import axios from "axios";
 import {IAddressViaCEP} from "../../utils/interfaces/IAddressViaCEP.ts";
 import {toast} from "react-toastify";
@@ -31,8 +31,7 @@ import {Add, Delete, Edit, Visibility, VisibilityOff} from "@mui/icons-material"
 import {countries, tiposDeResidencia} from "../../utils/addressTypes.ts";
 import MyProfileSidenavComponent from '../../shared/MyProfileSidenavComponent';
 import {IUpdateAddressRequest} from "../../utils/interfaces/request/IUpdateAddressRequest.ts";
-import { addressCategoryTranslate } from '../../utils/addressCategoryTranslate.ts';
-import { OK } from '../../utils/types/apiCodes.ts';
+import { OK } from '../../utils/constants/apiCodes.ts';
 
 interface MyProfilePageProps {
 
@@ -432,12 +431,12 @@ const MyProfilePage: React.FC<MyProfilePageProps> = () => {
                                  &nbsp;
                                  -
                                  {
-                                       address.categories.map((category, index) => (
+                                       address.addressCategories.map((category, index) => (
                                           <Chip
                                              key={index}
                                              data-cy="chip-address-category"
                                              component={'span'}
-                                             label={addressCategoryTranslate(category).toLocaleLowerCase()}
+                                             label={category.toLocaleLowerCase()}
                                              sx={{bgcolor:'#484646', color:'#fff', width: 80, ml: 1}}
                                           />
                                        ))

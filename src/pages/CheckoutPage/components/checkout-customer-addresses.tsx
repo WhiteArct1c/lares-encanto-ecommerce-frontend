@@ -13,7 +13,7 @@ const CheckoutCustomerAddresses: React.FC = () => {
 
     const loadDeliveryCustomerAddresses = async () => {
         const deliveryAddresses = userContext.user?.addresses?.filter((address) => 
-            address.categories.includes('DELIVERY')
+            address.addressCategories.includes('Entrega')
         );
         setCustomerDeliveryAddresses(deliveryAddresses || []);
     };
@@ -42,6 +42,7 @@ const CheckoutCustomerAddresses: React.FC = () => {
                     :
                     customerDeliveryAddresses?.map((address, index) => (
                         <CheckoutAddressCard
+                            key={address.id}
                             index={index}
                             address={address}
                         />

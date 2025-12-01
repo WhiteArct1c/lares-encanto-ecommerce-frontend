@@ -1,10 +1,10 @@
 import { createContext, useState, ReactNode } from "react";
-import { IProduct } from "../utils/interfaces/IProduct";
 import { IProductItem } from "../utils/interfaces/IProductItem";
+import { ProductResponse } from "../utils/types/response/Product/ProductResponse.ts";
 
 interface ShoppingCartContextType {
    cartProducts: IProductItem[];
-   addCartProduct: (product: IProduct) => void;
+   addCartProduct: (product: ProductResponse) => void;
    removeCartItemProduct: (productId: number) => void;
    removeCartProduct: (productId: number) => void;
    resetCart: () =>  void;
@@ -19,7 +19,7 @@ export const ShoppingCartContext = createContext<ShoppingCartContextType | undef
 export const ShoppingCartProvider = ({ children }: ShoppingCartProviderProps) => {
    const [cartProducts, setCartProducts] = useState<IProductItem[]>([]);
 
-   const addCartProduct = (product: IProduct) => {
+   const addCartProduct = (product: ProductResponse) => {
       const productIndex = cartProducts.findIndex(p => p.product.id === product.id);
 
       if (productIndex !== -1) {
