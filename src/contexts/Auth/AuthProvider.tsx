@@ -18,17 +18,19 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
    const [user, setUser] = useState<ResponseCustomer | null>(null);
    const api = useApi();
 
-   useEffect(() => {
-      const validateToken = async () => {
-         const storageData = localStorage.getItem('authToken');
-         if (storageData) {
-            const data = await api.getCustomerInfo(storageData);
-            if (data.data[0]) {
-               setUser(data.data[0]);
-            }
+   const refreshUser = async () => {
+      const storageData = localStorage.getItem('authToken');
+      if (storageData) {
+         const data = await api.getCustomerInfo(storageData);
+         if (data.data[0]) {
+            setUser(data.data[0]);
          }
       }
-      validateToken();
+   };
+
+   useEffect(() => {
+      refreshUser();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, []);
 
    const signin = async (email: string, password: string) => {
@@ -36,9 +38,8 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
          const data: ResponseAPI<User> = await api.signin(email, password);
 
          if (data.data && data.code === OK) {
-            const userData = await api.getCustomerInfo(data.data[0].token);
-            setUser(userData.data[0]);
             setToken(data.data[0].token);
+            await refreshUser();
          }
 
          return data;
@@ -118,7 +119,8 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
          updateCustomerAddress,
          updateCustomer,
          createCreditCard,
-         listCreditCards
+         listCreditCards,
+         refreshUser
       }}>
          {children}
       </AuthContext.Provider>

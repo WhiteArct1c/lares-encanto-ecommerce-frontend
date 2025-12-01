@@ -51,127 +51,73 @@ const styles = {
     },
 };
 
-// Tipos e dados
-interface ChartData {
-    date: Date;
-    value: number;
-    category: string;
-}
-
-const generateMockData = () => {
-    const mockData: ChartData[] = [];
-    const categories: string[] = [
-        "Cozinha",
-        "Quarto",
-        "Banheiro",
-        "Sala de Estar",
-        "Sala de Jantar"
-    ]
-
-    // Gera dados para 2023 e 2024
-    for (let year = 2023; year <= 2024; year++) {
-        for (let month = 0; month < 12; month++) {
-            categories.forEach(category => {
-                // Valores base diferentes para cada categoria
-                let baseValue = 0;
-                switch(category) {
-                    case "Quarto":
-                        baseValue = 15000;
-                        break;
-                    case "Banheiro":
-                        baseValue = 10000;
-                        break;
-                    case "Sala de Estar":
-                        baseValue = 8000;
-                        break;
-                    case "Cozinha":
-                        baseValue = 6000;
-                        break;
-                    case "Sala de Jantar":
-                        baseValue = 5000;
-                        break;
-                }
-
-                // Variação sazonal + aleatoriedade
-                const seasonalVariation = Math.sin(month * 0.5) * 0.3 + 1;
-                const randomFactor = 0.8 + Math.random() * 0.4;
-                const value = Math.round(baseValue * seasonalVariation * randomFactor);
-
-                mockData.push({
-                    date: new Date(year, month, 15), // Dia 15 de cada mês
-                    value: value,
-                    category: category
-                });
-            })
-        }
-    }
-
-    return mockData;
-};
-
 const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
     const auth = useContext(AuthContext);
     const api = useApi();
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [categories, setCategories] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
-    const [startDate, setStartDate] = useState<dayjs.Dayjs | null>(dayjs(new Date(2023, 0, 15)));
-    const [endDate, setEndDate] = useState<dayjs.Dayjs | null>(dayjs(new Date(2024, 11, 15)));
-    const [chartData] = useState<ChartData[]>(generateMockData());
+    const [summary, setSummary] = useState<{
+        currentMonthSalesTotal: number;
+        currentMonthRegisteredUsers: number;
+        todaySalesCount: number;
+    } | null>(null);
+    const [endDate, setEndDate] = useState<dayjs.Dayjs | null>(dayjs()); // hoje
+    const [startDate, setStartDate] = useState<dayjs.Dayjs | null>(
+        dayjs().subtract(1, 'year') // 1 ano atrás da data final
+    );
+    const [salesByCategoryData, setSalesByCategoryData] = useState<any[]>([]);
 
     dayjs.locale('pt-br');
 
-    // Filtra e transforma os dados para o gráfico
+    // Filtra e transforma os dados para o gráfico usando resposta do backend
     const { series, xAxis } = React.useMemo(() => {
-        if (!chartData.length) return { series: [], xAxis: [] };
+        if (!salesByCategoryData.length) return { series: [], xAxis: [] };
 
-        // Filtra por data
-        const dateFiltered = chartData.filter(item =>
-            dayjs(item.date).isAfter(startDate?.subtract(1, 'day') || dayjs('1970-01-01')) &&
-            dayjs(item.date).isBefore(endDate?.add(1, 'day') || dayjs('2100-01-01'))
-        );
+        const xAxisLabels = salesByCategoryData.map((item: any) => item.monthLabel);
 
-        // Agrupa por mês e categoria
-        const grouped: Record<string, Record<string, number>> = {};
-
-        dateFiltered.forEach(item => {
-            const month = dayjs(item.date).format('MMM/YYYY').toUpperCase();
-            if (!grouped[month]) grouped[month] = {};
-            grouped[month][item.category] = (grouped[month][item.category] || 0) + item.value;
-        });
-
-        // Prepara as séries para cada categoria selecionada
-        const seriesData = selectedCategories.map(category => ({
-            label: category,
-            data: Object.keys(grouped).map(month => grouped[month][category] || 0),
+        const seriesData = selectedCategories.map((categoryName) => ({
+            label: categoryName,
+            data: salesByCategoryData.map((month: any) => {
+                const cat = month.categories.find(
+                    (c: any) => c.categoryName === categoryName
+                );
+                return cat ? cat.totalSalesAmount : 0;
+            }),
             showMark: true,
         }));
 
         return {
             series: seriesData,
-            xAxis: Object.keys(grouped)
+            xAxis: xAxisLabels,
         };
-    }, [selectedCategories, startDate, endDate, chartData]);
+    }, [selectedCategories, salesByCategoryData]);
 
     const handleCategoryChange = (event: SelectChangeEvent<string[]>) => {
         const value = event.target.value;
         setSelectedCategories(typeof value === 'string' ? value.split(',') : value);
     };
 
-    // Busca categorias ao carregar o componente
+    // Busca categorias e resumo ao carregar o componente
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
 
-                // Busca categorias
-                const categoriesResponse = await api.listAllProductCategories();
+                const [categoriesResponse, summaryResponse] = await Promise.all([
+                    api.listAllProductCategories(),
+                    api.getAdminDashboardSummary()
+                ]);
+
                 const categoriesList = categoriesResponse.data.map((cat: { name: string }) => cat.name);
                 setCategories(categoriesList);
 
-                // Seleciona as 2 primeiras categorias por padrão
                 if (categoriesList.length > 0) {
                     setSelectedCategories(categoriesList.slice(0, 3));
+                }
+
+                if (summaryResponse?.data && summaryResponse.data.length > 0) {
+                    setSummary(summaryResponse.data[0]);
                 }
             } catch (error) {
                 console.error("Erro ao carregar dados");
@@ -182,6 +128,27 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
 
         fetchData();
     }, []);
+
+    // Busca dados do gráfico sempre que o intervalo de datas mudar
+    useEffect(() => {
+        const fetchSalesByCategory = async () => {
+            if (!startDate || !endDate) return;
+
+            try {
+                const start = startDate.startOf('month').format('YYYY-MM-DD');
+                const end = endDate.endOf('month').format('YYYY-MM-DD');
+
+                const response = await api.getAdminDashboardSalesByCategory(start, end);
+                setSalesByCategoryData(response.data || []);
+            } catch (error) {
+                console.error("Erro ao carregar vendas por categoria");
+                setSalesByCategoryData([]);
+            }
+        };
+
+        fetchSalesByCategory();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [startDate, endDate]);
 
     if (loading) {
         return (
@@ -206,7 +173,12 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
                     </Box>
                     <CardContent>
                         <Typography fontFamily={'Public Sans'} fontSize={30}>
-                            R$ 1.298.998,00
+                            {summary
+                                ? `R$ ${summary.currentMonthSalesTotal.toLocaleString('pt-BR', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                })}`
+                                : "R$ 0,00"}
                         </Typography>
                         <Typography fontFamily={'Public Sans'} fontSize={17}>
                             Valor total de vendas neste mês
@@ -219,7 +191,7 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
                     </Box>
                     <CardContent>
                         <Typography fontFamily={'Public Sans'} fontSize={30}>
-                            12.523
+                            {summary ? summary.currentMonthRegisteredUsers.toLocaleString('pt-BR') : 0}
                         </Typography>
                         <Typography fontFamily={'Public Sans'} fontSize={17}>
                             Usuários registrados neste mês
@@ -232,7 +204,7 @@ const AdminDashboardPage: React.FC<AdminDashboardPageProps> = () => {
                     </Box>
                     <CardContent>
                         <Typography fontFamily={'Public Sans'} fontSize={30}>
-                            100
+                            {summary ? summary.todaySalesCount.toLocaleString('pt-BR') : 0}
                         </Typography>
                         <Typography fontFamily={'Public Sans'} fontSize={17}>
                             Vendas realizadas hoje

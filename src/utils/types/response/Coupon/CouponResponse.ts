@@ -8,6 +8,8 @@ export type CouponResponse = {
     expiresAt: string;
     customerId: number;
     couponType: string;
+    maxUses?: number | null;
+    usedCount?: number | null;
 }
 
 

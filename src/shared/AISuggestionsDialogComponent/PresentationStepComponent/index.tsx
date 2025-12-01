@@ -38,7 +38,7 @@ const PresentationStepComponent: React.FC<PresentationStepComponentProps> = () =
                 }}
                 className='animate__animated animate__fadeIn animate__delay-1s'
             >
-                powered by <AutoAwesome color='primary'/> Google Gemini.
+                powered by <AutoAwesome color='primary'/> Google Cloud Vision.
             </Typography>
         </Box>
 

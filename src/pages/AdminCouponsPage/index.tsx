@@ -54,6 +54,19 @@ const AdminCouponsPage: React.FC<AdminCouponsPageProps> = () => {
             },
         },
         {
+            field: 'usageInfo',
+            headerName: 'Usos',
+            width: 140,
+            valueGetter: (params) => {
+                const maxUses = params.row.maxUses;
+                const usedCount = params.row.usedCount || 0;
+                if (!maxUses) {
+                    return `${usedCount} usado(s) / sem limite`;
+                }
+                return `${usedCount} / ${maxUses}`;
+            },
+        },
+        {
             field: 'expiresAt',
             headerName: 'Expira em',
             width: 200,
@@ -76,10 +89,16 @@ const AdminCouponsPage: React.FC<AdminCouponsPageProps> = () => {
             renderCell: (params) => {
                 const isExpired = params.row.expiresAt && new Date(params.row.expiresAt) < new Date();
                 const hasValue = params.row.availableValue > 0;
-                const isActive = params.value && !isExpired && hasValue;
+                const maxUses = params.row.maxUses;
+                const usedCount = params.row.usedCount || 0;
+                const isUsageExhausted = maxUses != null && usedCount >= maxUses;
+                const isActive = params.value && !isExpired && hasValue && !isUsageExhausted;
                 
                 if (isExpired) {
                     return <Chip label="Expirado" color="error" size="small" />;
+                }
+                if (isUsageExhausted) {
+                    return <Chip label="Limite de usos atingido" color="warning" size="small" />;
                 }
                 if (!hasValue) {
                     return <Chip label="Esgotado" color="warning" size="small" />;
@@ -164,7 +183,9 @@ const AdminCouponsPage: React.FC<AdminCouponsPageProps> = () => {
                 isActive: coupon.isActive,
                 expiresAt: coupon.expiresAt,
                 customerId: coupon.customerId,
-                couponType: coupon.couponType
+                couponType: coupon.couponType,
+                maxUses: coupon.maxUses,
+                usedCount: coupon.usedCount
             }));
 
             setCouponsRows(rows);

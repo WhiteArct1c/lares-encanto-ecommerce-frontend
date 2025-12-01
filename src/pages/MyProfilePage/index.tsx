@@ -15,7 +15,7 @@ import {
    Typography
 } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React, {ChangeEvent, FocusEvent, useContext, useState} from 'react';
+import React, {ChangeEvent, FocusEvent, useContext, useEffect, useState} from 'react';
 import {AuthContext} from "../../contexts/Auth/AuthContext.tsx";
 import {Controller, useForm} from "react-hook-form";
 import {useNavigate} from "react-router-dom";
@@ -131,6 +131,14 @@ const MyProfilePage: React.FC<MyProfilePageProps> = () => {
             break;
       }
    };
+
+   // Garante que os dados do cliente (incluindo endereços) estejam sempre atualizados
+   useEffect(() => {
+      auth.refreshUser().catch(() => {
+         // em caso de erro, mantemos os dados atuais
+      });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
 
    const handleFillAddress = async (event: FocusEvent<HTMLInputElement>) => {
       if (event.target.value !== '') {

@@ -3,22 +3,6 @@ import 'animate.css';
 import React from "react";
 import {StarRounded} from "@mui/icons-material";
 
-interface SelectResultStepComponentProps {}
-
-let fullfilled = false;
-let promise: Promise<void> | null = null;
-
-const useTimeout = (ms: number) => {
-    if (!fullfilled) {
-        throw promise ||= new Promise((res) => {
-            setTimeout(() => {
-                fullfilled = true;
-                res();
-            }, ms);
-        });
-    }
-};
-
 interface SelectResultStepComponentProps {
     imageUrl: string;
     name: string;
@@ -27,8 +11,6 @@ interface SelectResultStepComponentProps {
 }
 
 const SelectResultStepComponent: React.FC<SelectResultStepComponentProps> = ({imageUrl, name, onDislike, onLike}) => {
-    useTimeout(7000);
-
     return (
         <Box
             sx={{

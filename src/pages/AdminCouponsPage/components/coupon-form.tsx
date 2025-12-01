@@ -23,6 +23,14 @@ const createCouponSchema = z.object({
     }).positive("O valor deve ser maior que 0")
       .min(0.01, "O valor mínimo é R$ 0,01"),
     expiresAt: z.string().nullable().optional(),
+    maxUses: z
+        .string()
+        .optional()
+        .refine((val) => {
+            if (!val || val.trim() === "") return true;
+            const num = Number(val);
+            return Number.isInteger(num) && num > 0;
+        }, "A quantidade máxima de usos deve ser um número inteiro positivo"),
 }).refine((data) => {
     if (data.expiresAt) {
         const expirationDate = new Date(data.expiresAt);
@@ -61,6 +69,9 @@ const CouponForm: React.FC<CouponFormProps> = ({ handleClose, handleCouponAdded,
             expiresAt: selectedCoupon?.expiresAt 
                 ? new Date(selectedCoupon.expiresAt).toISOString().slice(0, 16)
                 : "",
+            maxUses: selectedCoupon?.maxUses
+                ? String(selectedCoupon.maxUses)
+                : "",
         },
     });
 
@@ -73,6 +84,11 @@ const CouponForm: React.FC<CouponFormProps> = ({ handleClose, handleCouponAdded,
 
     const createCoupon = async (data: CouponFormData) => {
         try {
+            const maxUses =
+                data.maxUses && data.maxUses.trim() !== ""
+                    ? Number(data.maxUses)
+                    : null;
+
             const couponData = {
                 code: data.code,
                 value: data.value,
@@ -80,6 +96,8 @@ const CouponForm: React.FC<CouponFormProps> = ({ handleClose, handleCouponAdded,
                     ? new Date(data.expiresAt).toISOString() 
                     : null,
                 couponType: "PROMOTIONAL" as const,
+                maxUses,
+                customerId: null,
             };
 
             if (isEditMode && selectedCoupon) {
@@ -170,6 +188,23 @@ const CouponForm: React.FC<CouponFormProps> = ({ handleClose, handleCouponAdded,
             </Grid2>
 
             <Grid2 xs={12}>
+                <TextField
+                    fullWidth
+                    label="Quantidade máxima de usos (opcional)"
+                    {...register("maxUses")}
+                    error={!!errors.maxUses}
+                    helperText={errors.maxUses?.message || "Deixe em branco para permitir usos ilimitados até a expiração"}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                    inputProps={{
+                        inputMode: 'numeric',
+                        pattern: '[0-9]*',
+                    }}
+                />
+            </Grid2>
+
+            <Grid2 xs={12}>
                 <Box sx={{ 
                     p: 2, 
                     bgcolor: 'info.light', 
@@ -180,6 +215,7 @@ const CouponForm: React.FC<CouponFormProps> = ({ handleClose, handleCouponAdded,
                     <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
                         <li>O código será convertido automaticamente para maiúsculas</li>
                         <li>O cupom será válido para qualquer cliente</li>
+                        <li>Se não informar quantidade máxima de usos, o cupom poderá ser usado várias vezes até expirar</li>
                         <li>Se não informar data de expiração, o cupom não expirará</li>
                     </ul>
                 </Box>

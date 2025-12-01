@@ -3,5 +3,7 @@ export type CouponCreateRequest = {
     value: number;
     expiresAt: string | null;
     couponType: "PROMOTIONAL";
+    maxUses?: number | null;
+    customerId?: number | null;
 }
 

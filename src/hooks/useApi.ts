@@ -427,5 +427,41 @@ export const useApi = () => ({
          }
       });
       return response.data;
+   },
+   searchProductByImage: async (formData: FormData) => {
+      const response = await api.post('/products/search-by-image', formData, {
+         headers: {
+            "Content-Type": "multipart/form-data"
+         }
+      });
+      return response.data;
+   },
+   getAdminDashboardSummary: async (referenceDate?: string) => {
+      const response = await api.get('/admin/dashboard/summary', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         },
+         params: referenceDate ? { referenceDate } : {}
+      });
+      return response.data;
+   },
+   getAdminDashboardSalesByCategory: async (
+      startDate: string,
+      endDate: string,
+      categoryIds?: number[]
+   ) => {
+      const params: any = { startDate, endDate };
+
+      if (categoryIds && categoryIds.length > 0) {
+         params.categoryIds = categoryIds;
+      }
+
+      const response = await api.get('/admin/dashboard/sales-by-category', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         },
+         params
+      });
+      return response.data;
    }
 })

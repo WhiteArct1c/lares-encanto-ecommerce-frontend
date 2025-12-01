@@ -4,14 +4,13 @@ import {Box} from "@mui/material";
 import FileGuidelinesComponent from "./components/file-guidelines-component.tsx";
 
 interface UploadImageStepComponentProps {
-    nextStep: () => void;
+    onUpload: (files: File[]) => void;
 }
 
-const UploadImageStepComponent: React.FC<UploadImageStepComponentProps> = ({nextStep}) => {
+const UploadImageStepComponent: React.FC<UploadImageStepComponentProps> = ({onUpload}) => {
 
     const handleFileUpload = (files: File[]) => {
-        console.log(files);
-        nextStep();
+        onUpload(files);
     }
 
     return (

@@ -24,6 +24,7 @@ export type AuthContextType = {
    updateCustomerAddress: (address: IUpdateAddressRequest) => Promise<ResponseAPI<never>>;
    createCreditCard: (request: CreditCardRequest) => Promise<ResponseAPI<never>>;
    listCreditCards:() => Promise<ResponseAPI<CreditCardRequest>>;
+   refreshUser: () => Promise<void>;
 }
 
 
