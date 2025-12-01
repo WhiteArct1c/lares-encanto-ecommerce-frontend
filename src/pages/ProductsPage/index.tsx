@@ -98,11 +98,13 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                 <Grid2
                     container
                     xs={12}
+                    spacing={2}
                     sx={{
-                       gap: '20px'
+                       width: '100%',
+                       boxSizing: 'border-box'
                     }}
                 >
-                   <Grid2 xs={2} sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                   <Grid2 xs={12} sm={12} md={2} sx={{ display: 'flex', flexDirection: { xs: 'row', sm: 'row', md: 'column' }, gap: '20px', alignItems: { xs: 'center', md: 'flex-start' }, mb: { xs: 2, md: 0 } }}>
                       <Typography
                           fontFamily={'Public Sans'}
                           fontSize={'1.5rem'}
@@ -123,12 +125,12 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                          Limpar filtros
                       </Button>
                    </Grid2>
-                   <Grid2 xs={9} sx={{ display: 'flex', alignItems: 'end', justifyContent: 'end' }}>
+                   <Grid2 xs={12} sm={12} md={10} sx={{ display: 'flex', alignItems: 'end', justifyContent: { xs: 'center', md: 'end' }, mb: { xs: 2, md: 0 } }}>
                       <TextField
                           select
                           defaultValue={"Mais relevantes"}
                           sx={{
-                             width: 200
+                             width: { xs: '100%', sm: 200 }
                           }}
                       >
                          {ordenation.map((tipo, index) => (
@@ -136,7 +138,7 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                          ))}
                       </TextField>
                    </Grid2>
-                   <Grid2 xs={2}>
+                   <Grid2 xs={12} sm={12} md={2}>
                       <Typography
                           fontFamily={'Public Sans'}
                           fontSize={'0.875rem'}
@@ -171,14 +173,27 @@ const ProductsPage: React.FC<ProductsPageProps> = () => {
                    </Grid2>
                    <Grid2
                        container
-                       xs={9}
-                       rowSpacing={10}
+                       xs={12}
+                       sm={12}
+                       md={10}
+                       spacing={2}
+                       sx={{
+                          width: '100%',
+                          boxSizing: 'border-box'
+                       }}
                    >
                       {products.length > 0 ? (
                           products.map((product, index) => (
                               <Grid2
-                                  xs={4}
-                                  key={product.id || index} // Preferir usar product.id se existir
+                                  xs={12}
+                                  sm={6}
+                                  md={4}
+                                  key={product.id || index}
+                                  sx={{
+                                     display: 'flex',
+                                     justifyContent: 'center',
+                                     boxSizing: 'border-box'
+                                  }}
                               >
                                  <ProductCard
                                      product={product}

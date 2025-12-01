@@ -34,6 +34,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
    return (
        <Box
            sx={{
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
               '&:hover': {
                  transform: 'translateY(-4px)',
                  transition: 'transform 0.3s ease-in-out',
@@ -47,10 +50,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           >
              <Card
                  sx={{
-                    width: isMobile ? '280px' : '350px',
+                    width: '100%',
+                    maxWidth: '100%',
                     height: '400px',
                     borderRadius: '12px',
                     boxShadow: theme.shadows[2],
+                    boxSizing: 'border-box',
                     '&:hover': {
                        boxShadow: theme.shadows[6],
                     }
