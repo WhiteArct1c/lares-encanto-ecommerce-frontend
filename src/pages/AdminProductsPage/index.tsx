@@ -235,9 +235,14 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
                 />
             </Grid2>
 
-            <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+            <Dialog 
+                open={open} 
+                onClose={handleClose} 
+                maxWidth="md" 
+                fullWidth
+            >
                 <DialogTitle>{titleDialog}</DialogTitle>
-                <DialogContent>
+                <DialogContent sx={{ width: '100%', boxSizing: 'border-box', px: 3 }}>
                     <ProductForm
                         handleClose={handleClose}
                         handleProductAdded={handleProductAdded}

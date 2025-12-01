@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, DialogActions, MenuItem, TextField, Input, FormControlLabel, Switch } from "@mui/material";
+import { Box, Button, DialogActions, MenuItem, TextField, Input, FormControlLabel, Switch, Chip, IconButton, Typography } from "@mui/material";
 import { NumericFormat } from "react-number-format";
 import ColorPicker from "./color-picker.tsx";
+import { Delete } from "@mui/icons-material";
 import { useApi } from "../../../hooks/useApi.ts";
 import { toast } from "react-toastify";
 import { ProductCategoryResponse } from "../../../utils/types/response/ProductCategory/ProductCategoryResponse.ts";
@@ -23,7 +24,7 @@ const baseProductSchema = {
         invalid_type_error: "Este campo deve conter apenas números",
         required_error: "O preço é obrigatório",
     }).positive("O preço não pode ser abaixo de 0"),
-    color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Cor inválida"),
+    color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Cor inválida").optional(), // Opcional para compatibilidade
     type: z.string({
         required_error: "O tipo é obrigatório",
     }),
@@ -77,6 +78,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
     const [categories, setCategories] = useState<ProductCategoryResponse[]>([]);
     const [pricingGroups, setPricingGroups] = useState<PricingGroupResponse[]>([]);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [colors, setColors] = useState<string[]>([]); // Array de hexCodes
+    const [tags, setTags] = useState<string[]>([]); // Array de tag names
+    const [newColorInput, setNewColorInput] = useState<string>("#000000");
+    const [newTagInput, setNewTagInput] = useState<string>("");
     const api = useApi();
 
     const {
@@ -122,6 +127,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                 image: undefined,
             });
             
+            // Carregar cores: usar colors se disponível, senão usar color como fallback
+            if (initialData.colors && initialData.colors.length > 0) {
+                setColors(initialData.colors.map(c => c.hexCode));
+            } else if (initialData.color) {
+                setColors([initialData.color]);
+            } else {
+                setColors([]);
+            }
+            
+            // Carregar tags
+            if (initialData.tags && initialData.tags.length > 0) {
+                setTags(initialData.tags.map(t => t.name));
+            } else {
+                setTags([]);
+            }
+            
             // Exibir imagem existente
             if (initialData.image) {
                 setImagePreview(initialData.image);
@@ -141,12 +162,74 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                 image: undefined,
             });
             setImagePreview(null);
+            setColors([]);
+            setTags([]);
         }
     }, [initialData, categories, pricingGroups, reset]);
 
-    // Atualiza a cor no formulário
+    // Atualiza a cor no formulário (mantido para compatibilidade)
     const handleColorChange = (color: string) => {
         setValue("color", color, { shouldValidate: true });
+    };
+
+    // Adiciona uma nova cor
+    const handleAddColor = () => {
+        const hexCode = newColorInput.toUpperCase().trim();
+        const colorRegex = /^#[0-9A-F]{6}$/i;
+        
+        if (!colorRegex.test(hexCode)) {
+            toast.error("Cor inválida. Use o formato #RRGGBB (ex: #808080)");
+            return;
+        }
+        
+        if (colors.includes(hexCode)) {
+            toast.error("Esta cor já foi adicionada");
+            return;
+        }
+        
+        setColors([...colors, hexCode]);
+        setNewColorInput("#000000");
+    };
+
+    // Remove uma cor
+    const handleRemoveColor = (hexCode: string) => {
+        setColors(colors.filter(c => c !== hexCode));
+    };
+
+    // Adiciona uma nova tag
+    const handleAddTag = () => {
+        const tagName = newTagInput.trim().toLowerCase();
+        
+        if (!tagName) {
+            toast.error("A tag não pode estar vazia");
+            return;
+        }
+        
+        if (tags.includes(tagName)) {
+            toast.error("Esta tag já foi adicionada");
+            return;
+        }
+        
+        setTags([...tags, tagName]);
+        setNewTagInput("");
+    };
+
+    // Remove uma tag
+    const handleRemoveTag = (tagName: string) => {
+        setTags(tags.filter(t => t !== tagName));
+    };
+
+    // Função para determinar se uma cor é clara ou escura (para escolher cor do texto)
+    const isLightColor = (hexCode: string): boolean => {
+        // Remove o # se presente
+        const hex = hexCode.replace('#', '');
+        // Converte para RGB
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        // Calcula a luminosidade relativa
+        const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        return luminance > 0.5;
     };
 
     // Função para lidar com a seleção de imagem
@@ -160,13 +243,30 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
 
     // Função chamada ao enviar o formulário
     const onSubmit = async (data: ProductFormData) => {
+        // Validação: pelo menos uma cor deve ser adicionada ou o campo color deve estar preenchido
+        if (colors.length === 0 && !data.color) {
+            toast.error("Adicione pelo menos uma cor ao produto");
+            return;
+        }
+        
         const formData = new FormData();
 
         // Adiciona os campos ao FormData (apenas os que foram alterados)
         if (data.name) formData.append("name", data.name);
         if (data.description) formData.append("description", data.description);
         if (data.price !== undefined) formData.append("price", data.price.toString());
-        if (data.color) formData.append("color", data.color);
+        if (data.color) formData.append("color", data.color); // Mantido para compatibilidade
+        
+        // Adiciona cores como array (uma por vez no FormData)
+        colors.forEach(hexCode => {
+            formData.append("colorHexCodes", hexCode);
+        });
+        
+        // Adiciona tags como array (uma por vez no FormData)
+        tags.forEach(tagName => {
+            formData.append("tagNames", tagName);
+        });
+        
         if (data.type) formData.append("type", data.type);
         
         if (data.category) {
@@ -234,7 +334,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
         <>
             <Grid2
                 component="form"
-                sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1, width: "500px" }}
+                sx={{ 
+                    display: "flex", 
+                    flexDirection: "column", 
+                    gap: 2, 
+                    mt: 1, 
+                    width: "100%",
+                    maxWidth: "100%",
+                    boxSizing: "border-box"
+                }}
                 onSubmit={handleSubmit(onSubmit)}
             >
                 {/* Campo Nome */}
@@ -269,22 +377,120 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                     InputLabelProps={{ shrink: true }}
                 />
 
-                {/* ColorPicker */}
-                <ColorPicker
-                    value={selectedColor || initialData?.color || "#000000"}
-                    onChange={handleColorChange}
-                />
-                {errors.color && (
-                    <Box
-                        color="error.main"
-                        fontSize="0.875rem"
-                        width={"100%"}
-                        display={"flex"}
-                        justifyContent={"center"}
-                    >
-                        {errors.color.message}
+                {/* Cores - Múltiplas */}
+                <Box sx={{ width: '100%' }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                        Cores do Produto
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, mb: 1, width: '100%' }}>
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                            <ColorPicker
+                                value={newColorInput}
+                                onChange={(color) => setNewColorInput(color)}
+                            />
+                        </Box>
+                        <Button
+                            variant="outlined"
+                            onClick={handleAddColor}
+                            sx={{ flexShrink: 0 }}
+                        >
+                            Adicionar Cor
+                        </Button>
                     </Box>
-                )}
+                    {colors.length > 0 && (
+                        <Box sx={{ 
+                            display: 'flex', 
+                            flexWrap: 'wrap', 
+                            gap: 1, 
+                            mt: 1,
+                            width: '100%',
+                            boxSizing: 'border-box'
+                        }}>
+                            {colors.map((hexCode) => {
+                                const isLight = isLightColor(hexCode);
+                                return (
+                                    <Chip
+                                        key={hexCode}
+                                        label={hexCode}
+                                        sx={{
+                                            bgcolor: hexCode,
+                                            color: isLight ? '#000' : '#fff',
+                                            fontWeight: 600,
+                                            border: '2px solid',
+                                            borderColor: isLight ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.3)',
+                                            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12)',
+                                            '& .MuiChip-deleteIcon': {
+                                                color: isLight ? '#000' : '#fff',
+                                                '&:hover': {
+                                                    color: isLight ? '#333' : '#f0f0f0'
+                                                }
+                                            }
+                                        }}
+                                        onDelete={() => handleRemoveColor(hexCode)}
+                                    />
+                                );
+                            })}
+                        </Box>
+                    )}
+                    {colors.length === 0 && (
+                        <Typography variant="caption" color="text.secondary">
+                            Nenhuma cor adicionada. Use o formato #RRGGBB (ex: #808080)
+                        </Typography>
+                    )}
+                </Box>
+
+                {/* Tags */}
+                <Box sx={{ width: '100%' }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                        Tags do Produto
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, mb: 1, width: '100%' }}>
+                        <TextField
+                            fullWidth
+                            size="small"
+                            placeholder="Digite uma tag (ex: sofa, moderno)"
+                            value={newTagInput}
+                            onChange={(e) => setNewTagInput(e.target.value)}
+                            onKeyPress={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleAddTag();
+                                }
+                            }}
+                            sx={{ flex: 1, minWidth: 0 }}
+                        />
+                        <Button
+                            variant="outlined"
+                            onClick={handleAddTag}
+                            sx={{ flexShrink: 0 }}
+                        >
+                            Adicionar Tag
+                        </Button>
+                    </Box>
+                    {tags.length > 0 && (
+                        <Box sx={{ 
+                            display: 'flex', 
+                            flexWrap: 'wrap', 
+                            gap: 1, 
+                            mt: 1,
+                            width: '100%',
+                            boxSizing: 'border-box'
+                        }}>
+                            {tags.map((tagName) => (
+                                <Chip
+                                    key={tagName}
+                                    label={tagName}
+                                    onDelete={() => handleRemoveTag(tagName)}
+                                />
+                            ))}
+                        </Box>
+                    )}
+                    {tags.length === 0 && (
+                        <Typography variant="caption" color="text.secondary">
+                            Nenhuma tag adicionada
+                        </Typography>
+                    )}
+                </Box>
 
                 {/* Campo Tipo */}
                 <TextField
