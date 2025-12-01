@@ -53,7 +53,8 @@ const CreditCardFormComponent: React.FC<CreditCardFormComponentProps> = ({select
 
    const orderContext = useContext(OrderContext);
    const checkoutService = new CheckoutService();
-   const totalOrderPrice = orderContext.orderTotalPrice + orderContext.shippingPrice;
+   const couponsDiscount = orderContext.orderCoupons?.reduce((sum, coupon) => sum + coupon.amountToUse, 0) || 0;
+   const totalOrderPrice = Math.max(0, orderContext.orderTotalPrice + orderContext.shippingPrice - couponsDiscount);
 
    // Calcular total dos pagamentos
    const totalPayments = useMemo(() => {
@@ -90,11 +91,12 @@ const CreditCardFormComponent: React.FC<CreditCardFormComponentProps> = ({select
          );
       }
 
-      // Validar valor mínimo por cartão
+      // Validar valor mínimo por cartão (RN0035: permite < R$ 10,00 quando há cupons)
+      const hasCoupons = (orderContext.orderCoupons?.length || 0) > 0;
       paymentForms.forEach((form, index) => {
          if (form.installments > 0 && form.installmentValue > 0) {
             const paymentTotal = form.installmentValue * form.installments;
-            if (paymentTotal < 10.00) {
+            if (!hasCoupons && paymentTotal < 10.00) {
                errors.push(
                   `Cartão ${index + 1}: O valor mínimo é R$ 10,00. Valor informado: R$ ${paymentTotal.toFixed(2)}`
                );

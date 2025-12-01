@@ -1,10 +1,11 @@
-import { Box, Button, CircularProgress, Step, StepButton, Stepper, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Step, StepButton, Stepper, Typography, Alert } from '@mui/material';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useState, useEffect, useMemo} from 'react';
 import OrderResumeComponent from '../../shared/OrderResumeComponent';
 import AddressFormComponent from '../../shared/AddressFormComponent';
 import ShippingOptionsComponent from '../../shared/ShippingOptionsComponent';
 import PaymentMethodsOrderComponent from '../../shared/PaymentMethodsOrderComponent';
+import CouponSelectionComponent from '../../shared/CouponSelectionComponent';
 import { ShoppingCartContext } from '../../contexts/ShoppingCartContext';
 import CheckoutCustomerAddresses from "./components/checkout-customer-addresses.tsx";
 import { OrderContext } from "../../contexts/OrderContext/OrderContext.tsx";
@@ -29,6 +30,16 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
    const order = useContext(OrderContext);
    const cart = useContext(ShoppingCartContext);
    const navigate = useNavigate();
+
+   const calculateTotalWithDiscount = useMemo(() => {
+      const totalCouponsDiscount = (order?.orderCoupons || []).reduce((sum, coupon) => sum + coupon.amountToUse, 0);
+      const totalPrice = (order?.orderTotalPrice || 0) + (order?.shippingPrice || 0) - totalCouponsDiscount;
+      return Math.max(0, totalPrice);
+   }, [order?.orderCoupons, order?.orderTotalPrice, order?.shippingPrice]);
+
+   const isTotalZero = useMemo(() => {
+      return calculateTotalWithDiscount <= 0.01;
+   }, [calculateTotalWithDiscount]);
 
    useEffect(() => {
       if(cart?.cartProducts && cart.cartProducts.length > 0) {
@@ -153,8 +164,8 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                Checkout
             </Typography>
          </Grid2>
-         <Grid2 container xs={12} sx={{ p: 7,  }}>
-            <Grid2 xs={7}>
+         <Grid2 container xs={12} sx={{ p: 7, position: 'relative' }}>
+            <Grid2 xs={7} sx={{ pr: 3, position: 'relative', zIndex: 2 }}>
                <Box sx={{ width: '100%' }}>
                   <Stepper nonLinear activeStep={activeStep}>
                      {steps.map((label, index) => (
@@ -274,7 +285,23 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                               </>
                               : activeStep === 2 ?
                                  <>
-                                    <PaymentMethodsOrderComponent />
+                                    <CouponSelectionComponent 
+                                       orderTotal={
+                                          (order?.orderTotalPrice || 0) + (order?.shippingPrice || 0)
+                                       } 
+                                    />
+                                    {isTotalZero ? (
+                                       <Alert severity="success" sx={{ mb: 2 }}>
+                                          <Typography variant="body1" fontWeight={600}>
+                                             Compra totalmente coberta por cupons!
+                                          </Typography>
+                                          <Typography variant="body2">
+                                             Você pode finalizar a compra sem informar método de pagamento.
+                                          </Typography>
+                                       </Alert>
+                                    ) : (
+                                       <PaymentMethodsOrderComponent />
+                                    )}
                                     <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
                                        <Button
                                           color="inherit"
@@ -334,7 +361,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = () => {
                   </>
                </Box>
             </Grid2>
-            <Grid2 xs={5}>
+            <Grid2 xs={5} sx={{ pl: 3, position: 'relative', zIndex: 1 }}>
                <OrderResumeComponent
                   redirectUrl={'/shipping'}
                   buttonLabel='Continuar para o frete'

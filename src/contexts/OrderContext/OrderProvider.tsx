@@ -5,6 +5,7 @@ import {IProductItem} from "../../utils/interfaces/IProductItem.ts";
 import { OrderContext } from "./OrderContext.tsx";
 import {OrderCreateRequest} from "../../utils/types/request/Order/OrderCreateRequest.ts";
 import {OrderPayment} from "../../utils/types/request/Order/OrderPayment.ts";
+import {CouponUsage} from "../../utils/types/request/Order/CouponUsage.ts";
 import {toast} from "react-toastify";
 import {useApi} from "../../hooks/useApi.ts";
 import {COMPRA} from "../../utils/constants/OrderTypes.ts";
@@ -16,7 +17,8 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
     const [shippingPrice, setShippingPrice] = useState<number>(0);
     const [shippingAddress, setShippingAddress] = useState<IAddress>();
     const [orderPayments, setOrderPayments] = useState<OrderPayment[]>([]);
-    const [orderType, setOrderType] = useState<string>(COMPRA);
+    const [orderCoupons, setOrderCoupons] = useState<CouponUsage[]>([]);
+    const [orderType] = useState<string>(COMPRA);
     const [orderTotalPrice, setOrderTotalPrice] = useState<number>(0);
 
     const api = useApi();
@@ -39,55 +41,119 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             return;
         }
 
-        if(orderPayments.length === 0){
-            toast.error("É necessário informar pelo menos uma forma de pagamento");
+        const totalCouponsDiscount = orderCoupons.reduce((sum, coupon) => sum + coupon.amountToUse, 0);
+        const orderTotal = orderTotalPrice + shippingPrice;
+        
+        // Validação: A soma dos cupons não pode exceder o valor total do pedido
+        if(totalCouponsDiscount > orderTotal){
+            toast.error(`O desconto total dos cupons (R$ ${totalCouponsDiscount.toFixed(2)}) não pode ser maior que o valor total do pedido (R$ ${orderTotal.toFixed(2)})`);
+            return;
+        }
+        
+        const totalPrice = orderTotal - totalCouponsDiscount;
+
+        if(totalPrice < 0){
+            toast.error("O desconto dos cupons não pode ser maior que o valor total do pedido");
             return;
         }
 
-        if(orderPayments.length > 2){
-            toast.error("É permitido usar no máximo 2 cartões de crédito");
-            return;
-        }
+        const TOLERANCE = 0.01;
+        const isTotalZero = totalPrice <= TOLERANCE;
 
-        const totalPrice = orderTotalPrice + shippingPrice;
+        if(!isTotalZero){
+            if(orderPayments.length === 0){
+                toast.error("É necessário informar pelo menos uma forma de pagamento");
+                return;
+            }
 
-        const MIN_CARD_VALUE = 10.00;
-        for(const payment of orderPayments){
-            if(payment.paymentMethod === 'CREDIT_CARD'){
-                const totalPaymentValue = payment.installmentValue * payment.installments;
-                if(totalPaymentValue < MIN_CARD_VALUE){
-                    toast.error(`O valor mínimo por cartão de crédito é R$ ${MIN_CARD_VALUE.toFixed(2)}. Valor informado: R$ ${totalPaymentValue.toFixed(2)}`);
-                    return;
+            if(orderPayments.length > 2){
+                toast.error("É permitido usar no máximo 2 cartões de crédito");
+                return;
+            }
+
+            const MIN_CARD_VALUE = 10.00;
+            const hasCoupons = orderCoupons.length > 0;
+            
+            for(const payment of orderPayments){
+                if(payment.paymentMethod === 'CREDIT_CARD'){
+                    const totalPaymentValue = payment.installmentValue * payment.installments;
+                    if(!hasCoupons && totalPaymentValue < MIN_CARD_VALUE){
+                        toast.error(`O valor mínimo por cartão de crédito é R$ ${MIN_CARD_VALUE.toFixed(2)}. Valor informado: R$ ${totalPaymentValue.toFixed(2)}`);
+                        return;
+                    }
                 }
+            }
+
+            const totalPayments = orderPayments.reduce((sum, payment) => {
+                return sum + (payment.installmentValue * payment.installments);
+            }, 0);
+
+            const difference = Math.abs(totalPayments - totalPrice);
+            if(difference > TOLERANCE){
+                toast.error(`A soma dos pagamentos (R$ ${totalPayments.toFixed(2)}) não confere com o valor total do pedido (R$ ${totalPrice.toFixed(2)})`);
+                return;
             }
         }
 
-        const totalPayments = orderPayments.reduce((sum, payment) => {
-            return sum + (payment.installmentValue * payment.installments);
-        }, 0);
-
-        const difference = Math.abs(totalPayments - totalPrice);
-        if(difference > 0.01){
-            toast.error(`A soma dos pagamentos (R$ ${totalPayments.toFixed(2)}) não confere com o valor total do pedido (R$ ${totalPrice.toFixed(2)})`);
-            return;
-        }
+        const shippingPriceValue = typeof shippingType!.price === 'number' 
+            ? shippingType!.price 
+            : (typeof shippingType!.price === 'string' ? parseFloat(shippingType!.price) : null);
 
         const shippingRequest = {
             id: shippingType!.id,
-            name: null,
-            deliveryTime: null,
-            price: null
+            name: shippingType!.name || null,
+            deliveryTime: shippingType!.deliveryTime || null,
+            price: shippingPriceValue
         };
 
         const finalProducts = Array.isArray(productsToUse) ? productsToUse : [];
         
+        const isExistingAddress = shippingAddress!.id && shippingAddress!.id !== '' && shippingAddress!.id !== null && shippingAddress!.id !== undefined;
+        
+        const preparedAddress = isExistingAddress ? {
+            id: shippingAddress!.id,
+            title: null as any,
+            cep: null as any,
+            residenceType: null as any,
+            addressType: null as any,
+            addressCategories: null as any,
+            streetName: null as any,
+            addressNumber: null as any,
+            neighborhoods: null as any,
+            city: null as any,
+            state: null as any,
+            country: null as any,
+            observations: null as any
+        } : shippingAddress!;
+
+        const preparedPayments = isTotalZero ? [] : orderPayments.map(payment => {
+            const isExistingCard = payment.creditCard.id !== null && payment.creditCard.id !== undefined;
+            
+            if (isExistingCard) {
+                return {
+                    ...payment,
+                    creditCard: {
+                        id: payment.creditCard.id,
+                        cardNumber: null as any,
+                        cardName: null as any,
+                        cardCode: null as any,
+                        cardFlag: null as any,
+                        mainCard: payment.creditCard.mainCard || false,
+                        token: null
+                    }
+                };
+            }
+            return payment;
+        });
+        
         const orderData: OrderCreateRequest = {
-            address: shippingAddress!,
+            address: preparedAddress,
             orderProducts: finalProducts,
-            orderPayments: orderPayments,
+            orderPayments: preparedPayments,
             shipping: shippingRequest,
             type: orderType,
-            totalPrice: totalPrice
+            totalPrice: totalPrice,
+            coupons: orderCoupons.length > 0 ? orderCoupons : undefined
         };
 
         setOrder(orderData);
@@ -144,7 +210,11 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
         setShippingAddress(address);
     };
 
-    const saveShippingAddress = (status: boolean) => {
+    const setOrderCouponsHandler = (coupons: CouponUsage[]) => {
+        setOrderCoupons(coupons);
+    };
+
+    const saveShippingAddress = (_status: boolean) => {
     };
 
     const resetOrder = () => {
@@ -154,6 +224,7 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
         setShippingAddress(undefined);
         setOrderTotalPrice(0);
         setOrderPayments([]);
+        setOrderCoupons([]);
         setProducts([]);
     };
 
@@ -165,10 +236,12 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             shippingPrice,
             shippingAddress,
             orderPayments,
+            orderCoupons,
             orderType,
             orderTotalPrice,
             createOrder,
             addOrderPayment,
+            setOrderCoupons: setOrderCouponsHandler,
             updateOrderTotalPrice,
             setOrderProducts,
             setOrderShippingType,

@@ -4,6 +4,7 @@ import {IAddress} from "../../../interfaces/IAddress.ts";
 import {ResponseCustomer} from "../../ResponseCustomer.ts";
 import {OrderStatus} from "./OrderStatus.ts";
 import {OrderProduct} from "./OrderProduct.ts";
+import {OrderCouponResponse} from "./OrderCouponResponse.ts";
 
 export type OrderCreateResponse = {
     id: number;
@@ -12,6 +13,7 @@ export type OrderCreateResponse = {
     orderPayments: OrderPayment[];
     status: OrderStatus;
     orderProducts: OrderProduct[];
+    orderCoupons?: OrderCouponResponse[];
     shipping?: IShippingTypes;
     shipment?: IShippingTypes; // Backend retorna como 'shipment'
     address: IAddress;

@@ -6,6 +6,7 @@ import {OrderCreateRequest} from "../../utils/types/request/Order/OrderCreateReq
 import {OrderPayment} from "../../utils/types/request/Order/OrderPayment.ts";
 import {ResponseAPI} from "../../utils/types/response/ResponseAPI.ts";
 import {OrderCreateResponse} from "../../utils/types/response/Order/OrderCreateResponse.ts";
+import {CouponUsage} from "../../utils/types/request/Order/CouponUsage.ts";
 
 export type OrderContextType = {
    order: OrderCreateRequest | undefined;
@@ -14,10 +15,12 @@ export type OrderContextType = {
    shippingPrice: number;
    shippingAddress: IAddress | undefined;
    orderPayments: OrderPayment[];
+   orderCoupons: CouponUsage[];
    orderType: string;
    orderTotalPrice: number;
    createOrder: (productsOverride?: IProductItem[]) => Promise<ResponseAPI<OrderCreateResponse> | undefined>;
    addOrderPayment: (payment: OrderPayment, isMultiples: boolean) => void
+   setOrderCoupons: (coupons: CouponUsage[]) => void
    updateOrderTotalPrice: (price: number) => void
    setOrderProducts: (products: IProductItem[]) => void
    setOrderShippingType: (type: IShippingTypes) => void
