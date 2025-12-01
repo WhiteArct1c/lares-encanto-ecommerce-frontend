@@ -13,6 +13,13 @@ import {OrderCreateResponse} from "../utils/types/response/Order/OrderCreateResp
 import {OrderStatusUpdateRequest} from "../utils/types/request/Order/OrderStatusUpdateRequest.ts";
 import {ShippingCalculationRequest} from "../utils/types/request/Shipping/ShippingCalculationRequest.ts";
 import {ShippingOption} from "../utils/types/response/Shipping/ShippingOption.ts";
+import {ExchangeCreateRequest} from "../utils/types/request/Exchange/ExchangeCreateRequest.ts";
+import {ExchangeAuthorizeRequest} from "../utils/types/request/Exchange/ExchangeAuthorizeRequest.ts";
+import {ExchangeConfirmReceiptRequest} from "../utils/types/request/Exchange/ExchangeConfirmReceiptRequest.ts";
+import {ExchangeStatusUpdateRequest} from "../utils/types/request/Exchange/ExchangeStatusUpdateRequest.ts";
+import {ExchangeResponse} from "../utils/types/response/Exchange/ExchangeResponse.ts";
+import {CouponResponse} from "../utils/types/response/Coupon/CouponResponse.ts";
+import {CouponCreateRequest} from "../utils/types/request/Coupon/CouponCreateRequest.ts";
 
 const api = axios.create({
    baseURL: import.meta.env.VITE_API_URL_DEV,
@@ -274,6 +281,147 @@ export const useApi = () => ({
    },
    listAllPricingGroups: async() => {
       const response = await api.get(`/pricing-groups`, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   updateProduct: async (productId: number, updateProductRequest: FormData): Promise<ResponseAPI<ProductResponse>> => {
+      const response = await api.put(`/products/${productId}`, updateProductRequest, {
+         headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   deleteProduct: async (productId: number): Promise<ResponseAPI<void>> => {
+      const response = await api.delete(`/products/${productId}`, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   createExchange: async (exchangeRequest: ExchangeCreateRequest): Promise<ResponseAPI<ExchangeResponse>> => {
+      const response = await api.post('/exchanges', exchangeRequest, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   getMyExchanges: async (): Promise<ResponseAPI<ExchangeResponse>> => {
+      const response = await api.get('/exchanges/my-exchanges', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   getExchangesByCustomer: async (customerId: number): Promise<ResponseAPI<ExchangeResponse>> => {
+      const response = await api.get(`/exchanges?customerId=${customerId}`, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   getAllExchanges: async (): Promise<ResponseAPI<ExchangeResponse>> => {
+      const response = await api.get('/exchanges/all', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   getPendingExchanges: async (): Promise<ResponseAPI<ExchangeResponse>> => {
+      const response = await api.get('/exchanges/pending', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   authorizeExchange: async (authorizeRequest: ExchangeAuthorizeRequest): Promise<ResponseAPI<ExchangeResponse>> => {
+      const response = await api.put('/exchanges/authorize', authorizeRequest, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   confirmExchangeReceipt: async (confirmRequest: ExchangeConfirmReceiptRequest): Promise<ResponseAPI<ExchangeResponse>> => {
+      const response = await api.put('/exchanges/confirm-receipt', confirmRequest, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   updateExchangeStatus: async (statusUpdate: ExchangeStatusUpdateRequest): Promise<ResponseAPI<ExchangeResponse>> => {
+      const response = await api.put('/exchanges/status', statusUpdate, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   getCoupons: async (): Promise<ResponseAPI<CouponResponse>> => {
+      const response = await api.get('/coupons', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   getActiveCoupons: async (): Promise<ResponseAPI<CouponResponse>> => {
+      const response = await api.get('/coupons/active', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   validatePromotionalCoupon: async (couponCode: string): Promise<ResponseAPI<CouponResponse>> => {
+      const response = await api.get(`/coupons/validate/${couponCode}`);
+      return response.data;
+   },
+   getAllPromotionalCoupons: async (): Promise<ResponseAPI<CouponResponse>> => {
+      const response = await api.get('/coupons/promotional', {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   createPromotionalCoupon: async (coupon: CouponCreateRequest): Promise<ResponseAPI<CouponResponse>> => {
+      const response = await api.post('/coupons/promotional', coupon, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   updateCoupon: async (couponId: number, coupon: Partial<CouponCreateRequest>): Promise<ResponseAPI<CouponResponse>> => {
+      const response = await api.put(`/coupons/${couponId}`, coupon, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   deactivateCoupon: async (couponId: number): Promise<ResponseAPI<CouponResponse>> => {
+      const response = await api.put(`/coupons/${couponId}/deactivate`, {}, {
+         headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`
+         }
+      });
+      return response.data;
+   },
+   activateCoupon: async (couponId: number): Promise<ResponseAPI<CouponResponse>> => {
+      const response = await api.put(`/coupons/${couponId}/activate`, {}, {
          headers: {
             Authorization: `Bearer ${localStorage.getItem('authToken')}`
          }
