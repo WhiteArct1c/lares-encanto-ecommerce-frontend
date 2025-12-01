@@ -8,7 +8,8 @@ import {
    Typography,
    Box,
    useTheme,
-   useMediaQuery
+   useMediaQuery,
+   Chip
 } from '@mui/material';
 import { ProductResponse } from "../../utils/types/response/Product/ProductResponse.ts";
 import { ProductService } from "../../services/ProductService.ts";
@@ -28,7 +29,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       salePrice,
       image,
       category,
-      pricingGroup
+      pricingGroup,
+      tags
    } = product;
 
    return (
@@ -110,9 +112,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                       </Box>
 
                       {category && (
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
                              {category.name}
                           </Typography>
+                      )}
+                      
+                      {/* Tags */}
+                      {tags && tags.length > 0 && (
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                              {tags.slice(0, 2).map((tag) => (
+                                  <Chip
+                                      key={tag.id}
+                                      label={tag.name}
+                                      size="small"
+                                      sx={{ height: 20, fontSize: '0.65rem' }}
+                                  />
+                              ))}
+                              {tags.length > 2 && (
+                                  <Typography variant="caption" color="text.secondary">
+                                     +{tags.length - 2}
+                                  </Typography>
+                              )}
+                          </Box>
                       )}
                    </CardContent>
                 </CardActionArea>

@@ -154,10 +154,30 @@ const ProductDetailsPage: React.FC<ProductDetailsPageProps> = () => {
                         color="primary"
                         fontWeight={600}
                         fontFamily={'Public Sans'}
-                        sx={{ mb: 3 }}
+                        sx={{ mb: 2 }}
                     >
                         {productService.formatProductPrice(product.salePrice)}
                     </Typography>
+                    
+                    {/* Tags */}
+                    {product.tags && product.tags.length > 0 && (
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                                Tags:
+                            </Typography>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                {product.tags.map((tag) => (
+                                    <Chip
+                                        key={tag.id}
+                                        label={tag.name}
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                ))}
+                            </Box>
+                        </Box>
+                    )}
+                    
                     <Divider sx={{ my: 2 }} />
                 </Box>
 
