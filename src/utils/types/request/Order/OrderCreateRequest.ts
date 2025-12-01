@@ -5,7 +5,7 @@ import {OrderShippingRequest} from "./OrderShippingRequest.ts";
 import {CouponUsage} from "./CouponUsage.ts";
 
 export type OrderCreateRequest = {
-    address: IAddress;
+    address: IAddress & { saveToAddressBook?: boolean | null };
     orderPayments: OrderPayment[];
     orderProducts: IProductItem[];
     shipping: OrderShippingRequest;
