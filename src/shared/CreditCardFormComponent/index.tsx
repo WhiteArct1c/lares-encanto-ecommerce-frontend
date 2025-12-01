@@ -202,11 +202,11 @@ const CreditCardFormComponent: React.FC<CreditCardFormComponentProps> = ({select
          };
       }
 
-      const payment: OrderPayment = {
-         paymentMethod: CREDIT_CARD,
+         const payment: OrderPayment = {
+            paymentMethod: CREDIT_CARD,
          installments: form.installments,
          installmentValue: form.installmentValue,
-         creditCard: creditCard,
+            creditCard: creditCard,
       };
 
       orderContext.addOrderPayment(payment, isMultiple);
@@ -706,13 +706,13 @@ const PaymentFormCard: React.FC<PaymentFormCardProps> = ({
                      />
                   </Grid2>
                   <Grid2 xs={12} md={6}>
-                     <TextField
-                        fullWidth
-                        select
-                        variant='outlined'
-                        label='Parcelas'
+               <TextField
+                   fullWidth
+                   select
+                   variant='outlined'
+                   label='Parcelas'
                         value={form.installments || 0}
-                        required
+                   required
                         InputLabelProps={{ shrink: true }}
                         onChange={(e) => {
                            const selectedValue = Number(e.target.value);
@@ -762,30 +762,30 @@ const PaymentFormCard: React.FC<PaymentFormCardProps> = ({
                      value={form.installments || 0}
                      required
                      InputLabelProps={{ shrink: true }}
-                     onChange={(e) => {
-                        const selectedValue = Number(e.target.value);
+                   onChange={(e) => {
+                      const selectedValue = Number(e.target.value);
                         const selectedOption = installmentOptions.find(opt => opt.value === selectedValue);
-                        if (selectedOption) {
-                           handleInstallmentChange(selectedOption);
-                        }
-                     }}
-                  >
+                      if (selectedOption) {
+                         handleInstallmentChange(selectedOption);
+                      }
+                   }}
+               >
                      <MenuItem value={0} disabled>
-                        Selecione a quantidade de parcelas
-                     </MenuItem>
+                     Selecione a quantidade de parcelas
+                  </MenuItem>
                      {installmentOptions.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
-                           {option.label}
+                         {option.label}
                         </MenuItem>
                      ))}
-                  </TextField>
-               </Grid2>
+               </TextField>
+            </Grid2>
             )}
 
             {/* Total do pagamento deste cartão */}
             {((useMultipleCards && form.totalValue && form.totalValue > 0) || 
               (!useMultipleCards && form.installments > 0 && form.installmentValue > 0)) && (
-               <Grid2 xs={12}>
+            <Grid2 xs={12}>
                   <Box sx={{
                      p: 1,
                      bgcolor: '#f0f0f0',
@@ -801,7 +801,7 @@ const PaymentFormCard: React.FC<PaymentFormCardProps> = ({
                         )}
                      </Typography>
                   </Box>
-               </Grid2>
+            </Grid2>
             )}
          </Grid2>
       </Grid2>
