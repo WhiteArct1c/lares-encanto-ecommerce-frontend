@@ -3,17 +3,18 @@ import React, { useEffect, useState } from "react";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Box, Button, DialogActions, MenuItem, TextField, Input } from "@mui/material";
+import { Box, Button, DialogActions, MenuItem, TextField, Input, FormControlLabel, Switch } from "@mui/material";
 import { NumericFormat } from "react-number-format";
 import ColorPicker from "./color-picker.tsx";
 import { useApi } from "../../../hooks/useApi.ts";
 import { toast } from "react-toastify";
 import { ProductCategoryResponse } from "../../../utils/types/response/ProductCategory/ProductCategoryResponse.ts";
 import { PricingGroupResponse } from "../../../utils/types/response/PricingGroup/PricingGroupResponse.ts";
-import {CREATED} from "../../../utils/constants/apiCodes.ts";
+import { ProductResponse } from "../../../utils/types/response/Product/ProductResponse.ts";
+import { CREATED, OK } from "../../../utils/constants/apiCodes.ts";
 
-// Schema do Zod
-const createProductSchema = z.object({
+// Schema do Zod base (campos comuns)
+const baseProductSchema = {
     name: z.string({
         required_error: "O nome é obrigatório",
     }),
@@ -32,10 +33,6 @@ const createProductSchema = z.object({
     pricingGroup: z.string({
         required_error: "O grupo de precificação é obrigatório",
     }),
-    initialStockQuantity: z.coerce.number({
-        invalid_type_error: "Este campo deve conter apenas números",
-        required_error: "A quantidade inicial do estoque é obrigatória",
-    }).positive("A quantidade inicial do estoque não pode ser abaixo de 0"),
     weightKg: z.union([
         z.string().length(0).transform(() => undefined),
         z.coerce.number({
@@ -43,23 +40,43 @@ const createProductSchema = z.object({
         }).min(0.1, "O peso deve ser no mínimo 0.1 kg")
           .max(1000, "O peso deve ser no máximo 1000 kg")
     ]).optional(),
-    image: z.instanceof(File) // Espera uma instância de File
-        .refine((file) => file instanceof File && file.size > 0, {
-            message: "O upload de uma imagem é obrigatório", // Mensagem de erro
-        }),
+    isActive: z.boolean().optional(),
+};
+
+// Schema para criação (imagem obrigatória, initialStockQuantity obrigatório)
+const createProductSchema = z.object({
+    ...baseProductSchema,
+    initialStockQuantity: z.coerce.number({
+        invalid_type_error: "Este campo deve conter apenas números",
+        required_error: "A quantidade inicial do estoque é obrigatória",
+    }).positive("A quantidade inicial do estoque não pode ser abaixo de 0"),
+    image: z.instanceof(File).refine((file) => file instanceof File && file.size > 0, {
+        message: "O upload de uma imagem é obrigatório",
+    }),
 });
 
-type ProductFormData = z.infer<typeof createProductSchema>;
+// Schema para edição (imagem opcional, stockQuantity opcional)
+const editProductSchema = z.object({
+    ...baseProductSchema,
+    stockQuantity: z.coerce.number().positive().optional(),
+    image: z.instanceof(File).optional(),
+});
+
+type CreateProductFormData = z.infer<typeof createProductSchema>;
+type EditProductFormData = z.infer<typeof editProductSchema>;
+type ProductFormData = CreateProductFormData | EditProductFormData;
 
 interface ProductFormProps {
     handleClose: () => void;
     handleProductAdded: () => void;
+    initialData?: ProductResponse | null;
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdded }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdded, initialData }) => {
+    const isEditMode = !!initialData;
     const [categories, setCategories] = useState<ProductCategoryResponse[]>([]);
     const [pricingGroups, setPricingGroups] = useState<PricingGroupResponse[]>([]);
-    const [imagePreview, setImagePreview] = useState<string | null>(null); // Estado para a prévia da imagem
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const api = useApi();
 
     const {
@@ -67,24 +84,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
         handleSubmit,
         watch,
         setValue,
+        reset,
         formState: { errors },
     } = useForm<ProductFormData>({
-        resolver: zodResolver(createProductSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            price: 0,
-            color: "",
-            type: "",
-            category: "Cozinha",
-            pricingGroup: "Standard",
-            initialStockQuantity: 1,
-            weightKg: undefined,
-            image: undefined,
-        },
+        resolver: zodResolver(isEditMode ? editProductSchema : createProductSchema),
     });
 
     const selectedColor = watch("color");
+    const isActive = watch("isActive");
 
     // Carrega as categorias de produtos
     const getAllProductCategories = async () => {
@@ -98,6 +105,45 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
         setPricingGroups(response.data);
     };
 
+    // Preenche o formulário com dados iniciais quando estiver editando
+    useEffect(() => {
+        if (initialData && categories.length > 0 && pricingGroups.length > 0) {
+            reset({
+                name: initialData.name,
+                description: initialData.description,
+                price: initialData.price,
+                color: initialData.color,
+                type: initialData.type,
+                category: initialData.category?.name || "",
+                pricingGroup: initialData.pricingGroup?.name || "",
+                stockQuantity: initialData.stockQuantity,
+                weightKg: initialData.weightKg || undefined,
+                isActive: initialData.isActive,
+                image: undefined,
+            });
+            
+            // Exibir imagem existente
+            if (initialData.image) {
+                setImagePreview(initialData.image);
+            }
+        } else if (!initialData) {
+            // Limpar formulário quando não há dados iniciais (criação)
+            reset({
+                name: "",
+                description: "",
+                price: 0,
+                color: "#000000",
+                type: "",
+                category: "",
+                pricingGroup: "",
+                initialStockQuantity: 1,
+                weightKg: undefined,
+                image: undefined,
+            });
+            setImagePreview(null);
+        }
+    }, [initialData, categories, pricingGroups, reset]);
+
     // Atualiza a cor no formulário
     const handleColorChange = (color: string) => {
         setValue("color", color, { shouldValidate: true });
@@ -107,43 +153,74 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            setValue("image", file, { shouldValidate: true }); // Atualiza o valor da imagem no formulário
-            setImagePreview(URL.createObjectURL(file)); // Exibe a prévia da imagem
+            setValue("image", file, { shouldValidate: true });
+            setImagePreview(URL.createObjectURL(file));
         }
     };
 
     // Função chamada ao enviar o formulário
-    const createProduct = async (data: ProductFormData) => {
-        const formData = new FormData(); // Cria um FormData
+    const onSubmit = async (data: ProductFormData) => {
+        const formData = new FormData();
 
-        // Adiciona os campos ao FormData
-        formData.append("name", data.name);
-        formData.append("description", data.description);
-        formData.append("price", data.price.toString());
-        formData.append("color", data.color);
-        formData.append("categoryId", categories.filter(category => category.name === data.category)[0].id.toString());
-        formData.append("pricingGroupId", pricingGroups.filter(group => group.name === data.pricingGroup)[0].id.toString());
-        formData.append("type", data.type);
-        formData.append("initialStockQuantity", data.initialStockQuantity.toString());
+        // Adiciona os campos ao FormData (apenas os que foram alterados)
+        if (data.name) formData.append("name", data.name);
+        if (data.description) formData.append("description", data.description);
+        if (data.price !== undefined) formData.append("price", data.price.toString());
+        if (data.color) formData.append("color", data.color);
+        if (data.type) formData.append("type", data.type);
+        
+        if (data.category) {
+            const categoryId = categories.find(c => c.name === data.category)?.id;
+            if (categoryId) formData.append("categoryId", categoryId.toString());
+        }
+        
+        if (data.pricingGroup) {
+            const pricingGroupId = pricingGroups.find(g => g.name === data.pricingGroup)?.id;
+            if (pricingGroupId) formData.append("pricingGroupId", pricingGroupId.toString());
+        }
 
-        // Adiciona o peso ao FormData (se fornecido)
+        if (isEditMode && 'stockQuantity' in data && data.stockQuantity !== undefined) {
+            formData.append("stockQuantity", data.stockQuantity.toString());
+        } else if (!isEditMode && 'initialStockQuantity' in data) {
+            formData.append("initialStockQuantity", data.initialStockQuantity.toString());
+        }
+
         if (data.weightKg !== undefined && data.weightKg !== null) {
             formData.append("weightKg", data.weightKg.toString());
         }
 
-        // Adiciona a imagem ao FormData (se existir)
+        if (data.isActive !== undefined) {
+            formData.append("isActive", data.isActive.toString());
+        }
+
+        // Adiciona a imagem ao FormData (apenas se uma nova foi selecionada)
         if (data.image) {
             formData.append("image", data.image);
         }
 
-        const response = await api.createProduct(formData);
-
-        if(response.code === CREATED){
-            toast.success(response.message);
-            handleClose();
-            handleProductAdded();
-        }else{
-            toast.error(response.message);
+        try {
+            let response;
+            if (isEditMode && initialData) {
+                response = await api.updateProduct(initialData.id, formData);
+                if (response.code === OK || response.code === '200 OK') {
+                    toast.success('Produto atualizado com sucesso!');
+                    handleClose();
+                    handleProductAdded();
+                } else {
+                    toast.error(response.message || 'Erro ao atualizar produto');
+                }
+            } else {
+                response = await api.createProduct(formData);
+                if (response.code === CREATED) {
+                    toast.success(response.message);
+                    handleClose();
+                    handleProductAdded();
+                } else {
+                    toast.error(response.message);
+                }
+            }
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || 'Erro ao processar produto');
         }
     };
 
@@ -158,7 +235,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
             <Grid2
                 component="form"
                 sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1, width: "500px" }}
-                onSubmit={handleSubmit(createProduct)}
+                onSubmit={handleSubmit(onSubmit)}
             >
                 {/* Campo Nome */}
                 <TextField
@@ -170,6 +247,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                     {...register("name")}
                     error={!!errors.name}
                     helperText={errors?.name?.message}
+                    InputLabelProps={{ shrink: true }}
                 />
 
                 {/* Campo Preço */}
@@ -182,16 +260,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                     label="Preço"
                     required
                     customInput={TextField}
+                    defaultValue={initialData?.price || 0}
                     onValueChange={(values) => {
                         setValue("price", values.floatValue || 0, { shouldValidate: true });
                     }}
                     error={!!errors.price}
                     helperText={errors?.price?.message}
+                    InputLabelProps={{ shrink: true }}
                 />
 
                 {/* ColorPicker */}
                 <ColorPicker
-                    value={selectedColor}
+                    value={selectedColor || initialData?.color || "#000000"}
                     onChange={handleColorChange}
                 />
                 {errors.color && (
@@ -216,6 +296,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                     {...register("type")}
                     error={!!errors.type}
                     helperText={errors?.type?.message}
+                    InputLabelProps={{ shrink: true }}
                 />
 
                 {/* Campo Categoria */}
@@ -224,15 +305,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                     select
                     required
                     label="Categoria"
-                    defaultValue={""}
                     data-cy="select-product-category"
                     {...register("category")}
                     error={!!errors.category}
                     helperText={errors?.category?.message}
+                    InputLabelProps={{ shrink: true }}
                 >
-                    <MenuItem></MenuItem>
-                    {categories.map((category, index) => (
-                        <MenuItem key={index} value={category.name}>
+                    <MenuItem value="">Selecione uma categoria</MenuItem>
+                    {categories.map((category) => (
+                        <MenuItem key={category.id} value={category.name}>
                             {category.name}
                         </MenuItem>
                     ))}
@@ -244,30 +325,46 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                     select
                     required
                     label="Grupo de Precificação"
-                    defaultValue={""}
                     data-cy="select-product-pricing-group"
                     {...register("pricingGroup")}
                     error={!!errors.pricingGroup}
                     helperText={errors?.pricingGroup?.message}
+                    InputLabelProps={{ shrink: true }}
                 >
-                    <MenuItem></MenuItem>
-                    {pricingGroups.map((pricingGroup, index) => (
-                        <MenuItem key={index} value={pricingGroup.name}>
+                    <MenuItem value="">Selecione um grupo</MenuItem>
+                    {pricingGroups.map((pricingGroup) => (
+                        <MenuItem key={pricingGroup.id} value={pricingGroup.name}>
                             {pricingGroup.name} - {pricingGroup.profitMargin}%
                         </MenuItem>
                     ))}
                 </TextField>
 
-                {/* Campo Quantidade Inicial de Estoque */}
-                <TextField
-                    fullWidth
-                    variant="outlined"
-                    label="Quantidade de estoque"
-                    data-cy="select-product-stock-quantity"
-                    {...register("initialStockQuantity")}
-                    error={!!errors.initialStockQuantity}
-                    helperText={errors?.initialStockQuantity?.message}
-                />
+                {/* Campo Quantidade de Estoque */}
+                {isEditMode ? (
+                    <TextField
+                        fullWidth
+                        variant="outlined"
+                        label="Quantidade de estoque"
+                        data-cy="select-product-stock-quantity"
+                        type="number"
+                        {...register("stockQuantity")}
+                        error={!!errors.stockQuantity}
+                        helperText={errors?.stockQuantity?.message}
+                        InputLabelProps={{ shrink: true }}
+                    />
+                ) : (
+                    <TextField
+                        fullWidth
+                        variant="outlined"
+                        label="Quantidade inicial de estoque"
+                        data-cy="select-product-stock-quantity"
+                        type="number"
+                        {...register("initialStockQuantity")}
+                        error={!!errors.initialStockQuantity}
+                        helperText={errors?.initialStockQuantity?.message}
+                        InputLabelProps={{ shrink: true }}
+                    />
+                )}
 
                 {/* Campo Peso (kg) */}
                 <TextField
@@ -288,7 +385,21 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                         errors?.weightKg?.message ||
                         "Peso do produto em quilogramas. Usado para cálculo preciso do frete. Se não informado, será usado 15kg como padrão."
                     }
+                    InputLabelProps={{ shrink: true }}
                 />
+
+                {/* Campo Ativo/Inativo (apenas no modo de edição) */}
+                {isEditMode && (
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={isActive ?? initialData?.isActive ?? true}
+                                onChange={(e) => setValue("isActive", e.target.checked, { shouldValidate: true })}
+                            />
+                        }
+                        label="Produto Ativo"
+                    />
+                )}
 
                 {/* Campo Upload de Imagem */}
                 <Box>
@@ -307,7 +418,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                             }
                         }}
                     >
-                        Upload de Imagem
+                        {isEditMode ? 'Alterar Imagem' : 'Upload de Imagem'}
                         <Input
                             type="file"
                             inputProps={{ accept: "image/jpg, image/png, image/jpeg" }}
@@ -325,7 +436,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                         </Box>
                     )}
                 </Box>
-                {errors.image && (
+                {!isEditMode && errors.image && (
                     <Box
                         color="error.main"
                         fontSize="0.875rem"
@@ -349,12 +460,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ handleClose, handleProductAdd
                     {...register("description")}
                     error={!!errors.description}
                     helperText={errors?.description?.message}
+                    InputLabelProps={{ shrink: true }}
                 />
 
                 {/* Botões de Ação */}
                 <DialogActions>
                     <Button data-cy="btn-cancel-add-product" onClick={handleClose}>Cancelar</Button>
-                    <Button data-cy="btn-confirm-add-product" type="submit">Salvar</Button>
+                    <Button data-cy="btn-confirm-add-product" type="submit">
+                        {isEditMode ? 'Atualizar' : 'Salvar'}
+                    </Button>
                 </DialogActions>
             </Grid2>
         </>

@@ -1,29 +1,32 @@
 import React, {useEffect, useRef, useState} from "react";
 import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
-import {Button, Dialog, DialogContent, DialogTitle, Tooltip, Typography} from "@mui/material";
+import {Button, Dialog, DialogContent, DialogTitle, DialogActions, Tooltip, Typography, IconButton, Box} from "@mui/material";
 import AdminSidenavComponent from "../../shared/AdminSidenavComponent";
 import {useApi} from "../../hooks/useApi.ts";
-import {DataGrid, GridColDef, GridPaginationModel, GridRowsProp} from "@mui/x-data-grid";
+import {DataGrid, GridColDef, GridPaginationModel, GridRowsProp, GridActionsCellItem} from "@mui/x-data-grid";
 import {ProductResponse} from "../../utils/types/response/Product/ProductResponse.ts";
-import {Add} from "@mui/icons-material";
+import {Add, Edit, Delete} from "@mui/icons-material";
 import ProductForm from "./components/product-form.tsx";
 import { ImageService } from "../../services/ImageService.ts";
 import {ProductEditRequest} from "../../utils/types/request/Product/ProductEditRequest.ts";
+import { toast } from "react-toastify";
+import { OK } from "../../utils/constants/apiCodes.ts";
 
 interface AdminProductsPageProps {}
 
 const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
     const [open, setOpen] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState<ProductResponse | null>(null);
     const [titleDialog, setTitleDialog] = useState('');
-    const [selectedProduct, setSelectedProduct] = useState<ProductEditRequest | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<ProductResponse | null>(null);
     const [productsRows, setProductsRows] = useState<ProductResponse[]>([]);
     const paginationModelRef = useRef<{ page: number, pageSize: number }>({
         page: 0,
         pageSize: 10
     });
     const [isLoading, setIsLoading] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [selectedRow, setSelectedRow] = useState<ProductResponse | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const productsTableColumns: GridColDef[] = [
         {field: 'id', headerName: 'ID'},
@@ -58,62 +61,78 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
             headerName: 'Ativo',
             valueFormatter: (params) => params.value ? 'SIM' : 'NÃO',
         },
+        {
+            field: 'actions',
+            type: 'actions',
+            headerName: 'Ações',
+            width: 150,
+            getActions: (params) => [
+                <GridActionsCellItem
+                    icon={<Edit />}
+                    label="Editar"
+                    onClick={() => handleEdit(params.row)}
+                />,
+                <GridActionsCellItem
+                    icon={<Delete />}
+                    label="Excluir"
+                    onClick={() => handleDeleteClick(params.row)}
+                />,
+            ],
+        },
     ];
 
-    const handleMenuClick = (event: React.MouseEvent<HTMLElement>, row: ProductResponse) => {
-        setAnchorEl(event.currentTarget);
-        setSelectedRow(row);
+    const handleEdit = (product: ProductResponse) => {
+        setSelectedProduct(product);
+        setTitleDialog('Editar Produto');
+        setOpen(true);
     };
 
-    const handleMenuClose = () => {
-        setAnchorEl(null);
+    const handleDeleteClick = (product: ProductResponse) => {
+        setProductToDelete(product);
+        setDeleteDialogOpen(true);
     };
 
-    // const handleEdit = () => {
-    //     const imageService = new ImageService();
-    //     if (selectedRow) {
-    //         let imageFile = null;
-    //
-    //         imageService.getImageFileFromBase64(selectedRow.image, `${selectedRow.name}-image.png`)
-    //             .then((file) => {
-    //                 imageFile = file;
-    //             })
-    //             .catch((error) => {
-    //                 console.error('Error converting base64 to file:', error);
-    //             });
-    //
-    //         const productToEdit: ProductEditRequest = {
-    //             name: selectedRow.name,
-    //             type: selectedRow.type,
-    //             price: selectedRow.salePrice,
-    //             description: selectedRow.description,
-    //             image: imageFile,
-    //             color: selectedRow.color,
-    //             stockQuantity: selectedRow.stockQuantity,
-    //             pricingGroupId: selectedRow.pricingGroup,
-    //             categoryName: selectedRow.categoryName,
-    //             isActive: selectedRow.isActive,
-    //         };
-    //         handleClickOpenDialog('Editar Produto', productToEdit);
-    //     }
-    //     handleMenuClose();
-    // };
-
-    const handleClickOpenDialog = (title: string | null, product: ProductEditRequest | null) => {
-        if(title !== null){
-            setTitleDialog(title)
-            setOpen(true);
+    const handleDeleteConfirm = async () => {
+        if (!productToDelete) return;
+        
+        setIsDeleting(true);
+        try {
+            const response = await api.deleteProduct(productToDelete.id);
+            
+            if (response.code === OK || response.code === '200 OK') {
+                toast.success('Produto excluído com sucesso!');
+                setDeleteDialogOpen(false);
+                setProductToDelete(null);
+                setIsLoading(true);
+                getAllProducts().then(() => {
+                    setIsLoading(false);
+                });
+            } else {
+                toast.error(response.message || 'Erro ao excluir produto');
+            }
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || 'Erro ao excluir produto');
+        } finally {
+            setIsDeleting(false);
         }
+    };
 
-        if(product !== null){
-            setSelectedProduct(product);
-        }else{
+    const handleDeleteCancel = () => {
+        setDeleteDialogOpen(false);
+        setProductToDelete(null);
+    };
+
+    const handleClickOpenDialog = (title: string | null) => {
+        if(title !== null){
+            setTitleDialog(title);
             setSelectedProduct(null);
+            setOpen(true);
         }
     };
 
     const handleClose = () => {
         setOpen(false);
+        setSelectedProduct(null);
     };
 
     const handlePageChange = (newPaginationModel: GridPaginationModel) => {
@@ -142,6 +161,7 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
         );
 
         const rows = response.data.map((product: ProductResponse) => ({
+            ...product,
             id: product.id,
             name: product.name,
             type: product.type,
@@ -151,7 +171,7 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
             salePrice: product.salePrice,
             stockQuantity: product.stockQuantity,
             pricingGroup: product.pricingGroup,
-            categoryName: product.category,
+            category: product.category,
             isActive: product.isActive
         }));
 
@@ -197,7 +217,7 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
                             },
                             mb: 2
                         }}
-                         onClick={() => handleClickOpenDialog('Adicionar produto', null)}
+                         onClick={() => handleClickOpenDialog('Adicionar produto')}
                         endIcon={<Add/>}
                     >
                         Adicionar
@@ -215,14 +235,40 @@ const AdminProductsPage: React.FC<AdminProductsPageProps> = () => {
                 />
             </Grid2>
 
-            <Dialog open={open} onClose={handleClose}>
+            <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
                 <DialogTitle>{titleDialog}</DialogTitle>
                 <DialogContent>
                     <ProductForm
                         handleClose={handleClose}
                         handleProductAdded={handleProductAdded}
+                        initialData={selectedProduct}
                     />
                 </DialogContent>
+            </Dialog>
+
+            <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
+                <DialogTitle>Confirmar Exclusão</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Tem certeza que deseja excluir o produto <strong>{productToDelete?.name}</strong>?
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Esta ação não pode ser desfeita.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDeleteCancel} disabled={isDeleting}>
+                        Cancelar
+                    </Button>
+                    <Button 
+                        onClick={handleDeleteConfirm} 
+                        color="error" 
+                        variant="contained"
+                        disabled={isDeleting}
+                    >
+                        {isDeleting ? 'Excluindo...' : 'Excluir'}
+                    </Button>
+                </DialogActions>
             </Dialog>
         </Grid2>
     )
