@@ -16,6 +16,7 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
     const [shippingType, setShippingType] = useState<IShippingTypes>();
     const [shippingPrice, setShippingPrice] = useState<number>(0);
     const [shippingAddress, setShippingAddress] = useState<IAddress>();
+    const [selectedShippingAddressId, setSelectedShippingAddressId] = useState<string | undefined>(undefined);
     const [orderPayments, setOrderPayments] = useState<OrderPayment[]>([]);
     const [orderCoupons, setOrderCoupons] = useState<CouponUsage[]>([]);
     const [orderType] = useState<string>(COMPRA);
@@ -107,24 +108,32 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
         };
 
         const finalProducts = Array.isArray(productsToUse) ? productsToUse : [];
-        
-        const isExistingAddress = shippingAddress!.id && shippingAddress!.id !== '' && shippingAddress!.id !== null && shippingAddress!.id !== undefined;
-        
-        const preparedAddress = isExistingAddress ? {
-            id: shippingAddress!.id,
-            title: null as any,
-            cep: null as any,
-            residenceType: null as any,
-            addressType: null as any,
-            addressCategories: null as any,
-            streetName: null as any,
-            addressNumber: null as any,
-            neighborhoods: null as any,
-            city: null as any,
-            state: null as any,
-            country: null as any,
-            observations: null as any
-        } : shippingAddress!;
+
+        // Considera endereço existente se há um id selecionado vindo da agenda do cliente
+        const rawId =
+            selectedShippingAddressId !== undefined &&
+            selectedShippingAddressId !== null
+                ? selectedShippingAddressId
+                : shippingAddress!.id;
+
+        const hasValidId =
+            rawId !== undefined &&
+            rawId !== null &&
+            String(rawId).trim() !== '';
+
+        const preparedAddress: OrderCreateRequest["address"] = hasValidId
+            ? {
+                ...(shippingAddress as IAddress),
+                id: rawId,
+                // endereço já está na agenda do cliente, não deve ser salvo novamente
+                saveToAddressBook: false,
+            }
+            : {
+                ...(shippingAddress as IAddress),
+                // se o usuário não marcou explicitamente, deixa undefined para backend assumir true
+                // @ts-ignore
+                saveToAddressBook: (shippingAddress as any).saveToAddressBook ?? true,
+            };
 
         const preparedPayments = isTotalZero ? [] : orderPayments.map(payment => {
             const isExistingCard = payment.creditCard.id !== null && payment.creditCard.id !== undefined;
@@ -206,7 +215,7 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
         setShippingPrice(price);
     };
 
-    const setOrderShippingAddress = (address: IAddress) => {
+    const setOrderShippingAddress = (address: IAddress | undefined) => {
         setShippingAddress(address);
     };
 
@@ -214,7 +223,18 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
         setOrderCoupons(coupons);
     };
 
-    const saveShippingAddress = (_status: boolean) => {
+    const saveShippingAddress = (status: boolean) => {
+        setShippingAddress(prev =>
+            prev
+                ? {
+                    ...prev,
+                    // campo auxiliar para controle de salvamento no cadastro do cliente
+                    // será usado ao montar o DTO do pedido
+                    // @ts-ignore
+                    saveToAddressBook: status,
+                }
+                : prev
+        );
     };
 
     const resetOrder = () => {
@@ -222,6 +242,7 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
         setShippingType(undefined);
         setShippingPrice(0);
         setShippingAddress(undefined);
+            setSelectedShippingAddressId(undefined);
         setOrderTotalPrice(0);
         setOrderPayments([]);
         setOrderCoupons([]);
@@ -235,6 +256,7 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             shippingType,
             shippingPrice,
             shippingAddress,
+            selectedShippingAddressId,
             orderPayments,
             orderCoupons,
             orderType,
@@ -247,6 +269,7 @@ export const OrderProvider  = ({ children }: { children: JSX.Element }) => {
             setOrderShippingType,
             setOrderShippingPrice,
             setOrderShippingAddress,
+            setSelectedShippingAddressId,
             saveShippingAddress,
             resetOrder
         }}>

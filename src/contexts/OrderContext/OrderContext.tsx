@@ -14,6 +14,7 @@ export type OrderContextType = {
    shippingType: IShippingTypes | undefined;
    shippingPrice: number;
    shippingAddress: IAddress | undefined;
+   selectedShippingAddressId?: string;
    orderPayments: OrderPayment[];
    orderCoupons: CouponUsage[];
    orderType: string;
@@ -25,7 +26,8 @@ export type OrderContextType = {
    setOrderProducts: (products: IProductItem[]) => void
    setOrderShippingType: (type: IShippingTypes) => void
    setOrderShippingPrice: (shipmentPrice: number) => void
-   setOrderShippingAddress: (address: IAddress) => void
+   setOrderShippingAddress: (address: IAddress | undefined) => void
+   setSelectedShippingAddressId: (id: string | undefined) => void
    saveShippingAddress: (status: boolean) => void
    resetOrder: () => void
 }
